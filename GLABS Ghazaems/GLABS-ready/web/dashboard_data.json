@@ -1,0 +1,468 @@
+{
+  "generated_at": "2026-09-10T01:32:47.434389",
+  "watchlist": [
+    {
+      "ticker": "ICBP",
+      "last_close": 5193.92,
+      "trend": "uptrend",
+      "support": 5106.693215569423,
+      "resistance": null,
+      "wyckoff": {
+        "tr_start": "2025-06-20",
+        "tr_end": "2026-03-06",
+        "tr_high": 5216.82,
+        "tr_low": 3789.08,
+        "events": [],
+        "bias": "unclear",
+        "phase": "unclear"
+      },
+      "vwap": {
+        "vwap": 5165.87,
+        "last_close": 5193.92,
+        "position": "above"
+      },
+      "comparative_strength": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.05027,
+        "ratio_start": 0.04926
+      },
+      "score": 70,
+      "score_breakdown": {
+        "trend": 30,
+        "wyckoff": 0,
+        "vwap": 15,
+        "comparative_strength": 15,
+        "support_resistance": 10
+      },
+      "signal": "beli"
+    },
+    {
+      "ticker": "PGAS",
+      "last_close": 5320.54,
+      "trend": "uptrend",
+      "support": 5273.051032986637,
+      "resistance": null,
+      "wyckoff": {
+        "tr_start": "2025-06-20",
+        "tr_end": "2026-03-06",
+        "tr_high": 5353.82,
+        "tr_low": 4083.53,
+        "events": [],
+        "bias": "unclear",
+        "phase": "unclear"
+      },
+      "vwap": {
+        "vwap": 5317.87,
+        "last_close": 5320.54,
+        "position": "above"
+      },
+      "comparative_strength": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.0515,
+        "ratio_start": 0.05086
+      },
+      "score": 70,
+      "score_breakdown": {
+        "trend": 30,
+        "wyckoff": 0,
+        "vwap": 15,
+        "comparative_strength": 15,
+        "support_resistance": 10
+      },
+      "signal": "beli"
+    },
+    {
+      "ticker": "BBCA",
+      "last_close": 4553.58,
+      "trend": "uptrend",
+      "support": 4244.042875963937,
+      "resistance": null,
+      "wyckoff": {
+        "tr_start": "2025-06-20",
+        "tr_end": "2026-03-06",
+        "tr_high": 4569.4,
+        "tr_low": 3092.71,
+        "events": [],
+        "bias": "unclear",
+        "phase": "unclear"
+      },
+      "vwap": {
+        "vwap": 4530.13,
+        "last_close": 4553.58,
+        "position": "above"
+      },
+      "comparative_strength": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.04407,
+        "ratio_start": 0.04244
+      },
+      "score": 60,
+      "score_breakdown": {
+        "trend": 30,
+        "wyckoff": 0,
+        "vwap": 15,
+        "comparative_strength": 15,
+        "support_resistance": 0
+      },
+      "signal": "beli"
+    },
+    {
+      "ticker": "BMRI",
+      "last_close": 4879.85,
+      "trend": "uptrend",
+      "support": 4616.792004063882,
+      "resistance": null,
+      "wyckoff": {
+        "tr_start": "2025-06-20",
+        "tr_end": "2026-03-06",
+        "tr_high": 4894.73,
+        "tr_low": 3364.59,
+        "events": [],
+        "bias": "unclear",
+        "phase": "unclear"
+      },
+      "vwap": {
+        "vwap": 4869.07,
+        "last_close": 4879.85,
+        "position": "above"
+      },
+      "comparative_strength": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.04723,
+        "ratio_start": 0.0457
+      },
+      "score": 60,
+      "score_breakdown": {
+        "trend": 30,
+        "wyckoff": 0,
+        "vwap": 15,
+        "comparative_strength": 15,
+        "support_resistance": 0
+      },
+      "signal": "beli"
+    },
+    {
+      "ticker": "BBRI",
+      "last_close": 2872.02,
+      "trend": "sideways",
+      "support": 2796.1888647850496,
+      "resistance": 2893.8261078375544,
+      "wyckoff": {
+        "tr_start": "2025-06-20",
+        "tr_end": "2026-03-06",
+        "tr_high": 3168.93,
+        "tr_low": 2757.5,
+        "events": [],
+        "bias": "unclear",
+        "phase": "unclear"
+      },
+      "vwap": {
+        "vwap": 2851.79,
+        "last_close": 2872.02,
+        "position": "above"
+      },
+      "comparative_strength": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.0278,
+        "ratio_start": 0.02745
+      },
+      "score": 35,
+      "score_breakdown": {
+        "trend": 0,
+        "wyckoff": 0,
+        "vwap": 15,
+        "comparative_strength": 15,
+        "support_resistance": 5
+      },
+      "signal": "pantau"
+    },
+    {
+      "ticker": "TLKM",
+      "last_close": 3689.71,
+      "trend": "downtrend",
+      "support": 3609.7786607314065,
+      "resistance": 3710.133140753034,
+      "wyckoff": {
+        "tr_start": "2025-06-20",
+        "tr_end": "2026-03-06",
+        "tr_high": 3730.27,
+        "tr_low": 3401.72,
+        "events": [],
+        "bias": "unclear",
+        "phase": "unclear"
+      },
+      "vwap": {
+        "vwap": 3689.71,
+        "last_close": 3689.71,
+        "position": "below"
+      },
+      "comparative_strength": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.03571,
+        "ratio_start": 0.03506
+      },
+      "score": -25,
+      "score_breakdown": {
+        "trend": -30,
+        "wyckoff": 0,
+        "vwap": -15,
+        "comparative_strength": 15,
+        "support_resistance": 5
+      },
+      "signal": "pantau"
+    },
+    {
+      "ticker": "ADRO",
+      "last_close": 4010.77,
+      "trend": "downtrend",
+      "support": 3940.5390256242317,
+      "resistance": 4011.110834661658,
+      "wyckoff": {
+        "tr_start": "2025-06-20",
+        "tr_end": "2026-03-06",
+        "tr_high": 4062.78,
+        "tr_low": 3726.92,
+        "events": [],
+        "bias": "unclear",
+        "phase": "unclear"
+      },
+      "vwap": {
+        "vwap": 4027.75,
+        "last_close": 4010.77,
+        "position": "below"
+      },
+      "comparative_strength": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.03882,
+        "ratio_start": 0.03852
+      },
+      "score": -25,
+      "score_breakdown": {
+        "trend": -30,
+        "wyckoff": 0,
+        "vwap": -15,
+        "comparative_strength": 15,
+        "support_resistance": 5
+      },
+      "signal": "pantau"
+    },
+    {
+      "ticker": "ANTM",
+      "last_close": 2162.24,
+      "trend": "downtrend",
+      "support": null,
+      "resistance": 2400.1591038403985,
+      "wyckoff": {
+        "tr_start": "2025-06-20",
+        "tr_end": "2026-03-06",
+        "tr_high": 3754.19,
+        "tr_low": 2144.42,
+        "events": [
+          {
+            "date": "2025-06-06 00:00:00",
+            "type": "SC",
+            "volume_ratio": 2.34
+          },
+          {
+            "date": "2025-06-06 00:00:00",
+            "type": "AR",
+            "level": 3831.2744338296484
+          },
+          {
+            "date": "2025-06-26 00:00:00",
+            "type": "ST",
+            "lower_volume": true
+          }
+        ],
+        "bias": "accumulation",
+        "phase": "B (masih membangun cause, tunggu Spring/SOS)"
+      },
+      "vwap": {
+        "vwap": 2212.38,
+        "last_close": 2162.24,
+        "position": "below"
+      },
+      "comparative_strength": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.02093,
+        "ratio_start": 0.02284
+      },
+      "score": -50,
+      "score_breakdown": {
+        "trend": -30,
+        "wyckoff": 10,
+        "vwap": -15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal": "jual"
+    },
+    {
+      "ticker": "ASII",
+      "last_close": 1974.8,
+      "trend": "downtrend",
+      "support": null,
+      "resistance": null,
+      "wyckoff": {
+        "tr_start": "2025-06-20",
+        "tr_end": "2026-03-06",
+        "tr_high": 3389.48,
+        "tr_low": 1957.1,
+        "events": [],
+        "bias": "unclear",
+        "phase": "unclear"
+      },
+      "vwap": {
+        "vwap": 2017.35,
+        "last_close": 1974.8,
+        "position": "below"
+      },
+      "comparative_strength": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.01911,
+        "ratio_start": 0.0205
+      },
+      "score": -60,
+      "score_breakdown": {
+        "trend": -30,
+        "wyckoff": 0,
+        "vwap": -15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal": "jual"
+    },
+    {
+      "ticker": "UNVR",
+      "last_close": 1876.96,
+      "trend": "downtrend",
+      "support": null,
+      "resistance": 2155.780002249788,
+      "wyckoff": {
+        "tr_start": "2025-06-20",
+        "tr_end": "2026-03-06",
+        "tr_high": 3530.21,
+        "tr_low": 1851.98,
+        "events": [],
+        "bias": "unclear",
+        "phase": "unclear"
+      },
+      "vwap": {
+        "vwap": 1885.11,
+        "last_close": 1876.96,
+        "position": "below"
+      },
+      "comparative_strength": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.01817,
+        "ratio_start": 0.02066
+      },
+      "score": -60,
+      "score_breakdown": {
+        "trend": -30,
+        "wyckoff": 0,
+        "vwap": -15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal": "jual"
+    }
+  ],
+  "summary": {
+    "signal_counts": {
+      "beli": 4,
+      "pantau": 3,
+      "jual": 3
+    },
+    "trend_healthy": "5/10",
+    "score_min": -60,
+    "score_max": 70,
+    "score_avg": 7.5,
+    "top_pick": {
+      "ticker": "ICBP",
+      "last_close": 5193.92,
+      "trend": "uptrend",
+      "support": 5106.693215569423,
+      "resistance": null,
+      "wyckoff": {
+        "tr_start": "2025-06-20",
+        "tr_end": "2026-03-06",
+        "tr_high": 5216.82,
+        "tr_low": 3789.08,
+        "events": [],
+        "bias": "unclear",
+        "phase": "unclear"
+      },
+      "vwap": {
+        "vwap": 5165.87,
+        "last_close": 5193.92,
+        "position": "above"
+      },
+      "comparative_strength": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.05027,
+        "ratio_start": 0.04926
+      },
+      "score": 70,
+      "score_breakdown": {
+        "trend": 30,
+        "wyckoff": 0,
+        "vwap": 15,
+        "comparative_strength": 15,
+        "support_resistance": 10
+      },
+      "signal": "beli"
+    },
+    "strongest_accumulation": {
+      "ticker": "ANTM",
+      "last_close": 2162.24,
+      "trend": "downtrend",
+      "support": null,
+      "resistance": 2400.1591038403985,
+      "wyckoff": {
+        "tr_start": "2025-06-20",
+        "tr_end": "2026-03-06",
+        "tr_high": 3754.19,
+        "tr_low": 2144.42,
+        "events": [
+          {
+            "date": "2025-06-06 00:00:00",
+            "type": "SC",
+            "volume_ratio": 2.34
+          },
+          {
+            "date": "2025-06-06 00:00:00",
+            "type": "AR",
+            "level": 3831.2744338296484
+          },
+          {
+            "date": "2025-06-26 00:00:00",
+            "type": "ST",
+            "lower_volume": true
+          }
+        ],
+        "bias": "accumulation",
+        "phase": "B (masih membangun cause, tunggu Spring/SOS)"
+      },
+      "vwap": {
+        "vwap": 2212.38,
+        "last_close": 2162.24,
+        "position": "below"
+      },
+      "comparative_strength": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.02093,
+        "ratio_start": 0.02284
+      },
+      "score": -50,
+      "score_breakdown": {
+        "trend": -30,
+        "wyckoff": 10,
+        "vwap": -15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal": "jual"
+    }
+  }
+}
