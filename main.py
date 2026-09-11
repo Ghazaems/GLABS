@@ -15,8 +15,10 @@ from storage.db import init_db, upsert_prices, save_signal, get_watchlist, add_t
 
 # Watchlist awal - blue chip LQ45 untuk uji coba
 DEFAULT_WATCHLIST = [
-    "BBCA", "BBRI", "BMRI", "TLKM", "ASII",
-    "UNVR", "ICBP", "ANTM", "ADRO", "PGAS",
+    "AADI", "ADMR", "ADRO", "AMRT", "ANTM", "ASII", "BBCA", "BBNI", "BBRI",
+    "BMRI", "BRPT", "BUMI", "CPIN", "DEWA", "EMTK", "GOTO", "ICBP", "INCO",
+    "INDF", "INKP", "JPFA", "KLBF", "MBMA", "MDKA", "MEDC", "PGAS", "PGEO",
+    "TLKM", "UNTR", "UNVR",
 ]
 
 
@@ -64,8 +66,7 @@ def run_screening():
 
         # 6. Skor komposit
         scored = compute_score(trend, wy, vwap, cs, sr)
-        signal_label = classify_signal(scored["score"])
-
+        signal_label = classify_signal(scored)
         # Data visual untuk cockpit. Batasi 180 bar agar file dashboard tetap ringan.
         visual_df = find_swing_points(df.tail(180).copy())
         visual_df["vwap_5"] = rolling_vwap(visual_df, window=5)
