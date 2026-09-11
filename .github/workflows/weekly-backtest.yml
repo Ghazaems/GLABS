@@ -1,0 +1,38 @@
+name: Weekly Backtest
+
+on:
+  schedule:
+    # Setiap Minggu jam 08:00 WIB (01:00 UTC) - di luar jam bursa, tidak
+    # perlu tiap hari karena hasil backtest baru berubah kalau formula
+    # scoring/trend/wyckoff diubah atau ada cukup data baru terkumpul.
+    - cron: "0 1 * * 0"
+  workflow_dispatch: {}   # bisa trigger manual dari tab Actions di GitHub
+
+permissions:
+  contents: write
+
+jobs:
+  run-backtest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run backtest
+        run: python backtest.py
+
+      - name: Commit updated backtest report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add web/backtest_data.json
+          git diff --staged --quiet || git commit -m "chore: update backtest report $(date -u +%Y-%m-%d)"
+          git push
