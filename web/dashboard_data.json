@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-11T07:54:34.207911",
+  "generated_at": "2026-09-11T08:16:34.484324",
   "watchlist": [
     {
       "ticker": "ANTM",
@@ -17,13 +17,13 @@
         "phase": "unclear"
       },
       "vwap": {
-        "vwap": 3191.02,
+        "vwap": 3191.23,
         "last_close": 3250.0,
         "position": "above"
       },
       "comparative_strength": {
         "relative_strength_trend": "outperforming",
-        "ratio_now": 0.49921,
+        "ratio_now": 0.49955,
         "ratio_start": 0.47606
       },
       "score": 55,
@@ -2011,8 +2011,8 @@
           "high": 3270.0,
           "low": 3140.0,
           "close": 3250.0,
-          "volume": 108168000,
-          "vwap": 3191.02,
+          "volume": 113620000,
+          "vwap": 3191.23,
           "swing_high": null,
           "swing_low": null
         }
@@ -2020,7 +2020,7 @@
     },
     {
       "ticker": "BBRI",
-      "last_close": 3290.0,
+      "last_close": 3280.0,
       "trend": "uptrend",
       "support": 3040.0,
       "resistance": 3440.0,
@@ -2034,13 +2034,13 @@
         "phase": "unclear"
       },
       "vwap": {
-        "vwap": 3360.0,
-        "last_close": 3290.0,
+        "vwap": 3358.74,
+        "last_close": 3280.0,
         "position": "below"
       },
       "comparative_strength": {
         "relative_strength_trend": "outperforming",
-        "ratio_now": 0.50535,
+        "ratio_now": 0.50416,
         "ratio_start": 0.49351
       },
       "score": 30,
@@ -4027,9 +4027,9 @@
           "open": 3320.0,
           "high": 3320.0,
           "low": 3250.0,
-          "close": 3290.0,
-          "volume": 154786900,
-          "vwap": 3360.0,
+          "close": 3280.0,
+          "volume": 161200200,
+          "vwap": 3358.74,
           "swing_high": null,
           "swing_low": null
         }
@@ -4051,13 +4051,13 @@
         "phase": "unclear"
       },
       "vwap": {
-        "vwap": 4385.94,
+        "vwap": 4385.54,
         "last_close": 4330.0,
         "position": "below"
       },
       "comparative_strength": {
         "relative_strength_trend": "outperforming",
-        "ratio_now": 0.6651,
+        "ratio_now": 0.66555,
         "ratio_start": 0.65537
       },
       "score": 30,
@@ -6045,8 +6045,8 @@
           "high": 4350.0,
           "low": 4300.0,
           "close": 4330.0,
-          "volume": 76991500,
-          "vwap": 4385.94,
+          "volume": 80612900,
+          "vwap": 4385.54,
           "swing_high": null,
           "swing_low": null
         }
@@ -6054,7 +6054,7 @@
     },
     {
       "ticker": "ADRO",
-      "last_close": 2640.0,
+      "last_close": 2650.0,
       "trend": "sideways",
       "support": 2460.0,
       "resistance": 2860.0,
@@ -6084,13 +6084,13 @@
         "phase": "B (masih membangun cause, tunggu Spring/SOS)"
       },
       "vwap": {
-        "vwap": 2689.76,
-        "last_close": 2640.0,
+        "vwap": 2689.96,
+        "last_close": 2650.0,
         "position": "below"
       },
       "comparative_strength": {
         "relative_strength_trend": "outperforming",
-        "ratio_now": 0.40551,
+        "ratio_now": 0.40732,
         "ratio_start": 0.39195
       },
       "score": 10,
@@ -8077,9 +8077,9 @@
           "open": 2670.0,
           "high": 2680.0,
           "low": 2640.0,
-          "close": 2640.0,
-          "volume": 21601600,
-          "vwap": 2689.76,
+          "close": 2650.0,
+          "volume": 22714900,
+          "vwap": 2689.96,
           "swing_high": null,
           "swing_low": null
         }
@@ -8087,10 +8087,10 @@
     },
     {
       "ticker": "BBCA",
-      "last_close": 6300.0,
+      "last_close": 6325.0,
       "trend": "uptrend",
       "support": 6176.061879960317,
-      "resistance": 6300.579050164474,
+      "resistance": 6474.903630692829,
       "wyckoff": {
         "tr_start": "2026-07-22",
         "tr_end": "2026-09-11",
@@ -8101,13 +8101,13 @@
         "phase": "unclear"
       },
       "vwap": {
-        "vwap": 6524.88,
-        "last_close": 6300.0,
+        "vwap": 6524.02,
+        "last_close": 6325.0,
         "position": "below"
       },
       "comparative_strength": {
         "relative_strength_trend": "underperforming",
-        "ratio_now": 0.9677,
+        "ratio_now": 0.9722,
         "ratio_start": 1.00772
       },
       "score": 5,
@@ -10094,9 +10094,9 @@
           "open": 6400.0,
           "high": 6400.0,
           "low": 6250.0,
-          "close": 6300.0,
-          "volume": 126959200,
-          "vwap": 6524.88,
+          "close": 6325.0,
+          "volume": 135286100,
+          "vwap": 6524.02,
           "swing_high": null,
           "swing_low": null
         }
@@ -10134,13 +10134,13 @@
         "phase": "B (masih membangun cause, tunggu Spring/SOS)"
       },
       "vwap": {
-        "vwap": 4877.13,
+        "vwap": 4877.01,
         "last_close": 4890.0,
         "position": "above"
       },
       "comparative_strength": {
         "relative_strength_trend": "underperforming",
-        "ratio_now": 0.75112,
+        "ratio_now": 0.75163,
         "ratio_start": 0.76169
       },
       "score": -5,
@@ -12128,8 +12128,8 @@
           "high": 4890.0,
           "low": 4810.0,
           "close": 4890.0,
-          "volume": 16650400,
-          "vwap": 4877.13,
+          "volume": 18078600,
+          "vwap": 4877.01,
           "swing_high": null,
           "swing_low": null
         }
@@ -12167,13 +12167,13 @@
         "phase": "B (masih membangun cause, tunggu Spring/SOS)"
       },
       "vwap": {
-        "vwap": 1525.59,
+        "vwap": 1525.53,
         "last_close": 1510.0,
         "position": "below"
       },
       "comparative_strength": {
         "relative_strength_trend": "underperforming",
-        "ratio_now": 0.23194,
+        "ratio_now": 0.2321,
         "ratio_start": 0.23406
       },
       "score": -15,
@@ -14161,8 +14161,8 @@
           "high": 1525.0,
           "low": 1505.0,
           "close": 1510.0,
-          "volume": 17972800,
-          "vwap": 1525.59,
+          "volume": 18604700,
+          "vwap": 1525.53,
           "swing_high": null,
           "swing_low": null
         }
@@ -14184,13 +14184,13 @@
         "phase": "unclear"
       },
       "vwap": {
-        "vwap": 2638.52,
+        "vwap": 2638.41,
         "last_close": 2610.0,
         "position": "below"
       },
       "comparative_strength": {
         "relative_strength_trend": "underperforming",
-        "ratio_now": 0.4009,
+        "ratio_now": 0.40118,
         "ratio_start": 0.411
       },
       "score": -25,
@@ -16178,8 +16178,8 @@
           "high": 2630.0,
           "low": 2590.0,
           "close": 2610.0,
-          "volume": 57517200,
-          "vwap": 2638.52,
+          "volume": 59322700,
+          "vwap": 2638.41,
           "swing_high": null,
           "swing_low": null
         }
@@ -16187,7 +16187,7 @@
     },
     {
       "ticker": "ICBP",
-      "last_close": 7150.0,
+      "last_close": 7125.0,
       "trend": "sideways",
       "support": 6575.0,
       "resistance": 7800.0,
@@ -16217,13 +16217,13 @@
         "phase": "B (masih membangun cause, tunggu Spring/SOS)"
       },
       "vwap": {
-        "vwap": 7252.67,
-        "last_close": 7150.0,
+        "vwap": 7252.11,
+        "last_close": 7125.0,
         "position": "below"
       },
       "comparative_strength": {
         "relative_strength_trend": "underperforming",
-        "ratio_now": 1.09826,
+        "ratio_now": 1.09516,
         "ratio_start": 1.19808
       },
       "score": -40,
@@ -18210,9 +18210,9 @@
           "open": 7175.0,
           "high": 7175.0,
           "low": 7100.0,
-          "close": 7150.0,
-          "volume": 1325200,
-          "vwap": 7252.67,
+          "close": 7125.0,
+          "volume": 1368900,
+          "vwap": 7252.11,
           "swing_high": null,
           "swing_low": null
         }
@@ -18220,7 +18220,7 @@
     },
     {
       "ticker": "UNVR",
-      "last_close": 1635.0,
+      "last_close": 1630.0,
       "trend": "downtrend",
       "support": 1615.0,
       "resistance": 1770.0,
@@ -18250,13 +18250,13 @@
         "phase": "B (masih membangun cause, tunggu Spring/SOS)"
       },
       "vwap": {
-        "vwap": 1664.83,
-        "last_close": 1635.0,
+        "vwap": 1664.24,
+        "last_close": 1630.0,
         "position": "below"
       },
       "comparative_strength": {
         "relative_strength_trend": "underperforming",
-        "ratio_now": 0.25114,
+        "ratio_now": 0.25054,
         "ratio_start": 0.27453
       },
       "score": -60,
@@ -20243,9 +20243,9 @@
           "open": 1655.0,
           "high": 1655.0,
           "low": 1625.0,
-          "close": 1635.0,
-          "volume": 11830200,
-          "vwap": 1664.83,
+          "close": 1630.0,
+          "volume": 12444000,
+          "vwap": 1664.24,
           "swing_high": null,
           "swing_low": null
         }
@@ -20278,13 +20278,13 @@
         "phase": "unclear"
       },
       "vwap": {
-        "vwap": 3191.02,
+        "vwap": 3191.23,
         "last_close": 3250.0,
         "position": "above"
       },
       "comparative_strength": {
         "relative_strength_trend": "outperforming",
-        "ratio_now": 0.49921,
+        "ratio_now": 0.49955,
         "ratio_start": 0.47606
       },
       "score": 55,
@@ -22272,8 +22272,8 @@
           "high": 3270.0,
           "low": 3140.0,
           "close": 3250.0,
-          "volume": 108168000,
-          "vwap": 3191.02,
+          "volume": 113620000,
+          "vwap": 3191.23,
           "swing_high": null,
           "swing_low": null
         }
@@ -22281,7 +22281,7 @@
     },
     "strongest_accumulation": {
       "ticker": "ADRO",
-      "last_close": 2640.0,
+      "last_close": 2650.0,
       "trend": "sideways",
       "support": 2460.0,
       "resistance": 2860.0,
@@ -22311,13 +22311,13 @@
         "phase": "B (masih membangun cause, tunggu Spring/SOS)"
       },
       "vwap": {
-        "vwap": 2689.76,
-        "last_close": 2640.0,
+        "vwap": 2689.96,
+        "last_close": 2650.0,
         "position": "below"
       },
       "comparative_strength": {
         "relative_strength_trend": "outperforming",
-        "ratio_now": 0.40551,
+        "ratio_now": 0.40732,
         "ratio_start": 0.39195
       },
       "score": 10,
@@ -24304,9 +24304,9 @@
           "open": 2670.0,
           "high": 2680.0,
           "low": 2640.0,
-          "close": 2640.0,
-          "volume": 21601600,
-          "vwap": 2689.76,
+          "close": 2650.0,
+          "volume": 22714900,
+          "vwap": 2689.96,
           "swing_high": null,
           "swing_low": null
         }
