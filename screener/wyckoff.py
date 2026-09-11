@@ -24,11 +24,6 @@ import numpy as np
 
 def detect_trading_ranges(df: pd.DataFrame, min_bars: int = 15, max_range_pct: float = 0.15,
                            window: int = 15) -> list[dict]:
-    """
-    TR = periode dimana harga konsolidasi dalam band sempit setelah tren sebelumnya.
-    max_range_pct: lebar TR maksimal sebagai % dari harga (default 15%, saham IDX
-    cukup volatil jadi tidak dibuat terlalu ketat).
-    """
     close = df["Close"]
     roll_max = close.rolling(window).max()
     roll_min = close.rolling(window).min()
@@ -54,7 +49,6 @@ def detect_trading_ranges(df: pd.DataFrame, min_bars: int = 15, max_range_pct: f
                 })
             start = None
 
-    # TR yang masih berlangsung sampai bar terakhir
     if start is not None and (len(df) - start) >= min_bars:
         seg = df.iloc[start:]
         ranges.append({
@@ -79,10 +73,6 @@ def _avg_volume(df: pd.DataFrame, idx: int, lookback: int = 20) -> float:
 
 
 def find_climax(df: pd.DataFrame, tr: dict, lookback: int = 15) -> dict | None:
-    """
-    Cari SC (selling climax) sebelum TR mulai: bar volume tertinggi, spread lebar,
-    close down. Atau BC (buying climax): kebalikannya.
-    """
     start = max(0, tr["start_idx"] - lookback)
     pre = df.iloc[start:tr["start_idx"] + 1]
     if pre.empty:
@@ -107,7 +97,6 @@ def find_climax(df: pd.DataFrame, tr: dict, lookback: int = 15) -> dict | None:
 
 
 def find_automatic_reaction(df: pd.DataFrame, climax: dict, tr: dict) -> dict | None:
-    """AR (accumulation) = rally tinggi setelah SC. AR (distribution) = reaction rendah setelah BC."""
     climax_idx = df.index.get_loc(climax["date"])
     window = df.iloc[climax_idx:climax_idx + 15]
     if window.empty:
@@ -122,7 +111,6 @@ def find_automatic_reaction(df: pd.DataFrame, climax: dict, tr: dict) -> dict | 
 
 
 def find_secondary_test(df: pd.DataFrame, climax: dict, ar: dict) -> dict | None:
-    """ST = retest area climax dengan volume lebih rendah."""
     ar_idx = df.index.get_loc(ar["date"])
     window = df.iloc[ar_idx:ar_idx + 15]
     if window.empty:
@@ -142,10 +130,6 @@ def find_secondary_test(df: pd.DataFrame, climax: dict, ar: dict) -> dict | None
 
 
 def detect_spring_or_ut(df: pd.DataFrame, tr: dict, lookback_after: int = 20) -> dict | None:
-    """
-    Spring: low tembus di bawah tr_low lalu close kembali masuk range (bear trap).
-    UT (upthrust): high tembus di atas tr_high lalu close kembali masuk range (bull trap).
-    """
     end_idx = tr["end_idx"]
     window = df.iloc[end_idx:end_idx + lookback_after]
     if window.empty:
@@ -160,10 +144,6 @@ def detect_spring_or_ut(df: pd.DataFrame, tr: dict, lookback_after: int = 20) ->
 
 
 def detect_sos_sow(df: pd.DataFrame, tr: dict, lookback_after: int = 20) -> dict | None:
-    """
-    SOS (Sign of Strength): breakout di atas tr_high, volume & spread melebar.
-    SOW (Sign of Weakness): breakdown di bawah tr_low, volume & spread melebar.
-    """
     end_idx = tr["end_idx"]
     window = df.iloc[end_idx:end_idx + lookback_after]
     if window.empty:
@@ -187,10 +167,6 @@ def detect_sos_sow(df: pd.DataFrame, tr: dict, lookback_after: int = 20) -> dict
 
 
 def detect_lps_lpsy(df: pd.DataFrame, breakout: dict, tr: dict, lookback_after: int = 15) -> dict | None:
-    """
-    LPS: pullback setelah SOS yang bertahan di atas tr_high (former resistance jadi support).
-    LPSY: rally lemah setelah SOW yang gagal tembus tr_low (former support jadi resistance).
-    """
     b_idx = df.index.get_loc(breakout["date"])
     window = df.iloc[b_idx:b_idx + lookback_after]
     if window.empty:
@@ -221,12 +197,17 @@ def analyze_latest_trading_range(df: pd.DataFrame) -> dict:
     """
     Jalankan seluruh pipeline event-detection untuk TR paling baru.
     Return ringkasan event yang ditemukan + estimasi fase.
+
+    FIX: bias sekarang ditentukan dari sinyal paling BARU secara kronologis,
+    bukan "sinyal pertama yang ketemu dikunci selamanya". Kalau sinyal awal
+    (climax) dan sinyal belakangan (breakout) berlawanan arah, bias ditandai
+    "conflicting" daripada diam-diam mempertahankan label lama yang usang.
     """
     ranges = detect_trading_ranges(df)
     if not ranges:
         return {"status": "no_trading_range_found"}
 
-    tr = ranges[-1]  # TR paling baru
+    tr = ranges[-1]
     result = {
         "tr_start": str(tr["start_date"].date()),
         "tr_end": str(tr["end_date"].date()),
@@ -235,11 +216,12 @@ def analyze_latest_trading_range(df: pd.DataFrame) -> dict:
         "events": [],
     }
 
+    bias_signals = []  # [(tanggal, "accumulation"/"distribution"), ...]
+
     climax = find_climax(df, tr)
-    bias = None
     if climax:
         result["events"].append(climax)
-        bias = "accumulation" if climax["type"] == "SC" else "distribution"
+        bias_signals.append((climax["date"], "accumulation" if climax["type"] == "SC" else "distribution"))
 
         ar = find_automatic_reaction(df, climax, tr)
         if ar:
@@ -251,26 +233,37 @@ def analyze_latest_trading_range(df: pd.DataFrame) -> dict:
     spring_ut = detect_spring_or_ut(df, tr)
     if spring_ut:
         result["events"].append(spring_ut)
-        if bias is None:
-            bias = "accumulation" if spring_ut["type"] == "Spring" else "distribution"
+        bias_signals.append((spring_ut["date"], "accumulation" if spring_ut["type"] == "Spring" else "distribution"))
 
     breakout = detect_sos_sow(df, tr)
     if breakout:
         result["events"].append(breakout)
-        if bias is None:
-            bias = "accumulation" if breakout["type"] == "SOS" else "distribution"
+        bias_signals.append((breakout["date"], "accumulation" if breakout["type"] == "SOS" else "distribution"))
 
         lps = detect_lps_lpsy(df, breakout, tr)
         if lps:
             result["events"].append(lps)
 
-    result["bias"] = bias or "unclear"
+    # Tentukan bias final dari sinyal PALING BARU, tandai kalau ada konflik arah.
+    if not bias_signals:
+        result["bias"] = "unclear"
+    else:
+        bias_signals.sort(key=lambda x: x[0])
+        directions = {b for _, b in bias_signals}
+        if len(directions) > 1:
+            result["bias"] = "conflicting"
+            result["bias_note"] = (
+                f"sinyal awal '{bias_signals[0][1]}', tapi sinyal terbaru "
+                f"'{bias_signals[-1][1]}' - butuh review manual"
+            )
+        else:
+            result["bias"] = bias_signals[-1][1]
+
     result["phase"] = _estimate_phase(result["events"])
     return result
 
 
 def _estimate_phase(events: list[dict]) -> str:
-    """Heuristik kasar fase A-E berdasarkan event yang ditemukan (urutan, bukan presisi)."""
     types = {e["type"] for e in events}
     if "LPS" in types or "LPSY" in types:
         return "D (LPS/LPSY muncul - siap markup/markdown)"
@@ -290,10 +283,6 @@ def _estimate_phase(events: list[dict]) -> str:
 # ---------------------------------------------------------------------------
 
 def comparative_strength(df: pd.DataFrame, market_df: pd.DataFrame, window: int = 20) -> dict:
-    """
-    Wyckoff selalu bandingkan saham vs market. Sederhana: relative strength ratio
-    (close saham / close index), lalu cek apakah ratio itu sendiri sedang naik/turun.
-    """
     aligned = pd.DataFrame({
         "stock": df["Close"],
         "market": market_df["Close"],
