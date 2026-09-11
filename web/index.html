@@ -6,6 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="cockpit.css">
+<link rel="stylesheet" href="workspace.css">
 <style>
 :root {
   --bg-page: #0a0a0a;
@@ -252,6 +253,35 @@ body {
 @media (max-width: 900px) {
   .grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ---------- Laporan (backtest) ---------- */
+.explain-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 18px 20px; margin-bottom: 20px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;
+}
+.explain-card b { color: var(--text-primary); }
+.section-title { font-size: 13px; color: var(--text-secondary); margin: 26px 0 12px; display: flex; align-items: center; gap: 8px; }
+.section-title svg { width: 15px; height: 15px; stroke: var(--text-muted); fill: none; }
+.horizon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.h-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+.h-card .h-title { font-size: 13.5px; font-weight: 500; margin-bottom: 12px; }
+.h-card .h-title span { color: var(--text-muted); font-weight: 400; }
+.sig-line { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-top: 1px solid var(--border); font-size: 12.5px; }
+.sig-line:first-of-type { border-top: none; }
+.sig-line .stats { text-align: right; color: var(--text-secondary); }
+.sig-line .stats b { color: var(--text-primary); }
+.sig-line .stats .muted { color: var(--text-muted); font-size: 11px; }
+.qtable { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.qtable th { text-align: left; color: var(--text-secondary); font-weight: 400; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.qtable td { padding: 9px 10px; border-bottom: 1px solid var(--border); }
+.qtable tr:last-child td { border-bottom: none; }
+.qtable .num { text-align: right; }
+.qcard { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 6px 12px; overflow-x: auto; }
+.note-card {
+  background: var(--bg-card-2); border-left: 3px solid var(--warning); border-radius: 8px;
+  padding: 14px 16px; margin-top: 20px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.6;
+}
+.loading-msg { color: var(--text-muted); font-size: 13px; padding: 20px 0; }
 </style>
 </head>
 <body>
@@ -263,7 +293,7 @@ body {
       <svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8" stroke-linecap="round"/></svg>
     </div>
     <nav>
-      <div class="icon-btn active">
+      <div class="icon-btn active" id="nav-overview" onclick="showView('overview')">
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         <span class="tip">Overview</span>
       </div>
@@ -279,7 +309,7 @@ body {
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
         <span class="tip">Riwayat sinyal</span>
       </div>
-      <div class="icon-btn">
+      <div class="icon-btn" id="nav-laporan" onclick="showView('laporan')">
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
         <span class="tip">Laporan</span>
       </div>
@@ -305,6 +335,7 @@ body {
 
     <div class="content">
 
+      <div id="view-overview">
       <div class="greet-row">
         <div class="greet">
           <h1>Morning <em>Ghazker</em></h1>
@@ -503,6 +534,28 @@ body {
           </div>
         </div>
       </div>
+      </div><!-- /view-overview -->
+
+      <div id="view-laporan" style="display:none">
+        <div class="greet-row">
+          <div class="greet">
+            <h1>Laporan <em>Backtest</em></h1>
+            <p id="laporan-sub">Memuat hasil backtest...</p>
+          </div>
+        </div>
+
+        <div class="explain-card">
+          <b>Apa isi laporan ini?</b> Sistem menguji formula skor (trend, Wyckoff, VWAP, comparative
+          strength) ke data harga historis. Setiap kali sinyal "beli/pantau/jual" pernah muncul di
+          masa lalu, dicatat harganya <b>5, 10, dan 20 hari bursa</b> setelahnya — naik atau turun,
+          berapa persen. Ini bukan jaminan masa depan, tapi cara mengukur apakah skor yang dihasilkan
+          sistem ini secara historis masuk akal atau tidak.
+        </div>
+
+        <div id="laporan-body">
+          <p class="loading-msg">Memuat backtest_data.json...</p>
+        </div>
+      </div><!-- /view-laporan -->
 
     </div>
   </div>
@@ -644,6 +697,100 @@ async function loadDashboard() {
 }
 
 loadDashboard();
+
+// ---------- Laporan (backtest) ----------
+const SIGNAL_LABEL = { beli: "Beli", pantau: "Pantau", jual: "Jual" };
+let reportLoaded = false;
+
+function fmtPct(n) {
+  if (n === null || n === undefined || Number.isNaN(n)) return "-";
+  const sign = n > 0 ? "+" : "";
+  return `${sign}${n}%`;
+}
+
+function showView(name) {
+  document.getElementById("view-overview").style.display = name === "overview" ? "" : "none";
+  document.getElementById("view-laporan").style.display = name === "laporan" ? "" : "none";
+  document.getElementById("nav-overview").classList.toggle("active", name === "overview");
+  document.getElementById("nav-laporan").classList.toggle("active", name === "laporan");
+  if (name === "laporan" && !reportLoaded) {
+    reportLoaded = true;
+    loadReport();
+  }
+}
+
+async function loadReport() {
+  let data;
+  try {
+    const res = await fetch("backtest_data.json");
+    if (!res.ok) throw new Error("not found");
+    data = await res.json();
+  } catch (e) {
+    document.getElementById("laporan-sub").textContent = "Belum ada data backtest.";
+    document.getElementById("laporan-body").innerHTML =
+      `<p class="loading-msg">Jalankan <code>python backtest.py</code> dulu di komputer kamu
+      (atau tunggu workflow mingguan jalan), lalu upload <code>web/backtest_data.json</code>
+      yang terbentuk ke repo.</p>`;
+    return;
+  }
+
+  const genDate = new Date(data.generated_at).toLocaleString("id-ID");
+  document.getElementById("laporan-sub").textContent =
+    `${data.total_sampel} sampel sinyal · periode ${data.period} · ${data.watchlist.length} ticker · digenerate ${genDate}`;
+
+  const horizons = data.horizons_hari_bursa || [];
+  const bySignal = data.by_signal || {};
+  const byQuartile = data.by_score_quartile || {};
+
+  let horizonHtml = `
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/></svg>
+      Performa per kategori sinyal
+    </div>
+    <div class="horizon-grid">`;
+
+  horizons.forEach((h) => {
+    const rows = bySignal[String(h)] || [];
+    const order = ["beli", "pantau", "jual"];
+    const sorted = [...rows].sort((a, b) => order.indexOf(a.signal) - order.indexOf(b.signal));
+    horizonHtml += `<div class="h-card"><div class="h-title">${h} hari bursa <span>setelah sinyal muncul</span></div>`;
+    sorted.forEach((r) => {
+      horizonHtml += `
+        <div class="sig-line">
+          <span class="badge ${r.signal}">${SIGNAL_LABEL[r.signal] || r.signal}</span>
+          <span class="stats">
+            <b>${fmtPct(r.rata_rata_return_pct)}</b> rata-rata<br/>
+            <span class="muted">${r.jumlah_sampel} sampel · ${r.persen_untung}% untung</span>
+          </span>
+        </div>`;
+    });
+    horizonHtml += `</div>`;
+  });
+  horizonHtml += `</div>`;
+
+  let quartileHtml = `
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
+      Performa per rentang skor (rendah &rarr; tinggi)
+    </div>
+    <div class="qcard"><table class="qtable"><thead><tr><th>Rentang skor</th>`;
+  horizons.forEach((h) => { quartileHtml += `<th class="num">${h} hari (rata-rata)</th>`; });
+  quartileHtml += `<th class="num">Jumlah sampel</th></tr></thead><tbody>`;
+
+  const firstHorizonRows = byQuartile[String(horizons[0])] || [];
+  firstHorizonRows.forEach((_, i) => {
+    quartileHtml += `<tr><td>${firstHorizonRows[i].rentang_skor}</td>`;
+    horizons.forEach((h) => {
+      const row = (byQuartile[String(h)] || [])[i];
+      quartileHtml += `<td class="num">${row ? fmtPct(row.rata_rata_return_pct) : "-"}</td>`;
+    });
+    quartileHtml += `<td class="num">${firstHorizonRows[i].jumlah_sampel}</td></tr>`;
+  });
+  quartileHtml += `</tbody></table></div>`;
+
+  const noteHtml = `<div class="note-card">${data.catatan || ""}</div>`;
+  document.getElementById("laporan-body").innerHTML = horizonHtml + quartileHtml + noteHtml;
+}
 </script>
 <div class="drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>
 <section class="analysis-drawer" id="analysis-drawer" aria-hidden="true" aria-label="Detail analisis">
@@ -651,5 +798,6 @@ loadDashboard();
 </section>
 <div class="toast" id="toast" role="status"></div>
 <script src="cockpit.js"></script>
+<script src="workspace.js"></script>
 </body>
 </html>
