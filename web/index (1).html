@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Morning Ghazker — Stock Screener</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="cockpit.css">
+<link rel="stylesheet" href="workspace.css">
+<style>
+:root {
+  --bg-page: #0a0a0a;
+  --bg-card: #141414;
+  --bg-card-2: #1b1b1b;
+  --bg-hover: #202020;
+  --border: rgba(255,255,255,0.07);
+  --text-primary: #f2f2ee;
+  --text-secondary: rgba(242,242,238,0.58);
+  --text-muted: rgba(242,242,238,0.36);
+  --success: #4ade80;
+  --success-bg: rgba(74,222,128,0.12);
+  --danger: #f87171;
+  --danger-bg: rgba(248,113,113,0.12);
+  --warning: #facc15;
+  --warning-bg: rgba(250,204,21,0.12);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 14px;
+}
+.shell { display: flex; min-height: 100vh; }
+
+/* ---------- sidebar ---------- */
+.sidebar {
+  width: 64px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+}
+.sidebar .mark {
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 28px;
+}
+.sidebar .mark svg { width: 20px; height: 20px; stroke: var(--text-primary); }
+.sidebar nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.sidebar .icon-btn {
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 9px;
+  color: var(--text-muted);
+  cursor: pointer;
+  position: relative;
+}
+.sidebar .icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+.sidebar .icon-btn:hover { background: var(--bg-card-2); color: var(--text-secondary); }
+.sidebar .icon-btn.active { background: var(--bg-card-2); color: var(--text-primary); }
+.sidebar .icon-btn .tip {
+  position: absolute; left: 48px; top: 50%; transform: translateY(-50%);
+  background: #232323; color: var(--text-primary);
+  font-size: 12px; padding: 5px 9px; border-radius: 6px;
+  white-space: nowrap; opacity: 0; pointer-events: none;
+  transition: opacity .12s ease;
+  border: 1px solid var(--border);
+  z-index: 5;
+}
+.sidebar .icon-btn:hover .tip { opacity: 1; }
+.sidebar .foot { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.sidebar .workspace {
+  width: 38px; height: 38px; border-radius: 9px;
+  background: var(--bg-card-2); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--text-secondary); font-weight: 600;
+}
+
+/* ---------- main ---------- */
+.main { flex: 1; min-width: 0; }
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 32px;
+  border-bottom: 1px solid var(--border);
+}
+.search {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--text-muted); font-size: 13px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 12px; width: 280px;
+}
+.search svg { width: 14px; height: 14px; stroke: currentColor; fill: none; }
+.avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, #3a3a3a, #1a1a1a);
+  border: 1px solid var(--border);
+}
+
+.content { max-width: 1180px; margin: 0 auto; padding: 34px 32px 60px; }
+
+.greet-row {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 28px; flex-wrap: wrap; gap: 16px;
+}
+.greet h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 34px;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.greet h1 em { font-style: italic; color: var(--text-secondary); font-weight: 400; }
+.greet p { margin: 6px 0 0; color: var(--text-secondary); font-size: 13.5px; }
+
+.controls { display: flex; align-items: center; gap: 8px; }
+.controls select, .controls .seg {
+  background: var(--bg-card); border: 1px solid var(--border);
+  color: var(--text-secondary); font-size: 12.5px;
+  border-radius: 8px; padding: 7px 11px;
+}
+.seg-group { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.seg-group button {
+  background: var(--bg-card); border: none; color: var(--text-secondary);
+  font-size: 12.5px; padding: 7px 14px; cursor: pointer; font-family: inherit;
+}
+.seg-group button.active { background: var(--bg-card-2); color: var(--text-primary); }
+.icon-square {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--bg-card);
+  display: flex; align-items: center; justify-content: center;
+}
+.icon-square svg { width: 15px; height: 15px; stroke: var(--text-secondary); fill: none; }
+
+/* ---------- grid ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 18px 16px;
+  display: flex; flex-direction: column;
+  min-height: 190px;
+}
+.card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.card-head .label {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.card-head .label svg { width: 14px; height: 14px; stroke: var(--text-muted); fill: none; }
+.card-head .stamp { font-size: 11px; color: var(--text-muted); }
+.card-body { flex: 1; }
+.card-body p { margin: 0; font-size: 13.5px; color: var(--text-primary); line-height: 1.55; }
+.card-body p b { font-weight: 600; }
+.card-foot {
+  margin-top: 12px; font-size: 12px; color: var(--text-muted);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-foot .link { color: var(--text-secondary); cursor: pointer; }
+.card-foot .link:hover { color: var(--text-primary); }
+
+.big-stat { font-size: 27px; font-weight: 500; margin-top: auto; }
+.big-stat .unit { font-size: 14px; color: var(--text-secondary); font-weight: 400; margin-left: 4px; }
+
+/* weekly summary card wider */
+.card.wide { grid-column: span 1; }
+
+/* score bars */
+.bars { display: flex; align-items: flex-end; gap: 6px; height: 56px; margin-top: auto; }
+.bars .bar { width: 9px; border-radius: 2px 2px 0 0; background: #3a3a3a; }
+.bars .bar.hi { background: var(--text-primary); }
+
+/* signal breakdown */
+.sig-rows { display: flex; flex-direction: column; gap: 10px; margin-top: auto; }
+.sig-row { display: flex; align-items: center; gap: 10px; }
+.sig-row .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.sig-row .dot.beli { background: var(--success); }
+.sig-row .dot.jual { background: var(--danger); }
+.sig-row .dot.pantau { background: var(--warning); }
+.sig-row .name { flex: 1; font-size: 13px; color: var(--text-secondary); }
+.sig-row .n { font-size: 13px; font-weight: 500; }
+.sig-track { height: 4px; background: var(--bg-card-2); border-radius: 2px; margin-top: 12px; overflow: hidden; display: flex; }
+.sig-track span { height: 100%; }
+
+/* watchlist mini table */
+.wl-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 0; border-top: 1px solid var(--border);
+  font-size: 12.5px;
+}
+.wl-row:first-child { border-top: none; }
+.wl-row .t { font-weight: 500; }
+.wl-row .s { color: var(--text-muted); font-size: 11.5px; margin-left: 6px; }
+.badge { font-size: 11px; padding: 2px 8px; border-radius: 6px; }
+.badge.beli { background: var(--success-bg); color: var(--success); }
+.badge.jual { background: var(--danger-bg); color: var(--danger); }
+.badge.pantau { background: var(--warning-bg); color: var(--warning); }
+
+/* trend line svg */
+.trendline { margin-top: auto; }
+.trendline svg { width: 100%; height: 46px; display: block; }
+
+/* pills */
+.pills { display: flex; gap: 8px; flex-wrap: wrap; margin: 22px 0 14px; }
+.pill {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 999px; padding: 8px 14px; font-size: 12.5px; color: var(--text-secondary);
+  cursor: pointer;
+}
+.pill svg { width: 13px; height: 13px; stroke: currentColor; fill: none; }
+.pill:hover { background: var(--bg-card-2); color: var(--text-primary); }
+
+/* prompt panel */
+.prompt-panel {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 18px 20px;
+}
+.suggestion { padding: 10px 4px; font-size: 13.5px; color: var(--text-muted); border-top: 1px solid var(--border); cursor: pointer; }
+.suggestion:first-child { border-top: none; }
+.suggestion b { color: var(--text-primary); font-weight: 500; }
+.suggestion:hover { color: var(--text-secondary); }
+.suggestion:hover b { color: var(--text-primary); }
+
+.input-row {
+  margin-top: 14px; background: var(--bg-card-2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 16px;
+}
+.input-row .ph { color: var(--text-muted); font-size: 13.5px; }
+.input-row .ph b { color: var(--text-primary); font-weight: 500; }
+.input-tools {
+  display: flex; align-items: center; justify-content: space-between; margin-top: 16px;
+}
+.input-tools .left { display: flex; gap: 12px; color: var(--text-muted); }
+.input-tools svg { width: 16px; height: 16px; stroke: currentColor; fill: none; }
+.send-btn {
+  width: 30px; height: 30px; border-radius: 8px; background: var(--text-primary);
+  display: flex; align-items: center; justify-content: center;
+}
+.send-btn svg { width: 14px; height: 14px; stroke: var(--bg-page); fill: none; stroke-width: 2; }
+
+@media (max-width: 900px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ---------- Laporan (backtest) ---------- */
+.explain-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 18px 20px; margin-bottom: 20px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;
+}
+.explain-card b { color: var(--text-primary); }
+.section-title { font-size: 13px; color: var(--text-secondary); margin: 26px 0 12px; display: flex; align-items: center; gap: 8px; }
+.section-title svg { width: 15px; height: 15px; stroke: var(--text-muted); fill: none; }
+.horizon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.h-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+.h-card .h-title { font-size: 13.5px; font-weight: 500; margin-bottom: 12px; }
+.h-card .h-title span { color: var(--text-muted); font-weight: 400; }
+.sig-line { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-top: 1px solid var(--border); font-size: 12.5px; }
+.sig-line:first-of-type { border-top: none; }
+.sig-line .stats { text-align: right; color: var(--text-secondary); }
+.sig-line .stats b { color: var(--text-primary); }
+.sig-line .stats .muted { color: var(--text-muted); font-size: 11px; }
+.qtable { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.qtable th { text-align: left; color: var(--text-secondary); font-weight: 400; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.qtable td { padding: 9px 10px; border-bottom: 1px solid var(--border); }
+.qtable tr:last-child td { border-bottom: none; }
+.qtable .num { text-align: right; }
+.qcard { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 6px 12px; overflow-x: auto; }
+.note-card {
+  background: var(--bg-card-2); border-left: 3px solid var(--warning); border-radius: 8px;
+  padding: 14px 16px; margin-top: 20px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.6;
+}
+.loading-msg { color: var(--text-muted); font-size: 13px; padding: 20px 0; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="mark">
+      <svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8" stroke-linecap="round"/></svg>
+    </div>
+    <nav>
+      <div class="icon-btn active" id="nav-overview" onclick="showView('overview')">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span class="tip">Overview</span>
+      </div>
+      <div class="icon-btn">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/><path d="M14 7h6v6"/></svg>
+        <span class="tip">Screener</span>
+      </div>
+      <div class="icon-btn">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><rect x="7" y="12" width="2.5" height="5"/><rect x="11.5" y="8" width="2.5" height="9"/><rect x="16" y="10" width="2.5" height="7"/></svg>
+        <span class="tip">Watchlist</span>
+      </div>
+      <div class="icon-btn">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        <span class="tip">Riwayat sinyal</span>
+      </div>
+      <div class="icon-btn" id="nav-laporan" onclick="showView('laporan')">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        <span class="tip">Laporan</span>
+      </div>
+    </nav>
+    <div class="foot">
+      <div class="icon-btn">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19 12a7 7 0 00-.14-1.4l2-1.55-2-3.46-2.36.95a7 7 0 00-2.4-1.4L13.7 2h-4l-.4 2.14a7 7 0 00-2.4 1.4l-2.36-.95-2 3.46 2 1.55A7 7 0 004.5 12c0 .48.05.94.14 1.4l-2 1.55 2 3.46 2.36-.95c.7.62 1.52 1.1 2.4 1.4L9.7 22h4l.4-2.14a7 7 0 002.4-1.4l2.36.95 2-3.46-2-1.55c.09-.46.14-.92.14-1.4z"/></svg>
+        <span class="tip">Pengaturan</span>
+      </div>
+      <div class="workspace">GK</div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <div class="main">
+    <div class="topbar">
+      <label class="search" for="ticker-search">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="ticker-search" type="search" placeholder="Cari ticker..." autocomplete="off" />
+      </label>
+      <div class="avatar"></div>
+    </div>
+
+    <div class="content">
+
+      <div id="view-overview">
+      <div class="greet-row">
+        <div class="greet">
+          <h1>Morning <em>Ghazker</em></h1>
+          <p id="greet-sub">Memuat data screener...</p>
+        </div>
+        <div class="controls">
+          <div class="icon-square">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          </div>
+          <select><option>1 tahun</option></select>
+          <div class="seg-group">
+            <button class="active">Overview</button>
+            <button>Metrik</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 1 -->
+      <div class="grid">
+        <div class="card">
+          <div class="card-head">
+            <div class="label">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><path d="M7 15l3-4 3 2 4-6"/></svg>
+              Ringkasan mingguan
+            </div>
+            <div class="stamp" id="summary-stamp">Baru saja</div>
+          </div>
+          <div class="card-body">
+            <p id="summary-text">Memuat...</p>
+          </div>
+          <div class="card-foot"><span class="link">Dengar ringkasan</span><span class="link">Tutup</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="label">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+              Top pick
+            </div>
+          </div>
+          <div class="card-body">
+            <p id="toppick-text">Memuat...</p>
+          </div>
+          <div class="bars" id="toppick-bars"></div>
+          <div class="card-foot"><span id="toppick-footer-left"></span><span class="link">Lihat detail</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="label">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-6-8.5"/></svg>
+              Sinyal breakdown
+            </div>
+          </div>
+          <div class="sig-rows">
+            <div class="sig-row"><span class="dot beli"></span><span class="name">Beli</span><span class="n" id="count-beli">0</span></div>
+            <div class="sig-row"><span class="dot pantau"></span><span class="name">Pantau</span><span class="n" id="count-pantau">0</span></div>
+            <div class="sig-row"><span class="dot jual"></span><span class="name">Jual</span><span class="n" id="count-jual">0</span></div>
+          </div>
+          <div class="sig-track" id="sig-track"></div>
+          <div class="card-foot" style="margin-top:12px"><span></span><span class="link">Lihat semua sinyal</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="label">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><rect x="7" y="12" width="2.5" height="5"/><rect x="11.5" y="8" width="2.5" height="9"/><rect x="16" y="10" width="2.5" height="7"/></svg>
+              Watchlist
+            </div>
+          </div>
+          <div class="card-body" id="watchlist-rows">
+            <div class="wl-row"><span class="t">Memuat...</span></div>
+          </div>
+          <div class="card-foot"><span></span><span class="link">Kelola watchlist</span></div>
+        </div>
+      </div>
+
+      <!-- ROW 2 -->
+      <div class="grid">
+        <div class="card">
+          <div class="card-head">
+            <div class="label">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/></svg>
+              Trend structure
+            </div>
+          </div>
+          <div class="card-body">
+            <p id="trend-text">Memuat...</p>
+          </div>
+          <div class="big-stat" id="trend-stat">-</div>
+          <div class="card-foot"><span></span><span class="link">Lihat struktur</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="label">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+              Wyckoff snapshot
+            </div>
+          </div>
+          <div class="card-body">
+            <p id="wyckoff-text">Memuat...</p>
+          </div>
+          <div class="card-foot"><span id="wyckoff-footer"></span><span class="link">Lihat detail</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="label">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
+              VWAP mingguan
+            </div>
+          </div>
+          <div class="card-body">
+            <p id="vwap-text">Memuat...</p>
+          </div>
+          <div class="trendline">
+            <svg viewBox="0 0 220 46" preserveAspectRatio="none">
+              <polyline points="0,30 30,26 60,32 90,14 120,20 150,8 180,16 220,10" fill="none" stroke="var(--text-primary)" stroke-width="1.6"/>
+            </svg>
+          </div>
+          <div class="card-foot"><span></span><span class="link">Lihat semua VWAP</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="label">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
+              Distribusi skor
+            </div>
+          </div>
+          <div class="card-body">
+            <p id="scoredist-text">Memuat...</p>
+          </div>
+          <div class="bars" id="scoredist-bars"></div>
+          <div class="card-foot"><span></span><span class="link">Lihat distribusi</span></div>
+        </div>
+      </div>
+
+      <!-- ROW 3 -->
+      <div class="grid" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="card">
+          <div class="card-head">
+            <div class="label">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
+              Comparative strength vs IHSG
+            </div>
+          </div>
+          <div class="card-body">
+            <p id="cs-text">Memuat...</p>
+          </div>
+          <div class="card-foot"><span id="cs-footer"></span><span class="link">Lihat semua</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="label">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M4 6h10M4 18h7"/></svg>
+              Support &amp; resistance terdekat
+            </div>
+          </div>
+          <div class="card-body" id="sr-rows">
+            <div class="wl-row"><span class="t">Memuat...</span></div>
+          </div>
+          <div class="card-foot"><span></span><span class="link">Lihat semua</span></div>
+        </div>
+      </div>
+
+      <!-- PILLS -->
+      <div class="pills">
+        <div class="pill"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/></svg>Cek trend</div>
+        <div class="pill"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Cek Wyckoff</div>
+        <div class="pill"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>Cek VWAP</div>
+        <div class="pill"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>Duplikat screener</div>
+        <div class="pill"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Riwayat sinyal</div>
+      </div>
+
+      <!-- PROMPT PANEL -->
+      <div class="prompt-panel">
+        <div class="suggestion"><b>Saya mau</b> tahu kenapa skor ANTM turun minggu ini</div>
+        <div class="suggestion"><b>Saya mau</b> lihat ticker mana yang mendekati resistance</div>
+        <div class="suggestion"><b>Saya mau</b> bandingkan VWAP semua ticker di watchlist</div>
+
+        <div class="input-row">
+          <div class="ph"><b>Saya mau</b> ...</div>
+          <div class="input-tools">
+            <div class="left">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg>
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+            </div>
+            <div class="send-btn">
+              <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div><!-- /view-overview -->
+
+      <div id="view-laporan" style="display:none">
+        <div class="greet-row">
+          <div class="greet">
+            <h1>Laporan <em>Backtest</em></h1>
+            <p id="laporan-sub">Memuat hasil backtest...</p>
+          </div>
+        </div>
+
+        <div class="explain-card">
+          <b>Apa isi laporan ini?</b> Sistem menguji formula skor (trend, Wyckoff, VWAP, comparative
+          strength) ke data harga historis. Setiap kali sinyal "beli/pantau/jual" pernah muncul di
+          masa lalu, dicatat harganya <b>5, 10, dan 20 hari bursa</b> setelahnya — naik atau turun,
+          berapa persen. Ini bukan jaminan masa depan, tapi cara mengukur apakah skor yang dihasilkan
+          sistem ini secara historis masuk akal atau tidak.
+        </div>
+
+        <div id="laporan-body">
+          <p class="loading-msg">Memuat backtest_data.json...</p>
+        </div>
+      </div><!-- /view-laporan -->
+
+    </div>
+  </div>
+</div>
+
+<script>
+const PHASE_LABEL = { A: "Fase A", B: "Fase B", C: "Fase C", D: "Fase D", E: "Fase E" };
+const TREND_LABEL = { uptrend: "Uptrend", downtrend: "Downtrend", sideways: "Sideways", insufficient_data: "Data kurang" };
+
+function fmtNum(n) {
+  if (n === null || n === undefined) return "-";
+  return Number(n).toLocaleString("id-ID", { maximumFractionDigits: 0 });
+}
+
+function phaseLetter(phaseStr) {
+  if (!phaseStr) return "";
+  return phaseStr.split(" ")[0];
+}
+
+async function loadDashboard() {
+  let data;
+  try {
+    const res = await fetch("dashboard_data.json");
+    data = await res.json();
+  } catch (e) {
+    document.getElementById("greet-sub").textContent = "Gagal memuat data. Jalankan main.py dulu untuk generate dashboard_data.json.";
+    return;
+  }
+
+  window.dashboardData = data;
+  const wl = data.watchlist || [];
+  const s = data.summary || {};
+
+  // Greeting
+  document.getElementById("greet-sub").textContent =
+    `${wl.length} saham dipantau · digenerate ${new Date(data.generated_at).toLocaleString("id-ID")}`;
+
+  // Ringkasan mingguan
+  const sc = s.signal_counts || {};
+  const topName = s.top_pick ? s.top_pick.ticker : "-";
+  const topScore = s.top_pick ? s.top_pick.score : "-";
+  document.getElementById("summary-text").innerHTML =
+    `<b>${wl.length} ticker discreening</b> — ${sc.beli||0} beli, ${sc.pantau||0} pantau, ${sc.jual||0} jual. ` +
+    `<b>${topName}</b> skor tertinggi di <b>${topScore}</b>.`;
+
+  // Top pick
+  if (s.top_pick) {
+    const tp = s.top_pick;
+    const wyBias = tp.wyckoff?.bias === "accumulation" ? "akumulasi" : tp.wyckoff?.bias === "distribution" ? "distribusi" : "belum jelas";
+    document.getElementById("toppick-text").innerHTML =
+      `<b>${tp.ticker}</b> memimpin skor screener di <b>${tp.score}</b>, trend ${TREND_LABEL[tp.trend]||tp.trend}, ` +
+      `Wyckoff ${wyBias} (${phaseLetter(tp.wyckoff?.phase)}), harga ${tp.vwap?.position === "above" ? "di atas" : "di bawah"} VWAP mingguan.`;
+    document.getElementById("toppick-footer-left").textContent = `${tp.ticker} · ${fmtNum(tp.last_close)}`;
+
+    const barsEl = document.getElementById("toppick-bars");
+    const bd = tp.score_breakdown || {};
+    const vals = Object.values(bd).map(v => Math.abs(v));
+    const maxVal = Math.max(...vals, 1);
+    barsEl.innerHTML = Object.entries(bd).map(([k, v]) => {
+      const h = Math.max(10, Math.round(Math.abs(v) / maxVal * 100));
+      const cls = Math.abs(v) === maxVal ? "bar hi" : "bar";
+      return `<div class="${cls}" style="height:${h}%" title="${k}: ${v}"></div>`;
+    }).join("");
+  }
+
+  // Sinyal breakdown
+  document.getElementById("count-beli").textContent = sc.beli || 0;
+  document.getElementById("count-pantau").textContent = sc.pantau || 0;
+  document.getElementById("count-jual").textContent = sc.jual || 0;
+  const total = (sc.beli||0)+(sc.pantau||0)+(sc.jual||0) || 1;
+  document.getElementById("sig-track").innerHTML = `
+    <span style="width:${(sc.beli||0)/total*100}%; background:var(--success)"></span>
+    <span style="width:${(sc.pantau||0)/total*100}%; background:var(--warning)"></span>
+    <span style="width:${(sc.jual||0)/total*100}%; background:var(--danger)"></span>`;
+
+  // Watchlist (top 5 by score)
+  const wlRows = document.getElementById("watchlist-rows");
+  wlRows.innerHTML = wl.slice(0, 5).map(r => `
+    <div class="wl-row">
+      <span class="t">${r.ticker} <span class="s">${fmtNum(r.last_close)}</span></span>
+      <span class="badge ${r.signal}">${r.signal.charAt(0).toUpperCase()+r.signal.slice(1)}</span>
+    </div>`).join("");
+
+  // Trend structure
+  const healthy = wl.filter(r => r.trend === "uptrend" || r.trend === "sideways").length;
+  const unhealthy = wl.filter(r => r.trend === "downtrend").map(r => r.ticker);
+  document.getElementById("trend-text").innerHTML =
+    `${healthy} dari ${wl.length} ticker masih uptrend/sideways di atas support. ` +
+    (unhealthy.length ? `${unhealthy.join(", ")} tembus ke downtrend minggu ini.` : "Tidak ada yang downtrend minggu ini.");
+  document.getElementById("trend-stat").innerHTML = `${healthy}<span class="unit">/ ${wl.length} sehat</span>`;
+
+  // Wyckoff snapshot
+  const accum = wl.filter(r => r.wyckoff?.bias === "accumulation");
+  const distrib = wl.filter(r => r.wyckoff?.bias === "distribution");
+  const bestAccum = s.strongest_accumulation;
+  if (bestAccum) {
+    const events = (bestAccum.wyckoff.events||[]).map(e=>e.type).join(", ") || "-";
+    document.getElementById("wyckoff-text").innerHTML =
+      `<b>${bestAccum.ticker}</b> menunjukkan sinyal akumulasi terkuat — fase ${phaseLetter(bestAccum.wyckoff.phase)}, event: ${events}.`;
+  } else {
+    document.getElementById("wyckoff-text").textContent = "Belum ada sinyal akumulasi kuat minggu ini.";
+  }
+  document.getElementById("wyckoff-footer").textContent = `${accum.length} akumulasi · ${distrib.length} distribusi`;
+
+  // VWAP mingguan
+  const aboveVwap = wl.filter(r => r.vwap?.position === "above").length;
+  const belowList = wl.filter(r => r.vwap?.position === "below");
+  const worstBelow = belowList.sort((a,b) => (a.vwap.vwap - a.last_close) - (b.vwap.vwap - b.last_close)).pop();
+  document.getElementById("vwap-text").innerHTML =
+    `${aboveVwap} ticker diperdagangkan di atas VWAP mingguan` +
+    (worstBelow ? `, <b>${worstBelow.ticker}</b> tertinggal ${fmtNum(worstBelow.vwap.vwap - worstBelow.last_close)} poin di bawahnya.` : ".");
+
+  // Distribusi skor
+  document.getElementById("scoredist-text").innerHTML =
+    `Rentang skor screener: <b>${s.score_min}</b> sampai <b>${s.score_max}</b>, rata-rata <b>${s.score_avg}</b>.`;
+  const scores = wl.map(r => r.score).sort((a,b)=>b-a);
+  const distMax = Math.max(...scores.map(Math.abs), 1);
+  document.getElementById("scoredist-bars").innerHTML = scores.slice(0,4).map(v => {
+    const h = Math.max(10, Math.round(Math.abs(v)/distMax*100));
+    return `<div class="bar" style="height:${h}%" title="${v}"></div>`;
+  }).join("");
+
+  // Comparative strength vs IHSG
+  const outperform = wl.filter(r => r.comparative_strength?.relative_strength_trend === "outperforming");
+  const underperform = wl.filter(r => r.comparative_strength?.relative_strength_trend === "underperforming");
+  document.getElementById("cs-text").innerHTML =
+    `<b>${outperform.length}</b> ticker mengungguli IHSG, <b>${underperform.length}</b> tertinggal. ` +
+    (outperform[0] ? `${outperform[0].ticker} outperform paling jelas.` : "");
+  document.getElementById("cs-footer").textContent = `${outperform.length} outperform · ${underperform.length} underperform`;
+
+  // Support & resistance terdekat
+  const srRows = document.getElementById("sr-rows");
+  srRows.innerHTML = wl.slice(0, 4).map(r => `
+    <div class="wl-row">
+      <span class="t">${r.ticker}</span>
+      <span class="s">S: ${fmtNum(r.support)} &middot; R: ${fmtNum(r.resistance)}</span>
+    </div>`).join("");
+  window.dispatchEvent(new CustomEvent("dashboard-ready", { detail: data }));
+}
+
+loadDashboard();
+
+// ---------- Laporan (backtest) ----------
+const SIGNAL_LABEL = { beli: "Beli", pantau: "Pantau", jual: "Jual" };
+let reportLoaded = false;
+
+function fmtPct(n) {
+  if (n === null || n === undefined || Number.isNaN(n)) return "-";
+  const sign = n > 0 ? "+" : "";
+  return `${sign}${n}%`;
+}
+
+function showView(name) {
+  document.getElementById("view-overview").style.display = name === "overview" ? "" : "none";
+  document.getElementById("view-laporan").style.display = name === "laporan" ? "" : "none";
+  document.getElementById("nav-overview").classList.toggle("active", name === "overview");
+  document.getElementById("nav-laporan").classList.toggle("active", name === "laporan");
+  if (name === "laporan" && !reportLoaded) {
+    reportLoaded = true;
+    loadReport();
+  }
+}
+
+async function loadReport() {
+  let data;
+  try {
+    const res = await fetch("backtest_data.json");
+    if (!res.ok) throw new Error("not found");
+    data = await res.json();
+  } catch (e) {
+    document.getElementById("laporan-sub").textContent = "Belum ada data backtest.";
+    document.getElementById("laporan-body").innerHTML =
+      `<p class="loading-msg">Jalankan <code>python backtest.py</code> dulu di komputer kamu
+      (atau tunggu workflow mingguan jalan), lalu upload <code>web/backtest_data.json</code>
+      yang terbentuk ke repo.</p>`;
+    return;
+  }
+
+  const genDate = new Date(data.generated_at).toLocaleString("id-ID");
+  document.getElementById("laporan-sub").textContent =
+    `${data.total_sampel} sampel sinyal · periode ${data.period} · ${data.watchlist.length} ticker · digenerate ${genDate}`;
+
+  const horizons = data.horizons_hari_bursa || [];
+  const bySignal = data.by_signal || {};
+  const byQuartile = data.by_score_quartile || {};
+
+  let horizonHtml = `
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/></svg>
+      Performa per kategori sinyal
+    </div>
+    <div class="horizon-grid">`;
+
+  horizons.forEach((h) => {
+    const rows = bySignal[String(h)] || [];
+    const order = ["beli", "pantau", "jual"];
+    const sorted = [...rows].sort((a, b) => order.indexOf(a.signal) - order.indexOf(b.signal));
+    horizonHtml += `<div class="h-card"><div class="h-title">${h} hari bursa <span>setelah sinyal muncul</span></div>`;
+    sorted.forEach((r) => {
+      horizonHtml += `
+        <div class="sig-line">
+          <span class="badge ${r.signal}">${SIGNAL_LABEL[r.signal] || r.signal}</span>
+          <span class="stats">
+            <b>${fmtPct(r.rata_rata_return_pct)}</b> rata-rata<br/>
+            <span class="muted">${r.jumlah_sampel} sampel · ${r.persen_untung}% untung</span>
+          </span>
+        </div>`;
+    });
+    horizonHtml += `</div>`;
+  });
+  horizonHtml += `</div>`;
+
+  let quartileHtml = `
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
+      Performa per rentang skor (rendah &rarr; tinggi)
+    </div>
+    <div class="qcard"><table class="qtable"><thead><tr><th>Rentang skor</th>`;
+  horizons.forEach((h) => { quartileHtml += `<th class="num">${h} hari (rata-rata)</th>`; });
+  quartileHtml += `<th class="num">Jumlah sampel</th></tr></thead><tbody>`;
+
+  const firstHorizonRows = byQuartile[String(horizons[0])] || [];
+  firstHorizonRows.forEach((_, i) => {
+    quartileHtml += `<tr><td>${firstHorizonRows[i].rentang_skor}</td>`;
+    horizons.forEach((h) => {
+      const row = (byQuartile[String(h)] || [])[i];
+      quartileHtml += `<td class="num">${row ? fmtPct(row.rata_rata_return_pct) : "-"}</td>`;
+    });
+    quartileHtml += `<td class="num">${firstHorizonRows[i].jumlah_sampel}</td></tr>`;
+  });
+  quartileHtml += `</tbody></table></div>`;
+
+  const noteHtml = `<div class="note-card">${data.catatan || ""}</div>`;
+  document.getElementById("laporan-body").innerHTML = horizonHtml + quartileHtml + noteHtml;
+}
+</script>
+<div class="drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>
+<section class="analysis-drawer" id="analysis-drawer" aria-hidden="true" aria-label="Detail analisis">
+  <div id="analysis-content"></div>
+</section>
+<div class="toast" id="toast" role="status"></div>
+<script src="cockpit.js"></script>
+<script src="workspace.js"></script>
+</body>
+</html>
