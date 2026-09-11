@@ -5,10 +5,11 @@ Nanti dijadwalkan via GitHub Actions (cron gratis).
 """
 import json
 from datetime import datetime
+import pandas as pd
 from data.yfinance_fetcher import fetch_batch, fetch_daily
-from screener.trend import trend_structure, support_resistance_levels
+from screener.trend import trend_structure, support_resistance_levels, find_swing_points
 from screener.wyckoff import analyze_latest_trading_range, comparative_strength
-from screener.vwap import price_vs_vwap
+from screener.vwap import price_vs_vwap, rolling_vwap
 from screener.scoring import compute_score, classify_signal
 from storage.db import init_db, upsert_prices, save_signal, get_watchlist, add_to_watchlist
 
@@ -65,6 +66,26 @@ def run_screening():
         scored = compute_score(trend, wy, vwap, cs, sr)
         signal_label = classify_signal(scored["score"])
 
+        # Data visual untuk cockpit. Batasi 180 bar agar file dashboard tetap ringan.
+        visual_df = find_swing_points(df.tail(180).copy())
+        visual_df["vwap_5"] = rolling_vwap(visual_df, window=5)
+        price_history = []
+        for idx, row in visual_df.iterrows():
+            def clean(value):
+                return None if pd.isna(value) else round(float(value), 2)
+
+            price_history.append({
+                "date": idx.strftime("%Y-%m-%d"),
+                "open": clean(row["Open"]),
+                "high": clean(row["High"]),
+                "low": clean(row["Low"]),
+                "close": clean(row["Close"]),
+                "volume": int(row["Volume"]) if not pd.isna(row["Volume"]) else 0,
+                "vwap": clean(row["vwap_5"]),
+                "swing_high": clean(row.get("swing_high")),
+                "swing_low": clean(row.get("swing_low")),
+            })
+
         print(f"\n{ticker}: skor={scored['score']} -> {signal_label}")
         print(f"  Trend           : {trend}")
         print(f"  Support         : {sr['nearest_support']}")
@@ -90,6 +111,7 @@ def run_screening():
             "score": scored["score"],
             "score_breakdown": scored["breakdown"],
             "signal": signal_label,
+            "price_history": price_history,
         })
 
     export_dashboard_json(results)

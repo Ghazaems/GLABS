@@ -12,7 +12,9 @@ def fetch_daily(ticker: str, period: str = "1y", retries: int = 2) -> pd.DataFra
     ticker: kode tanpa suffix, misal 'BBCA' -> otomatis jadi 'BBCA.JK'
     Return None kalau gagal setelah retry, JANGAN raise (biar batch tidak berhenti).
     """
-    symbol = ticker if ticker.endswith(".JK") else f"{ticker}.JK"
+    # Indeks Yahoo (mis. ^JKSE), forex, dan ticker yang sudah punya suffix
+    # tidak boleh dipaksa menjadi .JK.
+    symbol = ticker if ticker.endswith(".JK") or ticker.startswith("^") or "=" in ticker else f"{ticker}.JK"
 
     for attempt in range(retries + 1):
         try:

@@ -1,0 +1,9 @@
+main.py
+data/
+screener/
+storage/
+.github/
+requirements.txt
+DEPLOY.md
+*.db
+__pycache__/

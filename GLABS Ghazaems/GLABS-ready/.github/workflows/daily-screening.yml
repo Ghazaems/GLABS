@@ -1,0 +1,36 @@
+name: Daily Stock Screening
+
+on:
+  schedule:
+    # Jam 16:30 WIB (09:30 UTC) - setelah bursa IDX tutup (15:00-16:15 WIB + buffer)
+    - cron: "30 9 * * 1-5"   # Senin-Jumat saja
+  workflow_dispatch: {}       # bisa trigger manual dari tab Actions di GitHub
+
+permissions:
+  contents: write
+
+jobs:
+  run-screening:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run screening pipeline
+        run: python main.py
+
+      - name: Commit updated dashboard data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add web/dashboard_data.json storage/screener.db
+          git diff --staged --quiet || git commit -m "chore: update screening data $(date -u +%Y-%m-%d)"
+          git push

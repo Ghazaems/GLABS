@@ -5,6 +5,7 @@
 <title>Morning Ghazker — Stock Screener</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="cockpit.css">
 <style>
 :root {
   --bg-page: #0a0a0a;
@@ -295,10 +296,10 @@ body {
   <!-- ================= MAIN ================= -->
   <div class="main">
     <div class="topbar">
-      <div class="search">
+      <label class="search" for="ticker-search">
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        Cari ticker...
-      </div>
+        <input id="ticker-search" type="search" placeholder="Cari ticker..." autocomplete="off" />
+      </label>
       <div class="avatar"></div>
     </div>
 
@@ -531,6 +532,7 @@ async function loadDashboard() {
     return;
   }
 
+  window.dashboardData = data;
   const wl = data.watchlist || [];
   const s = data.summary || {};
 
@@ -638,9 +640,16 @@ async function loadDashboard() {
       <span class="t">${r.ticker}</span>
       <span class="s">S: ${fmtNum(r.support)} &middot; R: ${fmtNum(r.resistance)}</span>
     </div>`).join("");
+  window.dispatchEvent(new CustomEvent("dashboard-ready", { detail: data }));
 }
 
 loadDashboard();
 </script>
+<div class="drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>
+<section class="analysis-drawer" id="analysis-drawer" aria-hidden="true" aria-label="Detail analisis">
+  <div id="analysis-content"></div>
+</section>
+<div class="toast" id="toast" role="status"></div>
+<script src="cockpit.js"></script>
 </body>
 </html>
