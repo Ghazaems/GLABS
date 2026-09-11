@@ -97,7 +97,7 @@ def run_backtest():
                 cs = {"status": "no_ihsg_data"}
 
             scored = compute_score(trend, wy, vwap, cs, sr)
-            signal = classify_signal(scored["score"])
+            signal = classify_signal(scored)
 
             entry_price = float(df["Close"].iloc[t])
             row = {
