@@ -171,22 +171,33 @@ body {
   border-radius: var(--radius-sm); padding: 8px 12px;
 }
 .seg-group {
+  position: relative;
   display: flex;
   background: var(--bg-card);
   backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
   border: 1px solid var(--border);
   border-radius: 999px; padding: 3px; overflow: hidden;
 }
+.seg-slider {
+  position: absolute;
+  top: 3px; bottom: 3px; left: 3px;
+  width: calc(50% - 3px);
+  background: rgba(255,255,255,0.14);
+  border-radius: 999px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.12) inset, 0 3px 10px -5px rgba(0,0,0,0.5);
+  transition: transform .28s var(--ease);
+  z-index: 0;
+}
 .seg-group button {
+  position: relative; z-index: 1;
+  flex: 1;
   background: transparent; border: none; color: var(--text-secondary);
   font-size: 12.5px; padding: 7px 15px; cursor: pointer; font-family: inherit;
   border-radius: 999px;
-  transition: background .16s var(--ease), color .16s var(--ease);
+  transition: color .2s var(--ease);
 }
 .seg-group button.active {
-  background: rgba(255,255,255,0.14);
   color: var(--text-primary);
-  box-shadow: 0 1px 0 rgba(255,255,255,0.12) inset, 0 3px 10px -5px rgba(0,0,0,0.5);
 }
 .icon-square {
   width: 34px; height: 34px; border-radius: var(--radius-sm);
@@ -512,16 +523,18 @@ html { overflow-x: hidden; }
           <p id="greet-sub">Memuat data screener...</p>
         </div>
         <div class="controls">
-          <div class="icon-square">
-            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-          </div>
-          <select><option>1 tahun</option></select>
           <div class="seg-group">
-            <button class="active">Overview</button>
-            <button>Metrik</button>
+            <div class="seg-slider" id="seg-slider"></div>
+            <button class="active" id="style-weekly" onclick="setStyle('weekly')">Weekly</button>
+            <button id="style-swing" onclick="setStyle('swing')">Swing</button>
           </div>
         </div>
       </div>
+      <p class="loading-msg" style="margin-top:-18px; margin-bottom:22px">
+        Toggle ini cuma ganti isi <b>Sinyal breakdown</b> dan <b>Watchlist</b> - kartu lain
+        tetap pakai profil Weekly (default). "Swing" pakai window/lookback lebih panjang
+        (~3-4 bulan) di trend, VWAP, dan comparative strength.
+      </p>
 
       <!-- ROW 1 -->
       <div class="grid">
@@ -899,23 +912,9 @@ async function loadDashboard() {
     }).join("");
   }
 
-  // Sinyal breakdown
-  document.getElementById("count-beli").textContent = sc.beli || 0;
-  document.getElementById("count-pantau").textContent = sc.pantau || 0;
-  document.getElementById("count-jual").textContent = sc.jual || 0;
-  const total = (sc.beli||0)+(sc.pantau||0)+(sc.jual||0) || 1;
-  document.getElementById("sig-track").innerHTML = `
-    <span style="width:${(sc.beli||0)/total*100}%; background:var(--success)"></span>
-    <span style="width:${(sc.pantau||0)/total*100}%; background:var(--warning)"></span>
-    <span style="width:${(sc.jual||0)/total*100}%; background:var(--danger)"></span>`;
-
-  // Watchlist (top 5 by score)
-  const wlRows = document.getElementById("watchlist-rows");
-  wlRows.innerHTML = wl.slice(0, 5).map(r => `
-    <div class="wl-row">
-      <span class="t">${r.ticker} <span class="s">${fmtNum(r.last_close)}</span></span>
-      <span class="badge ${r.signal}">${r.signal.charAt(0).toUpperCase()+r.signal.slice(1)}</span>
-    </div>`).join("");
+  // Sinyal breakdown & Watchlist - fungsi terpisah (lihat di bawah), karena
+  // ini yang berubah pas toggle Weekly/Swing diklik.
+  renderSignalDependent(currentStyle);
 
   // Trend structure
   const healthy = wl.filter(r => r.trend === "uptrend" || r.trend === "sideways").length;
@@ -972,6 +971,46 @@ async function loadDashboard() {
       <span class="s">S: ${fmtNum(r.support)} &middot; R: ${fmtNum(r.resistance)}</span>
     </div>`).join("");
   window.dispatchEvent(new CustomEvent("dashboard-ready", { detail: data }));
+}
+
+let currentStyle = "weekly";
+
+function renderSignalDependent(style) {
+  const wl = (window.dashboardData && window.dashboardData.watchlist) || [];
+  const scoreKey = style === "swing" ? "score_swing" : "score";
+  const signalKey = style === "swing" ? "signal_swing" : "signal";
+
+  const sc = { beli: 0, pantau: 0, jual: 0 };
+  wl.forEach(r => { if (r[signalKey] in sc) sc[r[signalKey]]++; });
+
+  document.getElementById("count-beli").textContent = sc.beli || 0;
+  document.getElementById("count-pantau").textContent = sc.pantau || 0;
+  document.getElementById("count-jual").textContent = sc.jual || 0;
+  const total = (sc.beli||0)+(sc.pantau||0)+(sc.jual||0) || 1;
+  document.getElementById("sig-track").innerHTML = `
+    <span style="width:${(sc.beli||0)/total*100}%; background:var(--success)"></span>
+    <span style="width:${(sc.pantau||0)/total*100}%; background:var(--warning)"></span>
+    <span style="width:${(sc.jual||0)/total*100}%; background:var(--danger)"></span>`;
+
+  const sortedWl = [...wl].sort((a, b) => (b[scoreKey] || 0) - (a[scoreKey] || 0));
+  const wlRows = document.getElementById("watchlist-rows");
+  wlRows.innerHTML = sortedWl.slice(0, 5).map(r => {
+    const sig = r[signalKey] || "pantau";
+    return `
+    <div class="wl-row">
+      <span class="t">${r.ticker} <span class="s">${fmtNum(r.last_close)}</span></span>
+      <span class="badge ${sig}">${sig.charAt(0).toUpperCase()+sig.slice(1)}</span>
+    </div>`;
+  }).join("");
+}
+
+function setStyle(style) {
+  currentStyle = style;
+  document.getElementById("style-weekly").classList.toggle("active", style === "weekly");
+  document.getElementById("style-swing").classList.toggle("active", style === "swing");
+  document.getElementById("seg-slider").style.transform =
+    style === "swing" ? "translateX(100%)" : "translateX(0%)";
+  renderSignalDependent(style);
 }
 
 loadDashboard();
@@ -1040,7 +1079,11 @@ function computeCombinedWinrate(bySignalAtHorizon) {
   return { winPct, totalSampel, totalWin };
 }
 
-function buildHorizonGridHtml(bySignal, horizons) {
+function buildHorizonGridHtml(bySignal, horizons, opts) {
+  const returnKey = (opts && opts.returnKey) || "rata_rata_return_pct";
+  const winKey = (opts && opts.winKey) || "persen_untung";
+  const label = (opts && opts.label) || "rata-rata";
+
   let html = `
     <div class="section-title">
       <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/></svg>
@@ -1058,8 +1101,8 @@ function buildHorizonGridHtml(bySignal, horizons) {
         <div class="sig-line">
           <span class="badge ${r.signal}">${SIGNAL_LABEL[r.signal] || r.signal}</span>
           <span class="stats">
-            <b>${fmtPct(r.rata_rata_return_pct)}</b> rata-rata<br/>
-            <span class="muted">${r.jumlah_sampel} sampel &middot; ${r.persen_untung}% untung</span>
+            <b>${fmtPct(r[returnKey])}</b> ${label}<br/>
+            <span class="muted">${r.jumlah_sampel} sampel &middot; ${r[winKey]}% untung</span>
           </span>
         </div>`;
     });
@@ -1089,6 +1132,11 @@ async function loadBacktestReport() {
   const horizons = data.horizons_hari_bursa || [];
   const bySignal = data.by_signal || {};
   const byQuartile = data.by_score_quartile || {};
+  const byYear = data.by_year || {};
+  const hasExcess = Object.values(bySignal).some(rows => rows.some(r => "rata_rata_excess_return_pct" in r));
+  const bsOpts = hasExcess
+    ? { returnKey: "rata_rata_excess_return_pct", winKey: "persen_untung_excess", label: "excess" }
+    : { returnKey: "rata_rata_return_pct", winKey: "persen_untung", label: "rata-rata" };
 
   const { winPct, totalSampel, totalWin } = computeCombinedWinrate(bySignal[String(REPORT_HORIZON)]);
   renderDonut("backtest-donut", winPct, totalSampel);
@@ -1099,13 +1147,14 @@ async function loadBacktestReport() {
     ${data.watchlist.length} ticker &middot; digenerate ${genDate}.
     <div class="donut-legend"><span><i class="win"></i>Profit</span><span><i class="loss"></i>Rugi</span></div>`;
 
+  const quartileReturnKey = hasExcess ? "rata_rata_excess_return_pct" : "rata_rata_return_pct";
   let quartileHtml = `
     <div class="section-title">
       <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
-      Performa per rentang skor (rendah &rarr; tinggi)
+      Performa per rentang skor${hasExcess ? " (excess return vs IHSG)" : ""} (rendah &rarr; tinggi)
     </div>
     <div class="qcard"><table class="qtable"><thead><tr><th>Rentang skor</th>`;
-  horizons.forEach((h) => { quartileHtml += `<th class="num">${h} hari (rata-rata)</th>`; });
+  horizons.forEach((h) => { quartileHtml += `<th class="num">${h} hari</th>`; });
   quartileHtml += `<th class="num">Jumlah sampel</th></tr></thead><tbody>`;
 
   const firstHorizonRows = byQuartile[String(horizons[0])] || [];
@@ -1113,15 +1162,55 @@ async function loadBacktestReport() {
     quartileHtml += `<tr><td>${firstHorizonRows[i].rentang_skor}</td>`;
     horizons.forEach((h) => {
       const row = (byQuartile[String(h)] || [])[i];
-      quartileHtml += `<td class="num">${row ? fmtPct(row.rata_rata_return_pct) : "-"}</td>`;
+      quartileHtml += `<td class="num">${row ? fmtPct(row[quartileReturnKey]) : "-"}</td>`;
     });
     quartileHtml += `<td class="num">${firstHorizonRows[i].jumlah_sampel}</td></tr>`;
   });
   quartileHtml += `</tbody></table></div>`;
 
+  // Konsistensi antar tahun (kalau backtest.py sudah export by_year)
+  let yearHtml = "";
+  const yearHorizons = Object.keys(byYear).map(Number).sort((a, b) => a - b);
+  if (yearHorizons.length) {
+    const defaultH = yearHorizons.includes(REPORT_HORIZON) ? REPORT_HORIZON : yearHorizons[Math.floor(yearHorizons.length / 2)];
+    yearHtml = `
+      <div class="section-title" style="justify-content:space-between">
+        <span style="display:flex; align-items:center; gap:8px">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+          Konsistensi antar tahun - cek apakah hasil didominasi 1 episode pasar
+        </span>
+        <select id="year-horizon-select" style="background:var(--bg-card-2); color:var(--text-primary); border:1px solid var(--border); border-radius:6px; padding:4px 8px; font-size:12px;">
+          ${yearHorizons.map(h => `<option value="${h}" ${h === defaultH ? "selected" : ""}>${h} hari bursa</option>`).join("")}
+        </select>
+      </div>
+      <div id="year-table-wrap"></div>`;
+  }
+
   const noteHtml = `<div class="note-card">${data.catatan || ""}</div>`;
   document.getElementById("backtest-body").innerHTML =
-    buildHorizonGridHtml(bySignal, horizons) + quartileHtml + noteHtml;
+    buildHorizonGridHtml(bySignal, horizons, bsOpts) + quartileHtml + yearHtml + noteHtml;
+
+  if (yearHorizons.length) {
+    const select = document.getElementById("year-horizon-select");
+    const renderYearTable = (h) => {
+      const rows = byYear[String(h)] || [];
+      const order = ["beli", "pantau", "jual"];
+      const years = [...new Set(rows.map(r => r.tahun))].sort();
+      let t = `<div class="qcard"><table class="qtable"><thead><tr><th>Tahun</th><th>Sinyal</th><th class="num">Excess return rata-rata</th><th class="num">Jumlah sampel</th></tr></thead><tbody>`;
+      years.forEach((y) => {
+        rows.filter(r => r.tahun === y)
+          .sort((a, b) => order.indexOf(a.signal) - order.indexOf(b.signal))
+          .forEach((r) => {
+            t += `<tr><td>${y}</td><td><span class="badge ${r.signal}">${SIGNAL_LABEL[r.signal] || r.signal}</span></td>
+              <td class="num">${fmtPct(r.rata_rata_excess_pct)}</td><td class="num">${r.jumlah_sampel}</td></tr>`;
+          });
+      });
+      t += `</tbody></table></div>`;
+      document.getElementById("year-table-wrap").innerHTML = t;
+    };
+    renderYearTable(select.value);
+    select.addEventListener("change", (e) => renderYearTable(e.target.value));
+  }
 }
 
 async function loadForwardReport() {
