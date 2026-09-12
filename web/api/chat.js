@@ -18,7 +18,7 @@ ATURAN:
 - Ini decision-support, bukan sinyal eksekusi otomatis atau rekomendasi investasi resmi -
   ingatkan itu kalau relevan (misalnya saat user menanyakan apakah harus beli/jual).`;
 
-const MODEL = "gemini-2.0-flash";
+const MODEL = "gemini-3.6-flash";
 
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
