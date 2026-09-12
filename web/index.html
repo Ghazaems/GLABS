@@ -855,12 +855,32 @@ function componentSignal(points) {
   return "pantau";
 }
 
+function openTickerAnalysis(ticker) {
+  if (typeof window.openAnalysis === "function") {
+    window.openAnalysis(ticker, "score");
+  }
+}
+
+function getWatchlistFiltered() {
+  const searchEl = document.getElementById("ticker-search");
+  const q = (searchEl?.value || "").toUpperCase().trim();
+  return ALL_WATCHLIST.filter((r) => r.ticker.includes(q));
+}
+
+function applyWatchlistFilter() {
+  renderWatchlistCards(getWatchlistFiltered());
+}
+
 function renderWatchlistCards(rows) {
   const grid = document.getElementById("watchlist-grid");
   const sub = document.getElementById("watchlist-view-sub");
-  if (sub) sub.textContent = `${rows.length} saham dipantau · sinyal trend, Wyckoff, dan VWAP dihitung terpisah`;
+  if (sub) {
+    sub.textContent = rows.length === ALL_WATCHLIST.length
+      ? `${rows.length} saham dipantau · sinyal trend, Wyckoff, dan VWAP dihitung terpisah`
+      : `${rows.length} dari ${ALL_WATCHLIST.length} saham cocok pencarian`;
+  }
   if (!rows.length) {
-    grid.innerHTML = `<p class="loading-msg">Tidak ada ticker di watchlist.</p>`;
+    grid.innerHTML = `<p class="loading-msg">Tidak ada ticker cocok.</p>`;
     return;
   }
   const sorted = [...rows].sort((a, b) => (b.score || 0) - (a.score || 0));
@@ -870,7 +890,7 @@ function renderWatchlistCards(rows) {
     const wyckoffSig = componentSignal(bd.wyckoff);
     const vwapSig = componentSignal(bd.vwap);
     return `
-      <div class="card">
+      <div class="card" style="cursor:pointer" onclick="openTickerAnalysis('${r.ticker}')">
         <div class="wl-card-head">
           <span class="wl-ticker">${r.ticker}</span>
           <span class="wl-price">${fmtNum(r.last_close)} &middot; skor ${r.score}</span>
@@ -940,7 +960,10 @@ function applyScreenerFilterAndSort() {
 
 document.addEventListener("DOMContentLoaded", () => {
   const searchEl = document.getElementById("ticker-search");
-  if (searchEl) searchEl.addEventListener("input", applyScreenerFilterAndSort);
+  if (searchEl) searchEl.addEventListener("input", () => {
+    applyScreenerFilterAndSort();
+    applyWatchlistFilter();
+  });
 });
 
 async function loadDashboard() {
@@ -956,7 +979,7 @@ async function loadDashboard() {
   window.dashboardData = data;
   const wl = data.watchlist || [];
   ALL_WATCHLIST = wl;
-  renderWatchlistCards(wl);
+  applyWatchlistFilter();
   const s = data.summary || {};
 
   // Greeting
@@ -1114,7 +1137,7 @@ function showView(name) {
   document.getElementById("nav-watchlist").classList.toggle("active", name === "watchlist");
   document.getElementById("nav-screener").classList.toggle("active", name === "screener");
   document.getElementById("nav-laporan").classList.toggle("active", name === "laporan");
-  if (name === "watchlist") renderWatchlistCards(ALL_WATCHLIST);
+  if (name === "watchlist") applyWatchlistFilter();
   if (name === "screener") applyScreenerFilterAndSort();
   if (name === "laporan" && !reportLoaded) {
     reportLoaded = true;
