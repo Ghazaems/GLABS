@@ -7,6 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="cockpit.css">
 <link rel="stylesheet" href="workspace.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js"></script>
 <style>
 :root {
   /* --- monochrome base, deeper contrast for glass to read on --- */
@@ -341,6 +343,12 @@ body {
   border-radius: var(--radius-md); padding: 15px 17px;
 }
 .input-row .ph { color: var(--text-muted); font-size: 13.5px; }
+.chat-input-plain {
+  background: none; border: none; outline: none;
+  color: var(--text-primary); font-size: 13.5px; font-family: inherit;
+  width: 100%;
+}
+.chat-input-plain::placeholder { color: var(--text-muted); }
 .input-row .ph b { color: var(--text-primary); font-weight: 500; }
 .input-tools {
   display: flex; align-items: center; justify-content: space-between; margin-top: 16px;
@@ -427,6 +435,46 @@ body {
 @media (max-width: 900px) {
   .wl-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ---------- Chat AI (prompt panel) ---------- */
+#chat-log { display: flex; flex-direction: column; gap: 12px; margin-bottom: 4px; }
+#chat-log:not(:empty) { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border-soft); }
+.chat-msg { font-size: 13.5px; line-height: 1.65; }
+.chat-msg.user { color: var(--text-secondary); }
+.chat-msg.user b { color: var(--text-primary); font-weight: 600; }
+.chat-msg.user .attach { color: var(--text-muted); font-size: 12px; margin-left: 6px; }
+.chat-msg.ai {
+  color: var(--text-primary);
+  background: var(--bg-card-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+}
+.chat-msg.ai p { margin: 0 0 10px; }
+.chat-msg.ai p:last-child { margin-bottom: 0; }
+.chat-msg.ai strong { color: var(--text-primary); font-weight: 600; }
+.chat-msg.ai em { color: var(--text-secondary); }
+.chat-msg.ai ul, .chat-msg.ai ol { margin: 4px 0 10px; padding-left: 20px; }
+.chat-msg.ai ul:last-child, .chat-msg.ai ol:last-child { margin-bottom: 0; }
+.chat-msg.ai li { margin-bottom: 5px; }
+.chat-msg.ai li::marker { color: var(--text-muted); }
+.chat-msg.ai code {
+  background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 5px;
+  font-size: 12px; font-family: ui-monospace, SFMono-Regular, monospace;
+}
+.chat-msg.ai a { color: var(--text-primary); text-decoration: underline; text-underline-offset: 2px; }
+.chat-msg.ai h1, .chat-msg.ai h2, .chat-msg.ai h3 { font-size: 14px; font-weight: 600; margin: 0 0 8px; }
+.chat-msg.loading { color: var(--text-muted); font-style: italic; }
+.chat-msg.error { color: var(--danger); }
+
+.chat-file-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--bg-card-2); border: 1px solid var(--border);
+  border-radius: 999px; padding: 6px 12px; font-size: 12px; color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+.chat-file-chip .remove { cursor: pointer; color: var(--text-muted); font-weight: 600; }
+.chat-file-chip .remove:hover { color: var(--text-primary); }
 
 /* ---------- Laporan: 2 grup terpisah (backtest / forward test) ---------- */
 .report-group {
@@ -716,20 +764,22 @@ html { overflow-x: hidden; }
 
       <!-- PROMPT PANEL -->
       <div class="prompt-panel">
-        <div class="suggestion"><b>Saya mau</b> tahu kenapa skor ANTM turun minggu ini</div>
-        <div class="suggestion"><b>Saya mau</b> lihat ticker mana yang mendekati resistance</div>
-        <div class="suggestion"><b>Saya mau</b> bandingkan VWAP semua ticker di watchlist</div>
+        <div id="chat-log"></div>
+
+        <div class="suggestion" data-q="tahu kenapa skor ANTM turun minggu ini" onclick="askAI(this.dataset.q)"><b>Saya mau</b> tahu kenapa skor ANTM turun minggu ini</div>
+        <div class="suggestion" data-q="lihat ticker mana yang mendekati resistance" onclick="askAI(this.dataset.q)"><b>Saya mau</b> lihat ticker mana yang mendekati resistance</div>
+        <div class="suggestion" data-q="bandingkan VWAP semua ticker di watchlist" onclick="askAI(this.dataset.q)"><b>Saya mau</b> bandingkan VWAP semua ticker di watchlist</div>
+
+        <div id="chat-file-chip-wrap"></div>
 
         <div class="input-row">
-          <div class="ph"><b>Saya mau</b> ...</div>
+          <input id="chat-input" type="text" class="chat-input-plain" placeholder="Ask anything about this G'LABS..." autocomplete="off" />
           <div class="input-tools">
             <div class="left">
-              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg>
-              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>
-              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+              <input id="chat-file-input" type="file" accept="image/*,.pdf,.txt,.csv" style="display:none" onchange="handleFileSelect(event)" />
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer" onclick="triggerFileUpload()"><path d="M12 5v14M5 12h14"/></svg>
             </div>
-            <div class="send-btn">
+            <div class="send-btn" onclick="sendChat()">
               <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
             </div>
           </div>
@@ -847,6 +897,143 @@ function phaseLetter(phaseStr) {
   if (!phaseStr) return "";
   return phaseStr.split(" ")[0];
 }
+
+// ---------- Chat AI (prompt panel) ----------
+const MAX_FILE_BYTES = 3 * 1024 * 1024; // 3MB mentah (~4MB setelah base64, aman di bawah limit 4.5MB Vercel)
+let pendingFile = null; // { name, mimeType, base64 }
+
+function buildWatchlistContext() {
+  const wl = (window.dashboardData && window.dashboardData.watchlist) || [];
+  return wl.map((r) => ({
+    ticker: r.ticker,
+    last_close: r.last_close,
+    trend: r.trend,
+    support: r.support,
+    resistance: r.resistance,
+    wyckoff_bias: r.wyckoff?.bias,
+    wyckoff_phase: r.wyckoff?.phase,
+    wyckoff_events: (r.wyckoff?.events || []).map((e) => e.type),
+    vwap: r.vwap?.vwap,
+    vwap_position: r.vwap?.position,
+    comparative_strength: r.comparative_strength?.relative_strength_trend,
+    score: r.score,
+    score_breakdown: r.score_breakdown,
+    signal: r.signal,
+  }));
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function renderMarkdown(text) {
+  if (typeof marked === "undefined") return escapeHtml(text);
+  const rawHtml = marked.parse(text, { breaks: true });
+  return typeof DOMPurify !== "undefined" ? DOMPurify.sanitize(rawHtml) : rawHtml;
+}
+
+function triggerFileUpload() {
+  document.getElementById("chat-file-input").click();
+}
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > MAX_FILE_BYTES) {
+    alert(`File terlalu besar (maks ${(MAX_FILE_BYTES / 1024 / 1024).toFixed(0)}MB).`);
+    e.target.value = "";
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const base64 = reader.result.split(",")[1];
+    pendingFile = { name: file.name, mimeType: file.type || "application/octet-stream", base64 };
+    renderFileChip();
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPendingFile() {
+  pendingFile = null;
+  const input = document.getElementById("chat-file-input");
+  if (input) input.value = "";
+  renderFileChip();
+}
+
+function renderFileChip() {
+  const wrap = document.getElementById("chat-file-chip-wrap");
+  if (!wrap) return;
+  wrap.innerHTML = pendingFile
+    ? `<div class="chat-file-chip">📎 ${escapeHtml(pendingFile.name)} <span class="remove" onclick="clearPendingFile()">&times;</span></div>`
+    : "";
+}
+
+async function askAI(question) {
+  question = (question || "").trim();
+  if (!question) return;
+
+  const log = document.getElementById("chat-log");
+  const filePayload = pendingFile ? { mimeType: pendingFile.mimeType, data: pendingFile.base64 } : null;
+  const attachedName = pendingFile?.name;
+  clearPendingFile();
+
+  const userDiv = document.createElement("div");
+  userDiv.className = "chat-msg user";
+  userDiv.innerHTML = `<b>Anda:</b> ${escapeHtml(question)}` +
+    (attachedName ? `<span class="attach">📎 ${escapeHtml(attachedName)}</span>` : "");
+  log.appendChild(userDiv);
+
+  const loadingDiv = document.createElement("div");
+  loadingDiv.className = "chat-msg loading";
+  loadingDiv.textContent = "Memikirkan...";
+  log.appendChild(loadingDiv);
+  loadingDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        question,
+        watchlist: buildWatchlistContext(),
+        generated_at: window.dashboardData?.generated_at,
+        file: filePayload,
+      }),
+    });
+    const data = await res.json();
+    loadingDiv.remove();
+
+    const replyDiv = document.createElement("div");
+    if (!res.ok) {
+      replyDiv.className = "chat-msg error";
+      replyDiv.textContent = data.error || "Terjadi kesalahan saat menghubungi AI.";
+    } else {
+      replyDiv.className = "chat-msg ai";
+      replyDiv.innerHTML = renderMarkdown(data.answer || "Maaf, tidak ada jawaban.");
+    }
+    log.appendChild(replyDiv);
+    replyDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  } catch (e) {
+    loadingDiv.className = "chat-msg error";
+    loadingDiv.textContent = "Gagal menghubungi server. Coba lagi.";
+  }
+}
+
+function sendChat() {
+  const input = document.getElementById("chat-input");
+  const q = input.value;
+  input.value = "";
+  askAI(q);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const chatInput = document.getElementById("chat-input");
+  if (chatInput) {
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendChat();
+    });
+  }
+});
 
 // ---------- Watchlist per-komponen (3 sinyal independen, belum digabung) ----------
 function componentSignal(points) {
