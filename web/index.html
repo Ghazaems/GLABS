@@ -399,6 +399,41 @@ body {
 }
 .loading-msg { color: var(--text-muted); font-size: 13px; padding: 20px 0; }
 
+/* ---------- Laporan: 2 grup terpisah (backtest / forward test) ---------- */
+.report-group {
+  background: var(--bg-card);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px 26px;
+  margin-bottom: 22px;
+}
+.report-group-head { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.report-group-head svg { width: 18px; height: 18px; stroke: var(--text-secondary); fill: none; }
+.report-group-head h2 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+.report-group-head h2 span { font-size: 13px; font-weight: 400; color: var(--text-muted); }
+
+.report-summary-row {
+  display: flex; align-items: center; gap: 28px;
+  padding-bottom: 20px; margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-soft);
+  flex-wrap: wrap;
+}
+.report-summary-text { flex: 1; min-width: 220px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.65; }
+.report-summary-text b { color: var(--text-primary); }
+
+.donut-wrap { flex-shrink: 0; width: 148px; height: 148px; }
+.donut-wrap svg { width: 100%; height: 100%; }
+.donut-center-pct { font-size: 25px; font-weight: 700; fill: var(--text-primary); letter-spacing: -0.02em; }
+.donut-center-label { font-size: 10.5px; fill: var(--text-muted); letter-spacing: 0.03em; }
+.donut-legend { display: flex; gap: 16px; margin-top: 12px; font-size: 12px; color: var(--text-secondary); }
+.donut-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.donut-legend i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.donut-legend i.win { background: var(--success); }
+.donut-legend i.loss { background: var(--danger); }
+
+
 /* ---------- scrollbar : Apple-style translucent overlay ---------- */
 html { overflow-x: hidden; }
 * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.22) transparent; }
@@ -674,21 +709,47 @@ html { overflow-x: hidden; }
       <div id="view-laporan" style="display:none">
         <div class="greet-row">
           <div class="greet">
-            <h1>Laporan <em>Backtest</em></h1>
-            <p id="laporan-sub">Memuat hasil backtest...</p>
+            <h1>Laporan <em>Performa</em></h1>
+            <p id="laporan-sub">Memuat hasil backtest &amp; forward test...</p>
           </div>
         </div>
 
         <div class="explain-card">
-          <b>Apa isi laporan ini?</b> Sistem menguji formula skor (trend, Wyckoff, VWAP, comparative
-          strength) ke data harga historis. Setiap kali sinyal "beli/pantau/jual" pernah muncul di
-          masa lalu, dicatat harganya <b>5, 10, dan 20 hari bursa</b> setelahnya — naik atau turun,
-          berapa persen. Ini bukan jaminan masa depan, tapi cara mengukur apakah skor yang dihasilkan
-          sistem ini secara historis masuk akal atau tidak.
+          <b>Backtest</b> menguji formula skor ke data harga <b>historis</b> (instan, simulasi).
+          <b>Forward test</b> mengukur sinyal yang <b>benar-benar muncul</b> dari cron job harian,
+          dibandingkan harga <b>nyata</b> setelah waktu berjalan — bukan simulasi. Keduanya melihat
+          hasil <b>20 hari bursa</b> setelah sinyal muncul. Ini bukan jaminan masa depan, tapi cara
+          mengukur apakah skor yang dihasilkan sistem ini masuk akal atau tidak.
         </div>
 
-        <div id="laporan-body">
-          <p class="loading-msg">Memuat backtest_data.json...</p>
+        <!-- ===== GRUP 1: BACKTEST ===== -->
+        <div class="report-group">
+          <div class="report-group-head">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><path d="M7 15l3-4 3 2 4-6"/></svg>
+            <h2>Backtest <span>&middot; simulasi 3 tahun historis</span></h2>
+          </div>
+          <div class="report-summary-row">
+            <div class="donut-wrap" id="backtest-donut"></div>
+            <div class="report-summary-text" id="backtest-summary-text">Memuat...</div>
+          </div>
+          <div id="backtest-body">
+            <p class="loading-msg">Memuat backtest_data.json...</p>
+          </div>
+        </div>
+
+        <!-- ===== GRUP 2: FORWARD TEST ===== -->
+        <div class="report-group">
+          <div class="report-group-head">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+            <h2>Forward Test <span>&middot; hasil nyata, real-time</span></h2>
+          </div>
+          <div class="report-summary-row">
+            <div class="donut-wrap" id="forward-donut"></div>
+            <div class="report-summary-text" id="forward-summary-text">Memuat...</div>
+          </div>
+          <div id="forward-body">
+            <p class="loading-msg">Memuat forward_test_data.json...</p>
+          </div>
         </div>
       </div><!-- /view-laporan -->
 
@@ -915,8 +976,9 @@ async function loadDashboard() {
 
 loadDashboard();
 
-// ---------- Laporan (backtest) ----------
+// ---------- Laporan (backtest + forward test, 2 grup terpisah) ----------
 const SIGNAL_LABEL = { beli: "Beli", pantau: "Pantau", jual: "Jual" };
+const REPORT_HORIZON = 20; // sesuai kesepakatan: pie chart pakai horizon 20 hari bursa
 let reportLoaded = false;
 
 function fmtPct(n) {
@@ -935,34 +997,51 @@ function showView(name) {
   if (name === "screener") applyScreenerFilterAndSort();
   if (name === "laporan" && !reportLoaded) {
     reportLoaded = true;
-    loadReport();
+    loadBacktestReport();
+    loadForwardReport();
   }
 }
 
-async function loadReport() {
-  let data;
-  try {
-    const res = await fetch("backtest_data.json");
-    if (!res.ok) throw new Error("not found");
-    data = await res.json();
-  } catch (e) {
-    document.getElementById("laporan-sub").textContent = "Belum ada data backtest.";
-    document.getElementById("laporan-body").innerHTML =
-      `<p class="loading-msg">Jalankan <code>python backtest.py</code> dulu di komputer kamu
-      (atau tunggu workflow mingguan jalan), lalu upload <code>web/backtest_data.json</code>
-      yang terbentuk ke repo.</p>`;
+// ---------- Donut chart (SVG murni, gaya glass/Apple) ----------
+function renderDonut(containerId, winPct, totalSampel) {
+  const el = document.getElementById(containerId);
+  if (winPct === null || totalSampel === 0) {
+    el.innerHTML = `<svg viewBox="0 0 148 148">
+      <circle cx="74" cy="74" r="58" fill="none" stroke="var(--border)" stroke-width="14"/>
+      <text x="74" y="70" text-anchor="middle" class="donut-center-pct" font-size="16">-</text>
+      <text x="74" y="90" text-anchor="middle" class="donut-center-label">belum ada data</text>
+    </svg>`;
     return;
   }
 
-  const genDate = new Date(data.generated_at).toLocaleString("id-ID");
-  document.getElementById("laporan-sub").textContent =
-    `${data.total_sampel} sampel sinyal · periode ${data.period} · ${data.watchlist.length} ticker · digenerate ${genDate}`;
+  const r = 58, circumference = 2 * Math.PI * r;
+  const winLen = (winPct / 100) * circumference;
 
-  const horizons = data.horizons_hari_bursa || [];
-  const bySignal = data.by_signal || {};
-  const byQuartile = data.by_score_quartile || {};
+  el.innerHTML = `
+    <svg viewBox="0 0 148 148">
+      <circle cx="74" cy="74" r="${r}" fill="none" stroke="var(--danger-bg)" stroke-width="14"/>
+      <circle cx="74" cy="74" r="${r}" fill="none" stroke="var(--success)" stroke-width="14"
+        stroke-dasharray="${winLen} ${circumference}" stroke-linecap="round"
+        transform="rotate(-90 74 74)"/>
+      <text x="74" y="70" text-anchor="middle" class="donut-center-pct">${winPct}%</text>
+      <text x="74" y="90" text-anchor="middle" class="donut-center-label">WIN RATE</text>
+    </svg>`;
+}
 
-  let horizonHtml = `
+/** Gabungkan semua kategori sinyal (beli+pantau+jual) di 1 horizon jadi 1 angka winrate. */
+function computeCombinedWinrate(bySignalAtHorizon) {
+  if (!bySignalAtHorizon || !bySignalAtHorizon.length) return { winPct: null, totalSampel: 0, totalWin: 0 };
+  let totalSampel = 0, totalWin = 0;
+  bySignalAtHorizon.forEach((r) => {
+    totalSampel += r.jumlah_sampel;
+    totalWin += Math.round((r.persen_untung / 100) * r.jumlah_sampel);
+  });
+  const winPct = totalSampel > 0 ? Math.round((totalWin / totalSampel) * 100) : null;
+  return { winPct, totalSampel, totalWin };
+}
+
+function buildHorizonGridHtml(bySignal, horizons) {
+  let html = `
     <div class="section-title">
       <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/></svg>
       Performa per kategori sinyal
@@ -973,20 +1052,52 @@ async function loadReport() {
     const rows = bySignal[String(h)] || [];
     const order = ["beli", "pantau", "jual"];
     const sorted = [...rows].sort((a, b) => order.indexOf(a.signal) - order.indexOf(b.signal));
-    horizonHtml += `<div class="h-card"><div class="h-title">${h} hari bursa <span>setelah sinyal muncul</span></div>`;
+    html += `<div class="h-card"><div class="h-title">${h} hari bursa <span>setelah sinyal muncul</span></div>`;
     sorted.forEach((r) => {
-      horizonHtml += `
+      html += `
         <div class="sig-line">
           <span class="badge ${r.signal}">${SIGNAL_LABEL[r.signal] || r.signal}</span>
           <span class="stats">
             <b>${fmtPct(r.rata_rata_return_pct)}</b> rata-rata<br/>
-            <span class="muted">${r.jumlah_sampel} sampel · ${r.persen_untung}% untung</span>
+            <span class="muted">${r.jumlah_sampel} sampel &middot; ${r.persen_untung}% untung</span>
           </span>
         </div>`;
     });
-    horizonHtml += `</div>`;
+    html += `</div>`;
   });
-  horizonHtml += `</div>`;
+  html += `</div>`;
+  return html;
+}
+
+async function loadBacktestReport() {
+  let data;
+  try {
+    const res = await fetch("backtest_data.json");
+    if (!res.ok) throw new Error("not found");
+    data = await res.json();
+  } catch (e) {
+    document.getElementById("backtest-summary-text").textContent = "Belum ada data backtest.";
+    renderDonut("backtest-donut", null, 0);
+    document.getElementById("backtest-body").innerHTML =
+      `<p class="loading-msg">Jalankan <code>python backtest.py</code> dulu di komputer kamu
+      (atau tunggu workflow mingguan jalan), lalu upload <code>web/backtest_data.json</code>
+      yang terbentuk ke repo.</p>`;
+    return;
+  }
+
+  const genDate = new Date(data.generated_at).toLocaleString("id-ID");
+  const horizons = data.horizons_hari_bursa || [];
+  const bySignal = data.by_signal || {};
+  const byQuartile = data.by_score_quartile || {};
+
+  const { winPct, totalSampel, totalWin } = computeCombinedWinrate(bySignal[String(REPORT_HORIZON)]);
+  renderDonut("backtest-donut", winPct, totalSampel);
+  document.getElementById("backtest-summary-text").innerHTML =
+    `Dari <b>${totalSampel}</b> sampel sinyal (semua kategori, horizon ${REPORT_HORIZON} hari bursa),
+    <b>${totalWin}</b> di antaranya profit dan <b>${totalSampel - totalWin}</b> rugi.
+    Total ${data.total_sampel} sampel &middot; periode ${data.period} &middot;
+    ${data.watchlist.length} ticker &middot; digenerate ${genDate}.
+    <div class="donut-legend"><span><i class="win"></i>Profit</span><span><i class="loss"></i>Rugi</span></div>`;
 
   let quartileHtml = `
     <div class="section-title">
@@ -1009,7 +1120,64 @@ async function loadReport() {
   quartileHtml += `</tbody></table></div>`;
 
   const noteHtml = `<div class="note-card">${data.catatan || ""}</div>`;
-  document.getElementById("laporan-body").innerHTML = horizonHtml + quartileHtml + noteHtml;
+  document.getElementById("backtest-body").innerHTML =
+    buildHorizonGridHtml(bySignal, horizons) + quartileHtml + noteHtml;
+}
+
+async function loadForwardReport() {
+  let data;
+  try {
+    const res = await fetch("forward_test_data.json");
+    if (!res.ok) throw new Error("not found");
+    data = await res.json();
+  } catch (e) {
+    document.getElementById("forward-summary-text").textContent =
+      "Belum ada data forward test. Perlu minimal beberapa minggu sejak sinyal pertama tercatat.";
+    renderDonut("forward-donut", null, 0);
+    document.getElementById("forward-body").innerHTML =
+      `<p class="loading-msg">Cron mingguan (<code>weekly-forward-test.yml</code>) akan mengisi
+      <code>web/forward_test_data.json</code> otomatis setelah cukup waktu berjalan.</p>`;
+    return;
+  }
+
+  const genDate = new Date(data.generated_at).toLocaleString("id-ID");
+  const horizons = data.horizons_hari_bursa || [];
+  const bySignal = data.by_signal || {};
+
+  const { winPct, totalSampel, totalWin } = computeCombinedWinrate(bySignal[String(REPORT_HORIZON)]);
+  renderDonut("forward-donut", winPct, totalSampel);
+  document.getElementById("forward-summary-text").innerHTML =
+    `Dari <b>${totalSampel}</b> sampel sinyal nyata yang sudah matang (semua kategori, horizon
+    ${REPORT_HORIZON} hari bursa), <b>${totalWin}</b> di antaranya profit dan
+    <b>${totalSampel - totalWin}</b> rugi. Total sampel terdaftar: ${data.total_sampel_terdaftar}
+    (${data.total_sampel_matang} sudah matang) &middot; digenerate ${genDate}.
+    <div class="donut-legend"><span><i class="win"></i>Profit</span><span><i class="loss"></i>Rugi</span></div>`;
+
+  const detailRows = data.detail_terbaru || [];
+  let detailHtml = `
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      Sinyal terbaru yang tercatat
+    </div>
+    <div class="qcard"><table class="qtable"><thead><tr>
+      <th>Ticker</th><th>Tanggal</th><th>Sinyal</th>`;
+  horizons.forEach((h) => { detailHtml += `<th class="num">${h} hari</th>`; });
+  detailHtml += `</tr></thead><tbody>`;
+
+  detailRows.slice(0, 15).forEach((r) => {
+    detailHtml += `<tr><td>${r.ticker}</td><td>${r.date}</td>
+      <td><span class="badge ${r.signal}">${SIGNAL_LABEL[r.signal] || r.signal}</span></td>`;
+    horizons.forEach((h) => {
+      const pct = r.returns ? r.returns[String(h)] : null;
+      detailHtml += `<td class="num">${pct === null || pct === undefined ? "belum matang" : fmtPct(pct)}</td>`;
+    });
+    detailHtml += `</tr>`;
+  });
+  detailHtml += `</tbody></table></div>`;
+
+  const noteHtml = `<div class="note-card">${data.catatan || ""}</div>`;
+  document.getElementById("forward-body").innerHTML =
+    buildHorizonGridHtml(bySignal, horizons) + detailHtml + noteHtml;
 }
 </script>
 <div class="drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>
