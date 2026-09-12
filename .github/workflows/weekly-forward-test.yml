@@ -1,0 +1,37 @@
+name: Weekly Forward Test
+
+on:
+  schedule:
+    - cron: "0 10 * * 6"   # Sabtu jam 17:00 WIB, setelah 5 hari bursa terkumpul
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+env:
+  PROJECT_DIR: "GLABS Ghazaems/GLABS-ready"
+
+jobs:
+  run-forward-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run forward test
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: python forward_test.py
+
+      - name: Commit updated forward test data
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add web/forward_test_data.json
+          git diff --staged --quiet || git commit -m "chore: update forward test data $(date -u +%Y-%m-%d)"
+          git push
