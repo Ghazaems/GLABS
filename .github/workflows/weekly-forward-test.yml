@@ -8,9 +8,6 @@ on:
 permissions:
   contents: write
 
-env:
-  PROJECT_DIR: "GLABS Ghazaems/GLABS-ready"
-
 jobs:
   run-forward-test:
     runs-on: ubuntu-latest
@@ -24,11 +21,9 @@ jobs:
           python-version: "3.11"
 
       - name: Run forward test
-        working-directory: ${{ env.PROJECT_DIR }}
         run: python forward_test.py
 
       - name: Commit updated forward test data
-        working-directory: ${{ env.PROJECT_DIR }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
