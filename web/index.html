@@ -410,6 +410,24 @@ body {
 }
 .loading-msg { color: var(--text-muted); font-size: 13px; padding: 20px 0; }
 
+/* ---------- Watchlist per-komponen ---------- */
+.wl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.wl-card-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.wl-card-head .wl-ticker { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+.wl-card-head .wl-price { font-size: 11.5px; color: var(--text-muted); }
+.wl-comp-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 0; border-top: 1px solid var(--border-soft); font-size: 12.5px;
+}
+.wl-comp-row:first-child { border-top: none; }
+.wl-comp-row .wl-comp-name { color: var(--text-secondary); }
+@media (max-width: 900px) {
+  .wl-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
 /* ---------- Laporan: 2 grup terpisah (backtest / forward test) ---------- */
 .report-group {
   background: var(--bg-card);
@@ -482,7 +500,7 @@ html { overflow-x: hidden; }
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/><path d="M14 7h6v6"/></svg>
         <span class="tip">Screener</span>
       </div>
-      <div class="icon-btn">
+      <div class="icon-btn" id="nav-watchlist" onclick="showView('watchlist')">
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><rect x="7" y="12" width="2.5" height="5"/><rect x="11.5" y="8" width="2.5" height="9"/><rect x="16" y="10" width="2.5" height="7"/></svg>
         <span class="tip">Watchlist</span>
       </div>
@@ -766,6 +784,23 @@ html { overflow-x: hidden; }
         </div>
       </div><!-- /view-laporan -->
 
+      <div id="view-watchlist" style="display:none">
+        <div class="greet-row">
+          <div class="greet">
+            <h1>Watchlist <em>per komponen</em></h1>
+            <p id="watchlist-view-sub">Memuat...</p>
+          </div>
+        </div>
+        <p class="loading-msg" style="margin-top:-18px; margin-bottom:22px">
+          Tiap kartu menunjukkan <b>3 sinyal independen</b> — Trend, Wyckoff, VWAP — belum
+          digabung jadi satu skor komposit. Berguna untuk melihat kapan ketiganya sepakat,
+          dan kapan salah satu berlawanan arah dengan yang lain.
+        </p>
+        <div class="wl-grid" id="watchlist-grid">
+          <p class="loading-msg">Memuat...</p>
+        </div>
+      </div><!-- /view-watchlist -->
+
       <div id="view-screener" style="display:none">
         <div class="greet-row">
           <div class="greet">
@@ -811,6 +846,49 @@ function fmtNum(n) {
 function phaseLetter(phaseStr) {
   if (!phaseStr) return "";
   return phaseStr.split(" ")[0];
+}
+
+// ---------- Watchlist per-komponen (3 sinyal independen, belum digabung) ----------
+function componentSignal(points) {
+  if (points > 0) return "beli";
+  if (points < 0) return "jual";
+  return "pantau";
+}
+
+function renderWatchlistCards(rows) {
+  const grid = document.getElementById("watchlist-grid");
+  const sub = document.getElementById("watchlist-view-sub");
+  if (sub) sub.textContent = `${rows.length} saham dipantau · sinyal trend, Wyckoff, dan VWAP dihitung terpisah`;
+  if (!rows.length) {
+    grid.innerHTML = `<p class="loading-msg">Tidak ada ticker di watchlist.</p>`;
+    return;
+  }
+  const sorted = [...rows].sort((a, b) => (b.score || 0) - (a.score || 0));
+  grid.innerHTML = sorted.map((r) => {
+    const bd = r.score_breakdown || {};
+    const trendSig = componentSignal(bd.trend);
+    const wyckoffSig = componentSignal(bd.wyckoff);
+    const vwapSig = componentSignal(bd.vwap);
+    return `
+      <div class="card">
+        <div class="wl-card-head">
+          <span class="wl-ticker">${r.ticker}</span>
+          <span class="wl-price">${fmtNum(r.last_close)} &middot; skor ${r.score}</span>
+        </div>
+        <div class="wl-comp-row">
+          <span class="wl-comp-name">Trend</span>
+          <span class="badge ${trendSig}">${SIGNAL_LABEL[trendSig]}</span>
+        </div>
+        <div class="wl-comp-row">
+          <span class="wl-comp-name">Wyckoff</span>
+          <span class="badge ${wyckoffSig}">${SIGNAL_LABEL[wyckoffSig]}</span>
+        </div>
+        <div class="wl-comp-row">
+          <span class="wl-comp-name">VWAP</span>
+          <span class="badge ${vwapSig}">${SIGNAL_LABEL[vwapSig]}</span>
+        </div>
+      </div>`;
+  }).join("");
 }
 
 // ---------- Screener (full sortable/filterable table) ----------
@@ -878,6 +956,7 @@ async function loadDashboard() {
   window.dashboardData = data;
   const wl = data.watchlist || [];
   ALL_WATCHLIST = wl;
+  renderWatchlistCards(wl);
   const s = data.summary || {};
 
   // Greeting
@@ -1028,11 +1107,14 @@ function fmtPct(n) {
 
 function showView(name) {
   document.getElementById("view-overview").style.display = name === "overview" ? "" : "none";
+  document.getElementById("view-watchlist").style.display = name === "watchlist" ? "" : "none";
   document.getElementById("view-screener").style.display = name === "screener" ? "" : "none";
   document.getElementById("view-laporan").style.display = name === "laporan" ? "" : "none";
   document.getElementById("nav-overview").classList.toggle("active", name === "overview");
+  document.getElementById("nav-watchlist").classList.toggle("active", name === "watchlist");
   document.getElementById("nav-screener").classList.toggle("active", name === "screener");
   document.getElementById("nav-laporan").classList.toggle("active", name === "laporan");
+  if (name === "watchlist") renderWatchlistCards(ALL_WATCHLIST);
   if (name === "screener") applyScreenerFilterAndSort();
   if (name === "laporan" && !reportLoaded) {
     reportLoaded = true;
