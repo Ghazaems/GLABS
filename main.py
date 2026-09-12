@@ -67,6 +67,8 @@ def run_screening():
         # 6. Skor komposit
         scored = compute_score(trend, wy, vwap, cs, sr)
         signal_label = classify_signal(scored)
+        save_signal(ticker, date_str, "composite", signal_label, note=f"score={scored['score']}")
+
         # Data visual untuk cockpit. Batasi 180 bar agar file dashboard tetap ringan.
         visual_df = find_swing_points(df.tail(180).copy())
         visual_df["vwap_5"] = rolling_vwap(visual_df, window=5)
