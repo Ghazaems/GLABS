@@ -44,30 +44,43 @@ def run_screening():
 
         date_str = df.index[-1].strftime("%Y-%m-%d")
 
-        # 1. Trend structure
-        trend = trend_structure(df)
+        # 1. Trend structure - profil WEEKLY (default, window pendek)
+        trend = trend_structure(df, window=5)
         save_signal(ticker, date_str, "trend", trend)
 
-        # 2. Support/resistance
-        sr = support_resistance_levels(df)
+        # 1b. Trend structure - profil SWING (window lebih panjang, ~1 bulan
+        # per swing point, cocok gaya 3-4 bulanan sesuai temuan backtest)
+        trend_swing = trend_structure(df, window=20)
 
-        # 3. Wyckoff - trading range + event detection
+        # 2. Support/resistance - WEEKLY (default) & SWING (lookback lebih panjang)
+        sr = support_resistance_levels(df, window=5, lookback=60)
+        sr_swing = support_resistance_levels(df, window=20, lookback=180)
+
+        # 3. Wyckoff - trading range + event detection (dipakai bersama, belum
+        # dibedakan per gaya - deteksi TR-nya tidak diparameterisasi window)
         wy = analyze_latest_trading_range(df)
         if wy.get("bias") and wy["bias"] != "unclear":
             events_str = ", ".join(e["type"] for e in wy["events"])
             save_signal(ticker, date_str, "wyckoff", wy["bias"],
                         note=f"phase={wy['phase']}, events={events_str}")
 
-        # 4. VWAP mingguan
+        # 4. VWAP - weekly (5 hari) & swing (~1 bulan/20 hari)
         vwap = price_vs_vwap(df, window=5)
+        vwap_swing = price_vs_vwap(df, window=20)
 
-        # 5. Comparative strength vs IHSG
+        # 5. Comparative strength vs IHSG - weekly (20 hari) & swing (60 hari)
         cs = comparative_strength(df, ihsg) if ihsg is not None else {"status": "no_ihsg_data"}
+        cs_swing = comparative_strength(df, ihsg, window=60) if ihsg is not None else {"status": "no_ihsg_data"}
 
-        # 6. Skor komposit
+        # 6. Skor komposit - WEEKLY (dipakai Top pick, Trend structure, dst -
+        # semua card selain Sinyal breakdown & Watchlist tetap pakai ini)
         scored = compute_score(trend, wy, vwap, cs, sr)
         signal_label = classify_signal(scored)
         save_signal(ticker, date_str, "composite", signal_label, note=f"score={scored['score']}")
+
+        # 6b. Skor komposit - SWING (khusus buat toggle di Sinyal breakdown & Watchlist)
+        scored_swing = compute_score(trend_swing, wy, vwap_swing, cs_swing, sr_swing)
+        signal_label_swing = classify_signal(scored_swing)
 
         # Data visual untuk cockpit. Batasi 180 bar agar file dashboard tetap ringan.
         visual_df = find_swing_points(df.tail(180).copy())
@@ -89,7 +102,7 @@ def run_screening():
                 "swing_low": clean(row.get("swing_low")),
             })
 
-        print(f"\n{ticker}: skor={scored['score']} -> {signal_label}")
+        print(f"\n{ticker}: skor={scored['score']} -> {signal_label} (swing: {scored_swing['score']} -> {signal_label_swing})")
         print(f"  Trend           : {trend}")
         print(f"  Support         : {sr['nearest_support']}")
         print(f"  Resistance      : {sr['nearest_resistance']}")
@@ -114,6 +127,8 @@ def run_screening():
             "score": scored["score"],
             "score_breakdown": scored["breakdown"],
             "signal": signal_label,
+            "score_swing": scored_swing["score"],
+            "signal_swing": signal_label_swing,
             "price_history": price_history,
         })
 
