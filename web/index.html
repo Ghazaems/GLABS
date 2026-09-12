@@ -398,6 +398,25 @@ body {
   padding: 15px 17px; margin-top: 22px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.62;
 }
 .loading-msg { color: var(--text-muted); font-size: 13px; padding: 20px 0; }
+
+/* ---------- scrollbar : Apple-style translucent overlay ---------- */
+html { overflow-x: hidden; }
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.22) transparent; }
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background-color: rgba(255,255,255,0.18);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background-color .18s var(--ease);
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255,255,255,0.32);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-corner { background: transparent; }
+
 </style>
 </head>
 <body>
@@ -413,7 +432,7 @@ body {
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         <span class="tip">Overview</span>
       </div>
-      <div class="icon-btn">
+      <div class="icon-btn" id="nav-screener" onclick="showView('screener')">
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/><path d="M14 7h6v6"/></svg>
         <span class="tip">Screener</span>
       </div>
@@ -673,6 +692,35 @@ body {
         </div>
       </div><!-- /view-laporan -->
 
+      <div id="view-screener" style="display:none">
+        <div class="greet-row">
+          <div class="greet">
+            <h1>Screener <em>lengkap</em></h1>
+            <p id="screener-sub">Semua ticker di watchlist &middot; klik header kolom untuk sort, pakai kotak pencarian di atas untuk filter.</p>
+          </div>
+        </div>
+
+        <div class="qcard">
+          <table class="qtable">
+            <thead>
+              <tr>
+                <th style="cursor:pointer" onclick="sortScreener('ticker')">Ticker</th>
+                <th class="num" style="cursor:pointer" onclick="sortScreener('last_close')">Harga</th>
+                <th style="cursor:pointer" onclick="sortScreener('trend')">Trend</th>
+                <th>Wyckoff</th>
+                <th>vs VWAP</th>
+                <th>vs IHSG</th>
+                <th class="num" style="cursor:pointer" onclick="sortScreener('score')">Skor</th>
+                <th>Sinyal</th>
+              </tr>
+            </thead>
+            <tbody id="screener-table-body">
+              <tr><td colspan="8" class="loading-msg">Memuat...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div><!-- /view-screener -->
+
     </div>
   </div>
 </div>
@@ -691,6 +739,58 @@ function phaseLetter(phaseStr) {
   return phaseStr.split(" ")[0];
 }
 
+// ---------- Screener (full sortable/filterable table) ----------
+let ALL_WATCHLIST = [];
+let SORT_STATE = { key: "score", dir: -1 };
+
+function renderScreenerTable(rows) {
+  const tbody = document.getElementById("screener-table-body");
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="8" class="loading-msg">Tidak ada ticker cocok.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(r => {
+    const wyBias = r.wyckoff?.bias === "accumulation" ? "Akumulasi" : r.wyckoff?.bias === "distribution" ? "Distribusi" : "-";
+    const wyPhase = phaseLetter(r.wyckoff?.phase);
+    return `
+      <tr>
+        <td style="font-weight:600;">${r.ticker}</td>
+        <td class="num">${fmtNum(r.last_close)}</td>
+        <td>${TREND_LABEL[r.trend] || r.trend}</td>
+        <td style="color:var(--text-secondary);">${wyBias}${wyPhase ? " &middot; " + wyPhase : ""}</td>
+        <td>${r.vwap?.position === "above" ? "Di atas" : r.vwap?.position === "below" ? "Di bawah" : "-"}</td>
+        <td>${r.comparative_strength?.relative_strength_trend === "outperforming" ? "Outperform" : r.comparative_strength?.relative_strength_trend === "underperforming" ? "Underperform" : "-"}</td>
+        <td class="num" style="font-weight:600;">${r.score}</td>
+        <td><span class="badge ${r.signal}">${r.signal.charAt(0).toUpperCase()+r.signal.slice(1)}</span></td>
+      </tr>`;
+  }).join("");
+}
+
+function sortScreener(key) {
+  SORT_STATE = SORT_STATE.key === key ? { key, dir: SORT_STATE.dir * -1 } : { key, dir: 1 };
+  applyScreenerFilterAndSort();
+}
+
+function applyScreenerFilterAndSort() {
+  const searchEl = document.getElementById("ticker-search");
+  const q = (searchEl?.value || "").toUpperCase().trim();
+  let rows = ALL_WATCHLIST.filter(r => r.ticker.includes(q));
+
+  const { key, dir } = SORT_STATE;
+  rows.sort((a, b) => {
+    const av = a[key], bv = b[key];
+    if (typeof av === "string") return av.localeCompare(bv) * dir;
+    return ((av||0) - (bv||0)) * dir;
+  });
+
+  renderScreenerTable(rows);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const searchEl = document.getElementById("ticker-search");
+  if (searchEl) searchEl.addEventListener("input", applyScreenerFilterAndSort);
+});
+
 async function loadDashboard() {
   let data;
   try {
@@ -703,6 +803,7 @@ async function loadDashboard() {
 
   window.dashboardData = data;
   const wl = data.watchlist || [];
+  ALL_WATCHLIST = wl;
   const s = data.summary || {};
 
   // Greeting
@@ -826,9 +927,12 @@ function fmtPct(n) {
 
 function showView(name) {
   document.getElementById("view-overview").style.display = name === "overview" ? "" : "none";
+  document.getElementById("view-screener").style.display = name === "screener" ? "" : "none";
   document.getElementById("view-laporan").style.display = name === "laporan" ? "" : "none";
   document.getElementById("nav-overview").classList.toggle("active", name === "overview");
+  document.getElementById("nav-screener").classList.toggle("active", name === "screener");
   document.getElementById("nav-laporan").classList.toggle("active", name === "laporan");
+  if (name === "screener") applyScreenerFilterAndSort();
   if (name === "laporan" && !reportLoaded) {
     reportLoaded = true;
     loadReport();
