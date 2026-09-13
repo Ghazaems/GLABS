@@ -14,11 +14,13 @@ from screener.scoring import compute_score, classify_signal
 from storage.db import init_db, upsert_prices, save_signal, get_watchlist, add_to_watchlist
 
 # Watchlist awal - blue chip LQ45 untuk uji coba
+# Watchlist - SELURUH 45 anggota LQ45 periode Agustus-Oktober 2026
 DEFAULT_WATCHLIST = [
-    "AADI", "ADMR", "ADRO", "AMRT", "ANTM", "ASII", "BBCA", "BBNI", "BBRI",
-    "BMRI", "BRPT", "BUMI", "CPIN", "DEWA", "EMTK", "GOTO", "ICBP", "INCO",
-    "INDF", "INKP", "JPFA", "KLBF", "MBMA", "MDKA", "MEDC", "PGAS", "PGEO",
-    "TLKM", "UNTR", "UNVR",
+    "AADI", "ADMR", "ADRO", "AKRA", "AMMN", "AMRT", "ANTM", "ASII", "BBCA",
+    "BBNI", "BBRI", "BBTN", "BMRI", "BRPT", "BUMI", "CPIN", "CUAN", "DEWA",
+    "EMTK", "ESSA", "EXCL", "GOTO", "HRTA", "ICBP", "INCO", "INDF", "INDY",
+    "INKP", "ISAT", "ITMG", "JPFA", "KLBF", "MAPI", "MBMA", "MDKA", "MEDC",
+    "NCKL", "PGAS", "PGEO", "PTBA", "SCMA", "TLKM", "UNTR", "UNVR", "WIFI",
 ]
 
 
