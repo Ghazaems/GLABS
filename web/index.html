@@ -600,9 +600,10 @@ html { overflow-x: hidden; }
         </div>
       </div>
       <p class="loading-msg" style="margin-top:-18px; margin-bottom:22px">
-        Toggle ini cuma ganti isi <b>Sinyal breakdown</b> dan <b>Watchlist</b> - kartu lain
-        tetap pakai profil Weekly (default). "Swing" pakai window/lookback lebih panjang
-        (~3-4 bulan) di trend, VWAP, dan comparative strength.
+        Toggle ini ganti <b>Top pick, Sinyal breakdown, Watchlist, Trend structure, VWAP,
+        Distribusi skor,</b> dan <b>Comparative strength</b> - "Swing" pakai window/lookback
+        lebih panjang (~3-4 bulan). <b>Wyckoff snapshot</b> dan <b>Ringkasan mingguan</b>
+        sengaja tetap statis karena datanya sama buat kedua gaya.
       </p>
 
       <!-- ROW 1 -->
@@ -698,7 +699,7 @@ html { overflow-x: hidden; }
           <div class="card-head">
             <div class="label">
               <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
-              VWAP mingguan
+              <span id="vwap-card-title">VWAP mingguan</span>
             </div>
           </div>
           <div class="card-body">
@@ -1205,37 +1206,10 @@ async function loadDashboard() {
     `<b>${wl.length} ticker discreening</b> — ${sc.beli||0} beli, ${sc.pantau||0} pantau, ${sc.jual||0} jual. ` +
     `<b>${topName}</b> skor tertinggi di <b>${topScore}</b>.`;
 
-  // Top pick
-  if (s.top_pick) {
-    const tp = s.top_pick;
-    const wyBias = tp.wyckoff?.bias === "accumulation" ? "akumulasi" : tp.wyckoff?.bias === "distribution" ? "distribusi" : "belum jelas";
-    document.getElementById("toppick-text").innerHTML =
-      `<b>${tp.ticker}</b> memimpin skor screener di <b>${tp.score}</b>, trend ${TREND_LABEL[tp.trend]||tp.trend}, ` +
-      `Wyckoff ${wyBias} (${phaseLetter(tp.wyckoff?.phase)}), harga ${tp.vwap?.position === "above" ? "di atas" : "di bawah"} VWAP mingguan.`;
-    document.getElementById("toppick-footer-left").textContent = `${tp.ticker} · ${fmtNum(tp.last_close)}`;
-
-    const barsEl = document.getElementById("toppick-bars");
-    const bd = tp.score_breakdown || {};
-    const vals = Object.values(bd).map(v => Math.abs(v));
-    const maxVal = Math.max(...vals, 1);
-    barsEl.innerHTML = Object.entries(bd).map(([k, v]) => {
-      const h = Math.max(10, Math.round(Math.abs(v) / maxVal * 100));
-      const cls = Math.abs(v) === maxVal ? "bar hi" : "bar";
-      return `<div class="${cls}" style="height:${h}%" title="${k}: ${v}"></div>`;
-    }).join("");
-  }
-
-  // Sinyal breakdown & Watchlist - fungsi terpisah (lihat di bawah), karena
-  // ini yang berubah pas toggle Weekly/Swing diklik.
-  renderSignalDependent(currentStyle);
-
-  // Trend structure
-  const healthy = wl.filter(r => r.trend === "uptrend" || r.trend === "sideways").length;
-  const unhealthy = wl.filter(r => r.trend === "downtrend").map(r => r.ticker);
-  document.getElementById("trend-text").innerHTML =
-    `${healthy} dari ${wl.length} ticker masih uptrend/sideways di atas support. ` +
-    (unhealthy.length ? `${unhealthy.join(", ")} tembus ke downtrend minggu ini.` : "Tidak ada yang downtrend minggu ini.");
-  document.getElementById("trend-stat").innerHTML = `${healthy}<span class="unit">/ ${wl.length} sehat</span>`;
+  // Top pick, Sinyal breakdown, Watchlist, Trend structure, VWAP,
+  // Distribusi skor, Comparative strength - semua ikut toggle Weekly/Swing,
+  // dipindah ke renderStyleDependent() di bawah.
+  renderStyleDependent(currentStyle);
 
   // Wyckoff snapshot
   const accum = wl.filter(r => r.wyckoff?.bias === "accumulation");
@@ -1250,32 +1224,6 @@ async function loadDashboard() {
   }
   document.getElementById("wyckoff-footer").textContent = `${accum.length} akumulasi · ${distrib.length} distribusi`;
 
-  // VWAP mingguan
-  const aboveVwap = wl.filter(r => r.vwap?.position === "above").length;
-  const belowList = wl.filter(r => r.vwap?.position === "below");
-  const worstBelow = belowList.sort((a,b) => (a.vwap.vwap - a.last_close) - (b.vwap.vwap - b.last_close)).pop();
-  document.getElementById("vwap-text").innerHTML =
-    `${aboveVwap} ticker diperdagangkan di atas VWAP mingguan` +
-    (worstBelow ? `, <b>${worstBelow.ticker}</b> tertinggal ${fmtNum(worstBelow.vwap.vwap - worstBelow.last_close)} poin di bawahnya.` : ".");
-
-  // Distribusi skor
-  document.getElementById("scoredist-text").innerHTML =
-    `Rentang skor screener: <b>${s.score_min}</b> sampai <b>${s.score_max}</b>, rata-rata <b>${s.score_avg}</b>.`;
-  const scores = wl.map(r => r.score).sort((a,b)=>b-a);
-  const distMax = Math.max(...scores.map(Math.abs), 1);
-  document.getElementById("scoredist-bars").innerHTML = scores.slice(0,4).map(v => {
-    const h = Math.max(10, Math.round(Math.abs(v)/distMax*100));
-    return `<div class="bar" style="height:${h}%" title="${v}"></div>`;
-  }).join("");
-
-  // Comparative strength vs IHSG
-  const outperform = wl.filter(r => r.comparative_strength?.relative_strength_trend === "outperforming");
-  const underperform = wl.filter(r => r.comparative_strength?.relative_strength_trend === "underperforming");
-  document.getElementById("cs-text").innerHTML =
-    `<b>${outperform.length}</b> ticker mengungguli IHSG, <b>${underperform.length}</b> tertinggal. ` +
-    (outperform[0] ? `${outperform[0].ticker} outperform paling jelas.` : "");
-  document.getElementById("cs-footer").textContent = `${outperform.length} outperform · ${underperform.length} underperform`;
-
   // Support & resistance terdekat
   const srRows = document.getElementById("sr-rows");
   srRows.innerHTML = wl.slice(0, 4).map(r => `
@@ -1288,14 +1236,20 @@ async function loadDashboard() {
 
 let currentStyle = "weekly";
 
-function renderSignalDependent(style) {
+function renderStyleDependent(style) {
   const wl = (window.dashboardData && window.dashboardData.watchlist) || [];
-  const scoreKey = style === "swing" ? "score_swing" : "score";
-  const signalKey = style === "swing" ? "signal_swing" : "signal";
+  const isSwing = style === "swing";
+  const scoreKey = isSwing ? "score_swing" : "score";
+  const signalKey = isSwing ? "signal_swing" : "signal";
+  const trendKey = isSwing ? "trend_swing" : "trend";
+  const vwapKey = isSwing ? "vwap_swing" : "vwap";
+  const csKey = isSwing ? "comparative_strength_swing" : "comparative_strength";
+  const bdKey = isSwing ? "score_breakdown_swing" : "score_breakdown";
+  const label = isSwing ? "Swing" : "Weekly";
 
+  // --- Sinyal breakdown ---
   const sc = { beli: 0, pantau: 0, jual: 0 };
   wl.forEach(r => { if (r[signalKey] in sc) sc[r[signalKey]]++; });
-
   document.getElementById("count-beli").textContent = sc.beli || 0;
   document.getElementById("count-pantau").textContent = sc.pantau || 0;
   document.getElementById("count-jual").textContent = sc.jual || 0;
@@ -1305,6 +1259,7 @@ function renderSignalDependent(style) {
     <span style="width:${(sc.pantau||0)/total*100}%; background:var(--warning)"></span>
     <span style="width:${(sc.jual||0)/total*100}%; background:var(--danger)"></span>`;
 
+  // --- Watchlist (top 5, disortir sesuai skor style ini) ---
   const sortedWl = [...wl].sort((a, b) => (b[scoreKey] || 0) - (a[scoreKey] || 0));
   const wlRows = document.getElementById("watchlist-rows");
   wlRows.innerHTML = sortedWl.slice(0, 5).map(r => {
@@ -1315,6 +1270,66 @@ function renderSignalDependent(style) {
       <span class="badge ${sig}">${sig.charAt(0).toUpperCase()+sig.slice(1)}</span>
     </div>`;
   }).join("");
+
+  // --- Top pick (dihitung dari watchlist by style, bukan backend yang selalu weekly) ---
+  const tp = sortedWl[0];
+  if (tp) {
+    const wyBias = tp.wyckoff?.bias === "accumulation" ? "akumulasi" : tp.wyckoff?.bias === "distribution" ? "distribusi" : "belum jelas";
+    document.getElementById("toppick-text").innerHTML =
+      `<b>${tp.ticker}</b> memimpin skor screener ${label} di <b>${tp[scoreKey]}</b>, trend ${TREND_LABEL[tp[trendKey]]||tp[trendKey]}, ` +
+      `Wyckoff ${wyBias} (${phaseLetter(tp.wyckoff?.phase)}), harga ${tp[vwapKey]?.position === "above" ? "di atas" : "di bawah"} VWAP ${isSwing ? "Swing" : "mingguan"}.`;
+    document.getElementById("toppick-footer-left").textContent = `${tp.ticker} · ${fmtNum(tp.last_close)}`;
+
+    const barsEl = document.getElementById("toppick-bars");
+    const bd = tp[bdKey] || {};
+    const vals = Object.values(bd).map(v => Math.abs(v));
+    const maxVal = Math.max(...vals, 1);
+    barsEl.innerHTML = Object.entries(bd).map(([k, v]) => {
+      const h = Math.max(10, Math.round(Math.abs(v) / maxVal * 100));
+      const cls = Math.abs(v) === maxVal ? "bar hi" : "bar";
+      return `<div class="${cls}" style="height:${h}%" title="${k}: ${v}"></div>`;
+    }).join("");
+  }
+
+  // --- Trend structure ---
+  const healthy = wl.filter(r => r[trendKey] === "uptrend" || r[trendKey] === "sideways").length;
+  const unhealthy = wl.filter(r => r[trendKey] === "downtrend").map(r => r.ticker);
+  document.getElementById("trend-text").innerHTML =
+    `${healthy} dari ${wl.length} ticker masih uptrend/sideways di atas support (${label}). ` +
+    (unhealthy.length ? `${unhealthy.join(", ")} tembus ke downtrend.` : "Tidak ada yang downtrend.");
+  document.getElementById("trend-stat").innerHTML = `${healthy}<span class="unit">/ ${wl.length} sehat</span>`;
+
+  // --- VWAP (judul & isi ikut ganti) ---
+  const vwapTitleEl = document.getElementById("vwap-card-title");
+  if (vwapTitleEl) vwapTitleEl.textContent = isSwing ? "VWAP Swing" : "VWAP mingguan";
+  const aboveVwap = wl.filter(r => r[vwapKey]?.position === "above").length;
+  const belowList = wl.filter(r => r[vwapKey]?.position === "below");
+  const worstBelow = belowList.sort((a,b) => (a[vwapKey].vwap - a.last_close) - (b[vwapKey].vwap - b.last_close)).pop();
+  document.getElementById("vwap-text").innerHTML =
+    `${aboveVwap} ticker diperdagangkan di atas VWAP ${isSwing ? "Swing" : "mingguan"}` +
+    (worstBelow ? `, <b>${worstBelow.ticker}</b> tertinggal ${fmtNum(worstBelow[vwapKey].vwap - worstBelow.last_close)} poin di bawahnya.` : ".");
+
+  // --- Distribusi skor ---
+  const scores = wl.map(r => r[scoreKey]).filter(v => v !== undefined && v !== null);
+  const scoreMin = scores.length ? Math.min(...scores) : null;
+  const scoreMax = scores.length ? Math.max(...scores) : null;
+  const scoreAvg = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length) : null;
+  document.getElementById("scoredist-text").innerHTML =
+    `Rentang skor screener (${label}): <b>${scoreMin?.toFixed(1) ?? "-"}</b> sampai <b>${scoreMax?.toFixed(1) ?? "-"}</b>, rata-rata <b>${scoreAvg?.toFixed(1) ?? "-"}</b>.`;
+  const sortedScores = [...scores].sort((a,b)=>b-a);
+  const distMax = Math.max(...sortedScores.map(Math.abs), 1);
+  document.getElementById("scoredist-bars").innerHTML = sortedScores.slice(0,4).map(v => {
+    const h = Math.max(10, Math.round(Math.abs(v)/distMax*100));
+    return `<div class="bar" style="height:${h}%" title="${v}"></div>`;
+  }).join("");
+
+  // --- Comparative strength vs IHSG ---
+  const outperform = wl.filter(r => r[csKey]?.relative_strength_trend === "outperforming");
+  const underperform = wl.filter(r => r[csKey]?.relative_strength_trend === "underperforming");
+  document.getElementById("cs-text").innerHTML =
+    `<b>${outperform.length}</b> ticker mengungguli IHSG (${label}), <b>${underperform.length}</b> tertinggal. ` +
+    (outperform[0] ? `${outperform[0].ticker} outperform paling jelas.` : "");
+  document.getElementById("cs-footer").textContent = `${outperform.length} outperform · ${underperform.length} underperform`;
 }
 
 function setStyle(style) {
@@ -1323,7 +1338,7 @@ function setStyle(style) {
   document.getElementById("style-swing").classList.toggle("active", style === "swing");
   document.getElementById("seg-slider").style.transform =
     style === "swing" ? "translateX(100%)" : "translateX(0%)";
-  renderSignalDependent(style);
+  renderStyleDependent(style);
 }
 
 loadDashboard();
