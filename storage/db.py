@@ -46,6 +46,32 @@ def init_db():
             active INTEGER DEFAULT 1
         );
         """)
+        _migrate_signal_score_columns(conn)
+
+
+def _migrate_signal_score_columns(conn):
+    """
+    Tambah kolom skor numerik ke tabel signals yang sudah ada (kalau belum ada).
+    Dulu skor komposit cuma disimpan sebagai teks di kolom note (mis. "score=82"),
+    jadi tidak bisa dihitung statistiknya (uji IC butuh angka). Kolom-kolom ini
+    supaya ke depannya skor & breakdown per komponen tersimpan sebagai angka asli.
+
+    ALTER TABLE ADD COLUMN di SQLite akan error kalau kolomnya sudah ada, makanya
+    dicek dulu lewat PRAGMA table_info sebelum nambah - supaya aman dijalankan
+    berkali-kali (idempotent), tidak akan mengubah data yang sudah tersimpan.
+    """
+    existing_cols = {row["name"] for row in conn.execute("PRAGMA table_info(signals)")}
+    new_cols = {
+        "score": "REAL",
+        "comp_trend": "REAL",
+        "comp_wyckoff": "REAL",
+        "comp_vwap": "REAL",
+        "comp_comparative_strength": "REAL",
+        "comp_support_resistance": "REAL",
+    }
+    for col, col_type in new_cols.items():
+        if col not in existing_cols:
+            conn.execute(f"ALTER TABLE signals ADD COLUMN {col} {col_type}")
 
 
 def upsert_prices(ticker: str, df):
@@ -65,12 +91,27 @@ def upsert_prices(ticker: str, df):
         """, rows)
 
 
-def save_signal(ticker: str, date: str, signal_type: str, direction: str, note: str = ""):
+def save_signal(ticker: str, date: str, signal_type: str, direction: str,
+                 note: str = "", score: float = None, breakdown: dict = None):
+    """
+    score & breakdown bersifat opsional - dipakai khusus untuk signal_type
+    'composite' supaya bisa dihitung uji signifikansi (IC) di forward_test.py.
+    Untuk signal_type lain ('trend', 'wyckoff', dst) cukup abaikan parameter ini.
+    """
+    breakdown = breakdown or {}
     with get_conn() as conn:
         conn.execute("""
-            INSERT INTO signals (ticker, date, signal_type, direction, note)
-            VALUES (?, ?, ?, ?, ?)
-        """, (ticker, date, signal_type, direction, note))
+            INSERT INTO signals (
+                ticker, date, signal_type, direction, note, score,
+                comp_trend, comp_wyckoff, comp_vwap,
+                comp_comparative_strength, comp_support_resistance
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            ticker, date, signal_type, direction, note, score,
+            breakdown.get("trend"), breakdown.get("wyckoff"), breakdown.get("vwap"),
+            breakdown.get("comparative_strength"), breakdown.get("support_resistance"),
+        ))
 
 
 def get_watchlist():
