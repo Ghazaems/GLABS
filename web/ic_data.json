@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-13T04:42:45.011878",
+  "generated_at": "2026-09-13T05:56:02.637018",
   "total_sampel": 3540,
   "horizons": [
     5,
@@ -8,20 +8,20 @@
   ],
   "composite": {
     "5": {
-      "ic": -0.0111,
-      "p_value": 0.508,
+      "ic": -0.0113,
+      "p_value": 0.5033,
       "n": 3540,
       "significant": false
     },
     "10": {
-      "ic": -0.0172,
-      "p_value": 0.3058,
+      "ic": -0.017,
+      "p_value": 0.3112,
       "n": 3540,
       "significant": false
     },
     "20": {
-      "ic": -0.0227,
-      "p_value": 0.177,
+      "ic": -0.0224,
+      "p_value": 0.183,
       "n": 3540,
       "significant": false
     }
@@ -29,40 +29,40 @@
   "components": {
     "trend": {
       "5": {
-        "ic": 0.0047,
-        "p_value": 0.7794,
+        "ic": 0.0049,
+        "p_value": 0.7704,
         "n": 3540,
         "significant": false
       },
       "10": {
-        "ic": -0.0047,
-        "p_value": 0.7815,
+        "ic": -0.0039,
+        "p_value": 0.8187,
         "n": 3540,
         "significant": false
       },
       "20": {
-        "ic": -0.0178,
-        "p_value": 0.2884,
+        "ic": -0.0164,
+        "p_value": 0.3306,
         "n": 3540,
         "significant": false
       }
     },
     "wyckoff": {
       "5": {
-        "ic": 0.0063,
-        "p_value": 0.7083,
+        "ic": 0.005,
+        "p_value": 0.7653,
         "n": 3540,
         "significant": false
       },
       "10": {
-        "ic": -0.0035,
-        "p_value": 0.8369,
+        "ic": -0.0068,
+        "p_value": 0.6858,
         "n": 3540,
         "significant": false
       },
       "20": {
-        "ic": -0.0125,
-        "p_value": 0.4562,
+        "ic": -0.0176,
+        "p_value": 0.2939,
         "n": 3540,
         "significant": false
       }
@@ -90,7 +90,7 @@
     "comparative_strength": {
       "5": {
         "ic": 0.0002,
-        "p_value": 0.9885,
+        "p_value": 0.9884,
         "n": 3540,
         "significant": false
       },
@@ -109,20 +109,20 @@
     },
     "support_resistance": {
       "5": {
-        "ic": -0.0121,
-        "p_value": 0.471,
+        "ic": -0.0094,
+        "p_value": 0.5749,
         "n": 3540,
         "significant": false
       },
       "10": {
-        "ic": -0.0008,
-        "p_value": 0.9614,
+        "ic": 0.0033,
+        "p_value": 0.8437,
         "n": 3540,
         "significant": false
       },
       "20": {
-        "ic": -0.0073,
-        "p_value": 0.6629,
+        "ic": -0.0046,
+        "p_value": 0.7854,
         "n": 3540,
         "significant": false
       }
