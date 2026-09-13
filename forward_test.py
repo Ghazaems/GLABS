@@ -8,22 +8,54 @@ BEDA dengan backtest historis:
 - Forward-test: HARUS menunggu waktu nyata berjalan - sinyal yang muncul
   kemarin baru bisa diukur horizon 5 harinya, 5 hari bursa dari sekarang
 
+Selain ringkasan performa per label sinyal (seperti sebelumnya), sekarang
+forward test ini JUGA menghitung uji signifikansi statistik yang sama
+seperti evaluate_ic.py untuk backtest: Information Coefficient (IC) per
+komponen skor, winrate confidence interval, dan expectancy - tapi dari
+data NYATA, bukan simulasi.
+
+CATATAN SOAL DATA LAMA:
+Skor komposit numerik (dan breakdown per komponen) baru mulai disimpan
+sebagai angka sejak storage/db.py & main.py diperbarui. Sinyal yang
+tercatat SEBELUM pembaruan ini cuma punya skor komposit di teks catatan
+(note="score=82"), yang tetap coba diselamatkan di sini lewat pencarian
+teks - tapi breakdown per komponennya (trend/wyckoff/vwap/dst) TIDAK bisa
+diselamatkan untuk data lama, karena memang belum pernah dicatat. Jadi
+uji IC per komponen baru akan punya sampel yang berarti setelah cron
+harian berjalan beberapa waktu SEJAK pembaruan ini di-deploy.
+
 Jalankan: python forward_test.py
 Butuh minimal beberapa minggu data terkumpul dulu supaya horizon 20 hari
 punya cukup sampel (kalau belum, laporan tetap jalan tapi sampelnya sedikit/kosong).
 """
 import json
+import re
 from datetime import datetime
 from storage.db import get_conn
 
+from scipy.stats import spearmanr
+from statsmodels.stats.proportion import proportion_confint
+
 HORIZONS = [5, 10, 20]  # hari bursa setelah sinyal muncul
+
+COMPONENT_KEYS = [
+    "comp_trend",
+    "comp_wyckoff",
+    "comp_vwap",
+    "comp_comparative_strength",
+    "comp_support_resistance",
+]
+
+_SCORE_IN_NOTE_RE = re.compile(r"score=(-?\d+(?:\.\d+)?)")
 
 
 def get_composite_signals():
     """Ambil semua sinyal komposit yang pernah tersimpan, urut per ticker+tanggal."""
     with get_conn() as conn:
         rows = conn.execute("""
-            SELECT ticker, date, direction AS signal, note
+            SELECT ticker, date, direction AS signal, note,
+                   score, comp_trend, comp_wyckoff, comp_vwap,
+                   comp_comparative_strength, comp_support_resistance
             FROM signals
             WHERE signal_type = 'composite'
             ORDER BY ticker, date
@@ -38,6 +70,14 @@ def get_price_series(ticker: str) -> list[dict]:
             SELECT date, close FROM prices WHERE ticker = ? ORDER BY date ASC
         """, (ticker,)).fetchall()
     return [dict(r) for r in rows]
+
+
+def _resolve_score(sig: dict):
+    """Skor numerik kalau ada; kalau tidak, coba selamatkan dari teks note lama."""
+    if sig.get("score") is not None:
+        return sig["score"]
+    match = _SCORE_IN_NOTE_RE.search(sig.get("note") or "")
+    return float(match.group(1)) if match else None
 
 
 def compute_forward_returns():
@@ -65,8 +105,11 @@ def compute_forward_returns():
             "date": sig["date"],
             "signal": sig["signal"],
             "entry_price": entry_price,
+            "score": _resolve_score(sig),
             "returns": {},
         }
+        for comp in COMPONENT_KEYS:
+            row[comp] = sig.get(comp)
 
         for h in HORIZONS:
             target_idx = idx + h
@@ -109,6 +152,90 @@ def aggregate_by_signal(results: list[dict]) -> dict:
     return agg
 
 
+def _information_coefficient(pairs: list[tuple]):
+    """pairs = list of (score_value, return_pct), sudah dibuang yang None."""
+    if len(pairs) < 30:
+        return None
+    xs = [p[0] for p in pairs]
+    ys = [p[1] for p in pairs]
+    if len(set(xs)) < 2:
+        return None
+    ic, p_value = spearmanr(xs, ys)
+    return {"ic": round(ic, 4), "p_value": round(p_value, 4), "n": len(pairs),
+            "significant": bool(p_value < 0.05)}
+
+
+def _winrate_ci(returns: list):
+    total = len(returns)
+    if total == 0:
+        return None
+    wins = sum(1 for r in returns if r > 0)
+    winrate = wins / total * 100
+    lower, upper = proportion_confint(wins, total, alpha=0.05, method="wilson")
+    return {
+        "winrate_pct": round(winrate, 2),
+        "ci_lower_pct": round(lower * 100, 2),
+        "ci_upper_pct": round(upper * 100, 2),
+        "n": total,
+        "beats_coinflip": bool(lower * 100 > 50),
+    }
+
+
+def _expectancy(returns: list):
+    if not returns:
+        return None
+    wins = [r for r in returns if r > 0]
+    losses = [r for r in returns if r <= 0]
+    avg_win = sum(wins) / len(wins) if wins else 0
+    avg_loss = sum(losses) / len(losses) if losses else 0
+    winrate = len(wins) / len(returns)
+    exp = winrate * avg_win + (1 - winrate) * avg_loss
+    return {
+        "avg_win_pct": round(avg_win, 3),
+        "avg_loss_pct": round(avg_loss, 3),
+        "expectancy_pct": round(exp, 4),
+        "positive": bool(exp > 0),
+    }
+
+
+def compute_ic_report(results: list[dict]) -> dict:
+    """
+    Uji signifikansi statistik dari data forward test NYATA - struktur JSON-nya
+    sengaja dibuat SAMA PERSIS dengan web/ic_data.json (hasil evaluate_ic.py
+    untuk backtest), supaya bisa dirender pakai fungsi JS yang sama di
+    web/index.html (renderICReport), tidak perlu bikin komponen tampilan baru.
+    """
+    report = {
+        "horizons": HORIZONS,
+        "composite": {},
+        "components": {c.replace("comp_", ""): {} for c in COMPONENT_KEYS},
+        "winrate": {},
+        "expectancy": {},
+    }
+
+    for h in HORIZONS:
+        h_key = str(h)
+        matured = [r for r in results if r["returns"].get(h_key) is not None]
+        returns = [r["returns"][h_key] for r in matured]
+
+        composite_pairs = [
+            (r["score"], r["returns"][h_key]) for r in matured if r["score"] is not None
+        ]
+        report["composite"][h_key] = _information_coefficient(composite_pairs)
+
+        for comp in COMPONENT_KEYS:
+            name = comp.replace("comp_", "")
+            comp_pairs = [
+                (r[comp], r["returns"][h_key]) for r in matured if r.get(comp) is not None
+            ]
+            report["components"][name][h_key] = _information_coefficient(comp_pairs)
+
+        report["winrate"][h_key] = _winrate_ci(returns)
+        report["expectancy"][h_key] = _expectancy(returns)
+
+    return report
+
+
 def export_forward_test_json(results: list[dict]):
     matured = [r for r in results if any(v is not None for v in r["returns"].values())]
 
@@ -127,6 +254,7 @@ def export_forward_test_json(results: list[dict]):
         "horizons_hari_bursa": HORIZONS,
         "by_signal": aggregate_by_signal(results),
         "detail_terbaru": sorted(results, key=lambda r: r["date"], reverse=True)[:50],
+        "ic": compute_ic_report(results),
     }
 
     import os
@@ -135,7 +263,7 @@ def export_forward_test_json(results: list[dict]):
         json.dump(payload, f, indent=2, default=str)
 
     print(f"Selesai. {len(matured)}/{len(results)} sampel sudah matang (punya hasil).")
-    print("Tersimpan di web/forward_test_data.json")
+    print("Tersimpan di web/forward_test_data.json (termasuk uji IC di dalamnya)")
 
 
 if __name__ == "__main__":
