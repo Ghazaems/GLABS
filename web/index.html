@@ -419,6 +419,39 @@ body {
 .badge.sig-pos { background: var(--success-bg); color: var(--success); }
 .badge.sig-neg { background: var(--danger-bg); color: var(--danger); }
 .badge.sig-none { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+
+/* Verdict banner - kesimpulan 1 kalimat, paling gampang dibaca sekilas */
+.verdict-banner {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px; border-radius: 10px; margin-bottom: 16px;
+  font-size: 14px; line-height: 1.5;
+}
+.verdict-banner .icon { font-size: 20px; flex-shrink: 0; }
+.verdict-banner.good { background: var(--success-bg); color: var(--success); }
+.verdict-banner.bad { background: var(--danger-bg); color: var(--danger); }
+.verdict-banner.neutral { background: rgba(255,255,255,0.05); color: var(--text-secondary); }
+.verdict-banner b { color: inherit; }
+
+/* Daftar komponen - simpel, chip doang, angka detail disembunyiin */
+.comp-verdict-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 12px; }
+.comp-verdict-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 4px; border-top: 1px solid var(--border);
+  font-size: 13px;
+}
+.comp-verdict-row:first-child { border-top: none; }
+.comp-verdict-row .name { color: var(--text-primary); text-transform: capitalize; }
+
+/* Toggle detail teknis */
+.tech-detail { margin-top: 10px; }
+.tech-detail summary {
+  cursor: pointer; font-size: 12px; color: var(--text-muted);
+  padding: 6px 0; list-style: none; user-select: none;
+}
+.tech-detail summary::-webkit-details-marker { display: none; }
+.tech-detail summary::before { content: "▸ "; }
+.tech-detail[open] summary::before { content: "▾ "; }
+.tech-detail summary:hover { color: var(--text-secondary); }
 .loading-msg { color: var(--text-muted); font-size: 13px; padding: 20px 0; }
 
 /* ---------- Watchlist per-komponen ---------- */
@@ -1424,6 +1457,17 @@ function computeCombinedWinrate(bySignalAtHorizon) {
   return { winPct, totalSampel, totalWin };
 }
 
+const SCORE_QUARTILE_LABELS = ["Skor sangat rendah", "Skor rendah", "Skor sedang", "Skor tinggi"];
+function plainScoreLabel(i, total) {
+  if (total === SCORE_QUARTILE_LABELS.length) return SCORE_QUARTILE_LABELS[i];
+  // fallback generik kalau jumlah kelompoknya beda dari 4
+  const pct = total > 1 ? i / (total - 1) : 0;
+  if (pct <= 0.25) return "Skor rendah";
+  if (pct <= 0.5) return "Skor sedang-rendah";
+  if (pct <= 0.75) return "Skor sedang-tinggi";
+  return "Skor tinggi";
+}
+
 function buildHorizonGridHtml(bySignal, horizons, opts) {
   const returnKey = (opts && opts.returnKey) || "rata_rata_return_pct";
   const winKey = (opts && opts.winKey) || "persen_untung";
@@ -1498,16 +1542,17 @@ async function loadBacktestReport() {
       <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
       Performa per rentang skor${hasExcess ? " (excess return vs IHSG)" : ""} (rendah &rarr; tinggi)
     </div>
-    <div class="qcard"><table class="qtable"><thead><tr><th>Rentang skor</th>`;
+    <div class="qcard"><table class="qtable"><thead><tr><th title="Arahkan kursor ke tiap baris untuk lihat rentang skor asli">Kelompok skor</th>`;
   horizons.forEach((h) => { quartileHtml += `<th class="num">${h} hari</th>`; });
   quartileHtml += `<th class="num">Jumlah sampel</th></tr></thead><tbody>`;
 
   const firstHorizonRows = byQuartile[String(horizons[0])] || [];
-  firstHorizonRows.forEach((_, i) => {
-    quartileHtml += `<tr><td>${firstHorizonRows[i].rentang_skor}</td>`;
+  firstHorizonRows.forEach((row, i) => {
+    const label = plainScoreLabel(i, firstHorizonRows.length);
+    quartileHtml += `<tr><td title="Rentang skor asli: ${row.rentang_skor}">${label}</td>`;
     horizons.forEach((h) => {
-      const row = (byQuartile[String(h)] || [])[i];
-      quartileHtml += `<td class="num">${row ? fmtPct(row[quartileReturnKey]) : "-"}</td>`;
+      const r = (byQuartile[String(h)] || [])[i];
+      quartileHtml += `<td class="num">${r ? fmtPct(r[quartileReturnKey]) : "-"}</td>`;
     });
     quartileHtml += `<td class="num">${firstHorizonRows[i].jumlah_sampel}</td></tr>`;
   });
@@ -1628,16 +1673,27 @@ async function loadForwardReport() {
 // ---------- Uji Signifikansi (Information Coefficient) - dipakai bareng
 // oleh laporan Backtest (ic_data.json) dan Forward Test (forward_test_data.json -> ic) ----------
 function icSignifBadge(entry) {
-  if (!entry) return `<span class="badge sig-none">n/a</span>`;
-  if (!entry.significant) return `<span class="badge sig-none">tidak signifikan</span>`;
-  return entry.ic >= 0
-    ? `<span class="badge sig-pos">signifikan +</span>`
-    : `<span class="badge sig-neg">signifikan &minus;</span>`;
+  const v = plainVerdict(entry);
+  const cls = v.cls === "good" ? "sig-pos" : v.cls === "bad" ? "sig-neg" : "sig-none";
+  return `<span class="badge ${cls}">${v.chip}</span>`;
 }
 
 function fmtIC(entry) {
   if (!entry) return "-";
   return `${entry.ic >= 0 ? "+" : ""}${entry.ic.toFixed(4)}`;
+}
+
+/** Terjemahan 1 entry IC jadi kesimpulan bahasa manusia (bukan angka mentah). */
+function plainVerdict(entry) {
+  if (!entry || entry.ic === null || entry.ic === undefined) {
+    return { text: "Data belum cukup", cls: "neutral", chip: "n/a" };
+  }
+  if (!entry.significant) {
+    return { text: "Belum Terbukti", cls: "neutral", chip: "Belum Terbukti" };
+  }
+  return entry.ic > 0
+    ? { text: "Terbukti Akurat", cls: "good", chip: "Terbukti +" }
+    : { text: "Arah Terbalik", cls: "bad", chip: "Terbalik ⚠" };
 }
 
 /**
@@ -1657,47 +1713,65 @@ function renderICReport(bodyId, selectId, data) {
     const composite = data.composite?.[hKey];
     const winrate = data.winrate?.[hKey];
     const exp = data.expectancy?.[hKey];
+    const v = plainVerdict(composite);
 
-    let html = `
-      <div class="qcard"><table class="qtable"><thead><tr>
-        <th>Komponen</th><th class="num">IC</th><th class="num">p-value</th><th>Status</th>
-      </tr></thead><tbody>
-        <tr><td><b>Skor komposit</b></td><td class="num">${fmtIC(composite)}</td>
-          <td class="num">${composite ? composite.p_value.toFixed(4) : "-"}</td>
-          <td>${icSignifBadge(composite)}</td></tr>`;
+    // --- Kalimat kesimpulan utama, langsung kebaca tanpa mikir ---
+    let verdictSentence;
+    if (v.cls === "good") {
+      verdictSentence = `<b>Terbukti akurat</b> secara statistik pada horizon ${h} hari — skor screening ini benar-benar berkorelasi dengan hasil setelahnya, bukan kebetulan.`;
+    } else if (v.cls === "bad") {
+      verdictSentence = `<b>Arahnya terbalik</b> pada horizon ${h} hari — kemungkinan ada yang perlu dicek ulang di formulanya (bukan cuma "belum ada edge").`;
+    } else {
+      verdictSentence = `<b>Belum terbukti akurat</b> secara statistik pada horizon ${h} hari — hasilnya belum bisa dibedakan dari kebetulan/lempar koin dengan data yang ada sekarang.`;
+    }
+    const icon = v.cls === "good" ? "✓" : v.cls === "bad" ? "⚠" : "○";
 
+    let html = `<div class="verdict-banner ${v.cls}"><span class="icon">${icon}</span><span>${verdictSentence}</span></div>`;
+
+    // --- Daftar komponen, chip doang (bukan tabel angka) ---
+    html += `<div class="comp-verdict-list">
+      <div class="comp-verdict-row"><span class="name"><b>Skor komposit</b></span>${icSignifBadge(composite)}</div>`;
     Object.entries(data.components || {}).forEach(([name, byHorizon]) => {
       const entry = byHorizon[hKey];
-      html += `<tr><td>${name.replace(/_/g, " ")}</td><td class="num">${fmtIC(entry)}</td>
-        <td class="num">${entry ? entry.p_value.toFixed(4) : "-"}</td>
-        <td>${icSignifBadge(entry)}</td></tr>`;
+      html += `<div class="comp-verdict-row"><span class="name">${name.replace(/_/g, " ")}</span>${icSignifBadge(entry)}</div>`;
     });
-    html += `</tbody></table></div>`;
+    html += `</div>`;
 
+    // --- Winrate & expectancy, bahasa kalimat biasa ---
     if (winrate) {
-      const coinflipBadge = winrate.beats_coinflip
-        ? `<span class="badge sig-pos">beda dari coin flip</span>`
-        : `<span class="badge sig-none">belum beda dari coin flip</span>`;
-      html += `
-        <div class="qcard" style="padding:14px 16px; margin-top:12px">
-          <p style="margin:0 0 8px; font-size:13px;">
-            Winrate <b>${winrate.winrate_pct}%</b> &middot; interval 95%:
-            <b>[${winrate.ci_lower_pct}%, ${winrate.ci_upper_pct}%]</b> &middot; n=${winrate.n}
-            &nbsp; ${coinflipBadge}
-          </p>`;
+      const coinflipSentence = winrate.beats_coinflip
+        ? `dan ini <b>secara statistik beda</b> dari lempar koin.`
+        : `tapi ini <b>belum beda</b> dari lempar koin (50%) secara statistik.`;
+      html += `<p style="margin:10px 0 0; font-size:13px; color:var(--text-secondary)">
+        Dari ${winrate.n} sinyal, <b>${winrate.winrate_pct}%</b> berakhir profit ${coinflipSentence}</p>`;
       if (exp) {
-        html += `
-          <p style="margin:0; font-size:13px;">
-            Rata-rata saat untung <b>${fmtPct(exp.avg_win_pct)}</b> &middot;
-            rata-rata saat rugi <b>${fmtPct(exp.avg_loss_pct)}</b> &middot;
-            expectancy per sinyal <b>${fmtPct(exp.expectancy_pct)}</b>
-            (${exp.positive ? '<span class="badge sig-pos">positif</span>' : '<span class="badge sig-neg">negatif</span>'})
-          </p>`;
+        html += `<p style="margin:6px 0 0; font-size:13px; color:var(--text-secondary)">
+          Rata-rata kalau untung <b>${fmtPct(exp.avg_win_pct)}</b>, kalau rugi <b>${fmtPct(exp.avg_loss_pct)}</b> —
+          hasil bersih per sinyal <b>${fmtPct(exp.expectancy_pct)}</b>
+          (${exp.positive ? '<span class="badge sig-pos">positif</span>' : '<span class="badge sig-neg">negatif</span>'})</p>`;
       }
-      html += `</div>`;
     } else {
       html += `<p class="loading-msg">Belum ada sampel matang untuk horizon ini.</p>`;
     }
+
+    // --- Detail teknis (angka mentah), disembunyiin di belakang klik ---
+    html += `<details class="tech-detail"><summary>Lihat detail teknis (IC, p-value)</summary>
+      <div class="qcard" style="margin-top:8px"><table class="qtable"><thead><tr>
+        <th>Komponen</th><th class="num">IC</th><th class="num">p-value</th>
+      </tr></thead><tbody>
+        <tr><td><b>Skor komposit</b></td><td class="num">${fmtIC(composite)}</td>
+          <td class="num">${composite ? composite.p_value.toFixed(4) : "-"}</td></tr>`;
+    Object.entries(data.components || {}).forEach(([name, byHorizon]) => {
+      const entry = byHorizon[hKey];
+      html += `<tr><td>${name.replace(/_/g, " ")}</td><td class="num">${fmtIC(entry)}</td>
+        <td class="num">${entry ? entry.p_value.toFixed(4) : "-"}</td></tr>`;
+    });
+    html += `</tbody></table></div>`;
+    if (winrate) {
+      html += `<p style="margin:8px 0 0; font-size:12px; color:var(--text-muted)">
+        Interval kepercayaan 95%: [${winrate.ci_lower_pct}%, ${winrate.ci_upper_pct}%]</p>`;
+    }
+    html += `</details>`;
 
     document.getElementById(bodyId).innerHTML = html;
   };
