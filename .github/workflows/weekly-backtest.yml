@@ -29,10 +29,13 @@ jobs:
       - name: Run backtest
         run: python backtest.py
 
+      - name: Evaluate signal quality (IC, winrate, expectancy)
+        run: python evaluate_ic.py
+
       - name: Commit updated backtest report
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add web/backtest_data.json
+          git add web/backtest_data.json web/ic_data.json
           git diff --staged --quiet || git commit -m "chore: update backtest report $(date -u +%Y-%m-%d)"
           git push
