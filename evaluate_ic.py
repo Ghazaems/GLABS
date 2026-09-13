@@ -12,6 +12,15 @@ belum jawab secara eksplisit:
 3. Kalau winrate < 50%, apakah sistem tetap bisa untung karena rata-rata
    kemenangan lebih besar dari rata-rata kekalahan (expectancy)?
 
+REVISI PENTING (v2): versi sebelumnya menghitung IC dengan cara yang SALAH
+- mencampur semua baris (semua saham, semua tanggal) jadi satu comotan besar
+lalu dikorelasikan sekaligus ("pooled IC"). Cara yang benar dan standar di
+dunia quant adalah IC CROSS-SECTIONAL: untuk SETIAP TANGGAL, bandingkan skor
+semua saham pada tanggal itu vs return mereka setelahnya, hitung korelasinya
+per tanggal, baru dirata-ratakan dari banyak tanggal. Cara lama rawan
+ketutupan pergerakan pasar bersama (banyak saham naik/turun bareng di hari
+yang sama), yang bukan itu yang mau diukur.
+
 CARA PAKAI:
     python evaluate_ic.py
 (jalankan setelah backtest.py, karena butuh backtest_results.csv)
@@ -26,8 +35,9 @@ import json
 from datetime import datetime
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
-from scipy.stats import spearmanr
+from scipy.stats import spearmanr, ttest_1samp
 from statsmodels.stats.proportion import proportion_confint
 
 HORIZONS = [5, 10, 20]
@@ -39,14 +49,42 @@ COMPONENT_COLS = [
     "comp_support_resistance",
 ]
 
+# Minimal berapa saham di 1 tanggal yang sama supaya korelasi hari itu
+# dianggap valid untuk dihitung. Kalau kurang dari ini, tanggal itu dilewati
+# (korelasi dari cuma 2-3 saham terlalu tidak stabil untuk dipercaya).
+MIN_TICKERS_PER_DATE = 5
 
-def information_coefficient(df: pd.DataFrame, score_col: str, horizon: int):
-    col = f"return_{horizon}d_pct"
-    valid = df[[score_col, col]].dropna()
-    if len(valid) < 30 or valid[score_col].nunique() < 2:
-        return None, None, len(valid)
-    ic, p_value = spearmanr(valid[score_col], valid[col])
-    return ic, p_value, len(valid)
+
+def cross_sectional_ic(df: pd.DataFrame, score_col: str, horizon: int):
+    """
+    IC yang BENAR: dihitung per tanggal (bandingkan skor semua saham pada
+    tanggal itu vs return mereka), baru dirata-ratakan lintas tanggal.
+    Ini disebut "Fama-MacBeth style" di literatur keuangan kuantitatif.
+    """
+    ret_col = f"return_{horizon}d_pct"
+    daily_ics = []
+    dates_used = 0
+    dates_skipped_too_few = 0
+
+    for date, group in df.groupby("date"):
+        valid = group[[score_col, ret_col]].dropna()
+        if len(valid) < MIN_TICKERS_PER_DATE or valid[score_col].nunique() < 2:
+            dates_skipped_too_few += 1
+            continue
+        ic, _ = spearmanr(valid[score_col], valid[ret_col])
+        if not np.isnan(ic):
+            daily_ics.append(ic)
+            dates_used += 1
+
+    if dates_used < 5:
+        # Terlalu sedikit tanggal yang punya cukup saham buat dipercaya.
+        return None, None, dates_used, dates_skipped_too_few, daily_ics
+
+    mean_ic = float(np.mean(daily_ics))
+    # Uji-t satu sampel: apakah rata-rata IC harian ini beda dari 0 secara
+    # statistik (bukan cuma kebetulan dari sedikit tanggal yang beruntung).
+    t_stat, p_value = ttest_1samp(daily_ics, 0)
+    return mean_ic, float(p_value), dates_used, dates_skipped_too_few, daily_ics
 
 
 def winrate_confidence_interval(df: pd.DataFrame, horizon: int):
@@ -89,33 +127,37 @@ def main():
     for h in HORIZONS:
         print(f"\n--- Horizon {h} hari bursa ---")
 
-        ic, p, n = information_coefficient(df, "score", h)
+        ic, p, n_dates, n_skipped, _ = cross_sectional_ic(df, "score", h)
         if ic is None:
-            print(f"  Skor komposit: data tidak cukup ({n} sampel)")
+            print(f"  Skor komposit: tanggal dengan data cukup terlalu sedikit "
+                  f"({n_dates} tanggal valid, {n_skipped} dilewati)")
             report["composite"][str(h)] = None
         else:
             signif = p < 0.05
             print(f"  Skor komposit  : IC={ic:+.4f}  p-value={p:.4f}  "
-                  f"({'SIGNIFIKAN' if signif else 'tidak signifikan'}, n={n})")
+                  f"({'SIGNIFIKAN' if signif else 'tidak signifikan'}, "
+                  f"{n_dates} tanggal valid, {n_skipped} dilewati krn saham < {MIN_TICKERS_PER_DATE})")
             report["composite"][str(h)] = {
-                "ic": round(ic, 4), "p_value": round(p, 4), "n": n, "significant": bool(signif),
+                "ic": round(ic, 4), "p_value": round(p, 4), "n_dates": n_dates,
+                "n_dates_skipped": n_skipped, "significant": bool(signif),
             }
 
         for comp in COMPONENT_COLS:
             if comp not in df.columns:
                 continue
             name = comp.replace("comp_", "")
-            ic, p, n = information_coefficient(df, comp, h)
+            ic, p, n_dates, n_skipped, _ = cross_sectional_ic(df, comp, h)
             label = name.ljust(20)
             if ic is None:
-                print(f"    {label}: data tidak cukup ({n} sampel)")
+                print(f"    {label}: tanggal dengan data cukup terlalu sedikit ({n_dates} tanggal)")
                 report["components"][name][str(h)] = None
                 continue
             signif = p < 0.05
             print(f"    {label}: IC={ic:+.4f}  p-value={p:.4f}  "
-                  f"({'SIGNIFIKAN' if signif else 'tidak signifikan'}, n={n})")
+                  f"({'SIGNIFIKAN' if signif else 'tidak signifikan'}, {n_dates} tanggal valid)")
             report["components"][name][str(h)] = {
-                "ic": round(ic, 4), "p_value": round(p, 4), "n": n, "significant": bool(signif),
+                "ic": round(ic, 4), "p_value": round(p, 4), "n_dates": n_dates,
+                "n_dates_skipped": n_skipped, "significant": bool(signif),
             }
 
         winrate, lower, upper, n = winrate_confidence_interval(df, h)
@@ -142,6 +184,9 @@ def main():
 
     print("\n" + "=" * 78)
     print("CARA BACA:")
+    print("- IC dihitung PER TANGGAL dulu (skor semua saham vs return mereka hari")
+    print("  itu), baru dirata-ratakan lintas tanggal -- bukan dicampur semua jadi")
+    print("  satu comotan besar (versi lama salah begini, sudah diperbaiki).")
     print("- IC positif + p-value < 0.05 -> komponen itu PUNYA nilai prediktif nyata.")
     print("- IC negatif signifikan -> arahnya TERBALIK, ada kemungkinan bug logika.")
     print("- Winrate interval mencakup 50% -> belum beda dari lempar koin secara statistik.")
