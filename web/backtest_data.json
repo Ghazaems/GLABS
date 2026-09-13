@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-11T15:03:27.763721",
+  "generated_at": "2026-09-13T04:42:43.965234",
   "period": "3y",
   "warmup_bars": 100,
   "stride": 5,
@@ -45,25 +45,25 @@
     "5": [
       {
         "signal": "beli",
-        "jumlah_sampel": 562,
-        "rata_rata_return_pct": 0.48,
-        "persen_untung": 47.9,
+        "jumlah_sampel": 559,
+        "rata_rata_return_pct": 0.49,
+        "persen_untung": 48.1,
         "return_terburuk": -26.98,
         "return_terbaik": 48.0
       },
       {
         "signal": "jual",
-        "jumlah_sampel": 512,
-        "rata_rata_return_pct": 0.33,
+        "jumlah_sampel": 522,
+        "rata_rata_return_pct": 0.35,
         "persen_untung": 47.5,
         "return_terburuk": -19.21,
         "return_terbaik": 27.8
       },
       {
         "signal": "pantau",
-        "jumlah_sampel": 2466,
+        "jumlah_sampel": 2459,
         "rata_rata_return_pct": 0.3,
-        "persen_untung": 46.9,
+        "persen_untung": 46.8,
         "return_terburuk": -33.73,
         "return_terbaik": 48.0
       }
@@ -71,25 +71,25 @@
     "10": [
       {
         "signal": "beli",
-        "jumlah_sampel": 562,
-        "rata_rata_return_pct": 0.94,
+        "jumlah_sampel": 559,
+        "rata_rata_return_pct": 0.93,
         "persen_untung": 47.9,
         "return_terburuk": -46.6,
         "return_terbaik": 60.68
       },
       {
         "signal": "jual",
-        "jumlah_sampel": 512,
-        "rata_rata_return_pct": 1.08,
-        "persen_untung": 51.0,
+        "jumlah_sampel": 522,
+        "rata_rata_return_pct": 1.07,
+        "persen_untung": 50.6,
         "return_terburuk": -27.23,
         "return_terbaik": 36.25
       },
       {
         "signal": "pantau",
-        "jumlah_sampel": 2466,
+        "jumlah_sampel": 2459,
         "rata_rata_return_pct": 0.53,
-        "persen_untung": 47.4,
+        "persen_untung": 47.5,
         "return_terburuk": -37.63,
         "return_terbaik": 62.4
       }
@@ -97,25 +97,25 @@
     "20": [
       {
         "signal": "beli",
-        "jumlah_sampel": 562,
-        "rata_rata_return_pct": 1.5,
-        "persen_untung": 49.1,
+        "jumlah_sampel": 559,
+        "rata_rata_return_pct": 1.43,
+        "persen_untung": 49.0,
         "return_terburuk": -48.05,
         "return_terbaik": 83.33
       },
       {
         "signal": "jual",
-        "jumlah_sampel": 512,
-        "rata_rata_return_pct": 1.74,
-        "persen_untung": 49.0,
+        "jumlah_sampel": 522,
+        "rata_rata_return_pct": 1.63,
+        "persen_untung": 48.5,
         "return_terburuk": -28.99,
         "return_terbaik": 64.96
       },
       {
         "signal": "pantau",
-        "jumlah_sampel": 2466,
-        "rata_rata_return_pct": 1.27,
-        "persen_untung": 49.1,
+        "jumlah_sampel": 2459,
+        "rata_rata_return_pct": 1.31,
+        "persen_untung": 49.2,
         "return_terburuk": -47.26,
         "return_terbaik": 98.31
       }
@@ -125,67 +125,67 @@
     "5": [
       {
         "rentang_skor": "(-95.001, -30.0]",
-        "jumlah_sampel": 918.0,
-        "rata_rata_return_pct": 0.47
+        "jumlah_sampel": 928.0,
+        "rata_rata_return_pct": 0.43
       },
       {
         "rentang_skor": "(-30.0, 0.0]",
-        "jumlah_sampel": 1035.0,
-        "rata_rata_return_pct": 0.29
+        "jumlah_sampel": 1037.0,
+        "rata_rata_return_pct": 0.37
       },
       {
         "rentang_skor": "(0.0, 30.0]",
-        "jumlah_sampel": 936.0,
-        "rata_rata_return_pct": 0.13
+        "jumlah_sampel": 925.0,
+        "rata_rata_return_pct": 0.1
       },
       {
         "rentang_skor": "(30.0, 90.0]",
-        "jumlah_sampel": 651.0,
-        "rata_rata_return_pct": 0.51
+        "jumlah_sampel": 650.0,
+        "rata_rata_return_pct": 0.5
       }
     ],
     "10": [
       {
         "rentang_skor": "(-95.001, -30.0]",
-        "jumlah_sampel": 918.0,
-        "rata_rata_return_pct": 1.0
+        "jumlah_sampel": 928.0,
+        "rata_rata_return_pct": 0.93
       },
       {
         "rentang_skor": "(-30.0, 0.0]",
-        "jumlah_sampel": 1035.0,
-        "rata_rata_return_pct": 0.34
+        "jumlah_sampel": 1037.0,
+        "rata_rata_return_pct": 0.41
       },
       {
         "rentang_skor": "(0.0, 30.0]",
-        "jumlah_sampel": 936.0,
-        "rata_rata_return_pct": 0.52
+        "jumlah_sampel": 925.0,
+        "rata_rata_return_pct": 0.53
       },
       {
         "rentang_skor": "(30.0, 90.0]",
-        "jumlah_sampel": 651.0,
-        "rata_rata_return_pct": 0.97
+        "jumlah_sampel": 650.0,
+        "rata_rata_return_pct": 0.95
       }
     ],
     "20": [
       {
         "rentang_skor": "(-95.001, -30.0]",
-        "jumlah_sampel": 918.0,
-        "rata_rata_return_pct": 2.14
+        "jumlah_sampel": 928.0,
+        "rata_rata_return_pct": 2.07
       },
       {
         "rentang_skor": "(-30.0, 0.0]",
-        "jumlah_sampel": 1035.0,
-        "rata_rata_return_pct": 0.87
+        "jumlah_sampel": 1037.0,
+        "rata_rata_return_pct": 0.91
       },
       {
         "rentang_skor": "(0.0, 30.0]",
-        "jumlah_sampel": 936.0,
-        "rata_rata_return_pct": 1.01
+        "jumlah_sampel": 925.0,
+        "rata_rata_return_pct": 1.05
       },
       {
         "rentang_skor": "(30.0, 90.0]",
-        "jumlah_sampel": 651.0,
-        "rata_rata_return_pct": 1.62
+        "jumlah_sampel": 650.0,
+        "rata_rata_return_pct": 1.58
       }
     ]
   },
