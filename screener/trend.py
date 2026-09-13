@@ -50,8 +50,12 @@ def support_resistance_levels(df: pd.DataFrame, window: int = 5, lookback: int =
     support = recent["swing_low"].dropna()
 
     last_close = df["Close"].iloc[-1]
+
+    nearest_resistance = resistance[resistance > last_close]
+    nearest_support = support[support < last_close]
+
     return {
-        "nearest_resistance": resistance[resistance > last_close].min() if not resistance[resistance > last_close].empty else None,
-        "nearest_support": support[support < last_close].max() if not support[support < last_close].empty else None,
+        "nearest_resistance": round(float(nearest_resistance.min()), 0) if not nearest_resistance.empty else None,
+        "nearest_support": round(float(nearest_support.max()), 0) if not nearest_support.empty else None,
         "last_close": last_close,
     }
