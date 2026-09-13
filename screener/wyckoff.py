@@ -259,20 +259,22 @@ def analyze_latest_trading_range(df: pd.DataFrame) -> dict:
         else:
             result["bias"] = bias_signals[-1][1]
 
-    result["phase"] = _estimate_phase(result["events"])
+    result["phase"] = _estimate_phase(result["events"], result["bias"])
     return result
 
 
-def _estimate_phase(events: list[dict]) -> str:
+def _estimate_phase(events: list[dict], bias: str | None = None) -> str:
     types = {e["type"] for e in events}
+    is_distribution = bias == "distribution"
+
     if "LPS" in types or "LPSY" in types:
-        return "D (LPS/LPSY muncul - siap markup/markdown)"
+        return "D (LPSY muncul - siap markdown)" if is_distribution else "D (LPS muncul - siap markup)"
     if "SOS" in types or "SOW" in types:
-        return "D (breakout terjadi, cek konfirmasi LPS/LPSY)"
+        return "D (breakdown terjadi, cek konfirmasi LPSY)" if is_distribution else "D (breakout terjadi, cek konfirmasi LPS)"
     if "Spring" in types or "UT" in types:
-        return "C (test supply/demand - titik entry potensial jika Spring)"
+        return "C (test supply/demand - titik keluar potensial jika UT)" if is_distribution else "C (test supply/demand - titik entry potensial jika Spring)"
     if "ST" in types:
-        return "B (masih membangun cause, tunggu Spring/SOS)"
+        return "B (masih membangun cause, tunggu UT/SOW)" if is_distribution else "B (masih membangun cause, tunggu Spring/SOS)"
     if "SC" in types or "BC" in types or "AR" in types:
         return "A (climax terdeteksi, TR baru mulai terbentuk)"
     return "unclear"
