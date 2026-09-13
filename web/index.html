@@ -416,6 +416,9 @@ body {
   border-radius: var(--radius-md);
   padding: 15px 17px; margin-top: 22px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.62;
 }
+.badge.sig-pos { background: var(--success-bg); color: var(--success); }
+.badge.sig-neg { background: var(--danger-bg); color: var(--danger); }
+.badge.sig-none { background: rgba(255,255,255,0.06); color: var(--text-muted); }
 .loading-msg { color: var(--text-muted); font-size: 13px; padding: 20px 0; }
 
 /* ---------- Watchlist per-komponen ---------- */
@@ -830,6 +833,27 @@ html { overflow-x: hidden; }
           </div>
           <div id="forward-body">
             <p class="loading-msg">Memuat forward_test_data.json...</p>
+          </div>
+        </div>
+        <!-- ===== GRUP 3: UJI SIGNIFIKANSI (IC) ===== -->
+        <div class="report-group">
+          <div class="report-group-head" style="justify-content:space-between">
+            <span style="display:flex; align-items:center; gap:8px">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M4 15l4-6 4 3 4-8 4 5"/></svg>
+              <h2>Uji Signifikansi <span>&middot; Information Coefficient</span></h2>
+            </span>
+            <select id="ic-horizon-select" style="background:var(--bg-card-2); color:var(--text-primary); border:1px solid var(--border); border-radius:6px; padding:4px 8px; font-size:12px;"></select>
+          </div>
+          <div class="explain-card" style="margin-bottom:16px">
+            <b>IC (Information Coefficient)</b> mengukur apakah skor benar-benar berkorelasi
+            dengan return yang terjadi setelahnya — bukan cuma kesan visual dari tabel kuartil.
+            IC positif + p-value &lt; 0.05 berarti komponen itu <b>punya nilai prediktif nyata</b>.
+            IC negatif signifikan berarti arahnya <b>terbalik</b> (kemungkinan bug logika, bukan
+            cuma "belum ada edge"). "Beats coin flip" menandakan winrate <b>secara statistik</b>
+            beda dari 50%, dihitung dari selang kepercayaan 95%.
+          </div>
+          <div id="ic-body">
+            <p class="loading-msg">Memuat ic_data.json...</p>
           </div>
         </div>
       </div><!-- /view-laporan -->
@@ -1330,6 +1354,7 @@ function showView(name) {
     reportLoaded = true;
     loadBacktestReport();
     loadForwardReport();
+    loadICReport();
   }
 }
 
@@ -1560,6 +1585,103 @@ async function loadForwardReport() {
   document.getElementById("forward-body").innerHTML =
     buildHorizonGridHtml(bySignal, horizons) + detailHtml + noteHtml;
 }
+
+// ---------- Uji Signifikansi (Information Coefficient) ----------
+function icSignifBadge(entry) {
+  if (!entry) return `<span class="badge sig-none">n/a</span>`;
+  if (!entry.significant) return `<span class="badge sig-none">tidak signifikan</span>`;
+  return entry.ic >= 0
+    ? `<span class="badge sig-pos">signifikan +</span>`
+    : `<span class="badge sig-neg">signifikan &minus;</span>`;
+}
+
+function fmtIC(entry) {
+  if (!entry) return "-";
+  return `${entry.ic >= 0 ? "+" : ""}${entry.ic.toFixed(4)}`;
+}
+
+async function loadICReport() {
+  let data;
+  try {
+    const res = await fetch("ic_data.json");
+    if (!res.ok) throw new Error("not found");
+    data = await res.json();
+  } catch (e) {
+    document.getElementById("ic-body").innerHTML =
+      `<p class="loading-msg">Belum ada data. Jalankan <code>python evaluate_ic.py</code> setelah
+      <code>backtest.py</code> (atau tunggu workflow mingguan jalan), lalu commit
+      <code>web/ic_data.json</code> yang terbentuk ke repo.</p>`;
+    document.getElementById("ic-horizon-select").style.display = "none";
+    return;
+  }
+
+  const horizons = data.horizons || [];
+  const select = document.getElementById("ic-horizon-select");
+  select.innerHTML = horizons
+    .map((h) => `<option value="${h}" ${h === REPORT_HORIZON ? "selected" : ""}>${h} hari bursa</option>`)
+    .join("");
+  const defaultH = horizons.includes(REPORT_HORIZON) ? REPORT_HORIZON : horizons[0];
+
+  const renderForHorizon = (h) => {
+    const hKey = String(h);
+    const composite = data.composite?.[hKey];
+    const winrate = data.winrate?.[hKey];
+    const exp = data.expectancy?.[hKey];
+
+    let html = `
+      <div class="section-title">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M4 15l4-6 4 3 4-8 4 5"/></svg>
+        IC per komponen (horizon ${h} hari bursa)
+      </div>
+      <div class="qcard"><table class="qtable"><thead><tr>
+        <th>Komponen</th><th class="num">IC</th><th class="num">p-value</th><th>Status</th>
+      </tr></thead><tbody>
+        <tr><td><b>Skor komposit</b></td><td class="num">${fmtIC(composite)}</td>
+          <td class="num">${composite ? composite.p_value.toFixed(4) : "-"}</td>
+          <td>${icSignifBadge(composite)}</td></tr>`;
+
+    Object.entries(data.components || {}).forEach(([name, byHorizon]) => {
+      const entry = byHorizon[hKey];
+      html += `<tr><td>${name.replace(/_/g, " ")}</td><td class="num">${fmtIC(entry)}</td>
+        <td class="num">${entry ? entry.p_value.toFixed(4) : "-"}</td>
+        <td>${icSignifBadge(entry)}</td></tr>`;
+    });
+    html += `</tbody></table></div>`;
+
+    if (winrate) {
+      const coinflipBadge = winrate.beats_coinflip
+        ? `<span class="badge sig-pos">beda dari coin flip</span>`
+        : `<span class="badge sig-none">belum beda dari coin flip</span>`;
+      html += `
+        <div class="section-title">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+          Winrate &amp; expectancy
+        </div>
+        <div class="qcard" style="padding:14px 16px">
+          <p style="margin:0 0 8px; font-size:13px;">
+            Winrate <b>${winrate.winrate_pct}%</b> &middot; interval 95%:
+            <b>[${winrate.ci_lower_pct}%, ${winrate.ci_upper_pct}%]</b> &middot; n=${winrate.n}
+            &nbsp; ${coinflipBadge}
+          </p>`;
+      if (exp) {
+        html += `
+          <p style="margin:0; font-size:13px;">
+            Rata-rata saat untung <b>${fmtPct(exp.avg_win_pct)}</b> &middot;
+            rata-rata saat rugi <b>${fmtPct(exp.avg_loss_pct)}</b> &middot;
+            expectancy per sinyal <b>${fmtPct(exp.expectancy_pct)}</b>
+            (${exp.positive ? '<span class="badge sig-pos">positif</span>' : '<span class="badge sig-neg">negatif</span>'})
+          </p>`;
+      }
+      html += `</div>`;
+    }
+
+    document.getElementById("ic-body").innerHTML = html;
+  };
+
+  renderForHorizon(defaultH);
+  select.addEventListener("change", (e) => renderForHorizon(Number(e.target.value)));
+}
+
 </script>
 <div class="drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>
 <section class="analysis-drawer" id="analysis-drawer" aria-hidden="true" aria-label="Detail analisis">
