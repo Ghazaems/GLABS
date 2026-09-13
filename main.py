@@ -33,6 +33,10 @@ def run_screening():
     print("Mengambil data IHSG untuk comparative strength...")
     ihsg = fetch_daily("^JKSE", period="1y")
 
+    print("Mengambil data LQ45 untuk comparative strength (pembanding kedua, "
+          "lebih apple-to-apple karena watchlist ini sebagian besar anggota LQ45)...")
+    lq45 = fetch_daily("^JKLQ45", period="1y")
+
     results = []
 
     for ticker, df in price_data.items():
@@ -71,6 +75,12 @@ def run_screening():
         # 5. Comparative strength vs IHSG - weekly (20 hari) & swing (60 hari)
         cs = comparative_strength(df, ihsg) if ihsg is not None else {"status": "no_ihsg_data"}
         cs_swing = comparative_strength(df, ihsg, window=60) if ihsg is not None else {"status": "no_ihsg_data"}
+
+        # 5b. Comparative strength vs LQ45 - benchmark kedua, BELUM dipakai di
+        # compute_score (murni data tambahan dulu, biar bisa dicek datanya
+        # masuk akal sebelum diputuskan mau dipakai gantiin/nemenin IHSG).
+        cs_lq45 = comparative_strength(df, lq45) if lq45 is not None else {"status": "no_lq45_data"}
+        cs_lq45_swing = comparative_strength(df, lq45, window=60) if lq45 is not None else {"status": "no_lq45_data"}
 
         # 6. Skor komposit - WEEKLY (dipakai Top pick, Trend structure, dst -
         # semua card selain Sinyal breakdown & Watchlist tetap pakai ini)
@@ -116,6 +126,7 @@ def run_screening():
             print(f"  Wyckoff events  : {[e['type'] for e in wy['events']]}")
         print(f"  vs VWAP(5d)     : {vwap.get('position', '-')}")
         print(f"  vs IHSG         : {cs.get('relative_strength_trend', '-')}")
+        print(f"  vs LQ45         : {cs_lq45.get('relative_strength_trend', '-')}")
 
         results.append({
             "ticker": ticker,
@@ -126,6 +137,7 @@ def run_screening():
             "wyckoff": wy,
             "vwap": vwap,
             "comparative_strength": cs,
+            "comparative_strength_lq45": cs_lq45,
             "score": scored["score"],
             "score_breakdown": scored["breakdown"],
             "signal": signal_label,
@@ -137,6 +149,7 @@ def run_screening():
             "resistance_swing": sr_swing.get("nearest_resistance"),
             "vwap_swing": vwap_swing,
             "comparative_strength_swing": cs_swing,
+            "comparative_strength_lq45_swing": cs_lq45_swing,
             "price_history": price_history,
         })
 
