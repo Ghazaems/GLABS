@@ -128,7 +128,13 @@ def run_screening():
             "score_breakdown": scored["breakdown"],
             "signal": signal_label,
             "score_swing": scored_swing["score"],
+            "score_breakdown_swing": scored_swing["breakdown"],
             "signal_swing": signal_label_swing,
+            "trend_swing": trend_swing,
+            "support_swing": sr_swing.get("nearest_support"),
+            "resistance_swing": sr_swing.get("nearest_resistance"),
+            "vwap_swing": vwap_swing,
+            "comparative_strength_swing": cs_swing,
             "price_history": price_history,
         })
 
