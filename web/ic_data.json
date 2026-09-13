@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-13T05:56:02.637018",
+  "generated_at": "2026-09-13T15:22:42.967446",
   "total_sampel": 3540,
   "horizons": [
     5,
@@ -8,122 +8,140 @@
   ],
   "composite": {
     "5": {
-      "ic": -0.0113,
-      "p_value": 0.5033,
-      "n": 3540,
+      "ic": -0.0022,
+      "p_value": 0.9185,
+      "n_dates": 120,
+      "n_dates_skipped": 60,
       "significant": false
     },
     "10": {
-      "ic": -0.017,
-      "p_value": 0.3112,
-      "n": 3540,
+      "ic": 0.0008,
+      "p_value": 0.9687,
+      "n_dates": 120,
+      "n_dates_skipped": 60,
       "significant": false
     },
     "20": {
-      "ic": -0.0224,
-      "p_value": 0.183,
-      "n": 3540,
+      "ic": 0.0102,
+      "p_value": 0.6319,
+      "n_dates": 120,
+      "n_dates_skipped": 60,
       "significant": false
     }
   },
   "components": {
     "trend": {
       "5": {
-        "ic": 0.0049,
-        "p_value": 0.7704,
-        "n": 3540,
+        "ic": 0.0167,
+        "p_value": 0.3784,
+        "n_dates": 120,
+        "n_dates_skipped": 60,
         "significant": false
       },
       "10": {
-        "ic": -0.0039,
-        "p_value": 0.8187,
-        "n": 3540,
+        "ic": 0.0107,
+        "p_value": 0.5751,
+        "n_dates": 120,
+        "n_dates_skipped": 60,
         "significant": false
       },
       "20": {
-        "ic": -0.0164,
-        "p_value": 0.3306,
-        "n": 3540,
+        "ic": -0.0019,
+        "p_value": 0.9209,
+        "n_dates": 120,
+        "n_dates_skipped": 60,
         "significant": false
       }
     },
     "wyckoff": {
       "5": {
-        "ic": 0.005,
-        "p_value": 0.7653,
-        "n": 3540,
+        "ic": 0.0257,
+        "p_value": 0.2105,
+        "n_dates": 120,
+        "n_dates_skipped": 60,
         "significant": false
       },
       "10": {
-        "ic": -0.0068,
-        "p_value": 0.6858,
-        "n": 3540,
+        "ic": 0.0178,
+        "p_value": 0.3816,
+        "n_dates": 120,
+        "n_dates_skipped": 60,
         "significant": false
       },
       "20": {
-        "ic": -0.0176,
-        "p_value": 0.2939,
-        "n": 3540,
+        "ic": 0.021,
+        "p_value": 0.2844,
+        "n_dates": 120,
+        "n_dates_skipped": 60,
         "significant": false
       }
     },
     "vwap": {
       "5": {
-        "ic": -0.0294,
-        "p_value": 0.0802,
-        "n": 3540,
-        "significant": false
+        "ic": -0.0508,
+        "p_value": 0.0176,
+        "n_dates": 120,
+        "n_dates_skipped": 60,
+        "significant": true
       },
       "10": {
-        "ic": -0.0143,
-        "p_value": 0.3964,
-        "n": 3540,
+        "ic": -0.0232,
+        "p_value": 0.2563,
+        "n_dates": 120,
+        "n_dates_skipped": 60,
         "significant": false
       },
       "20": {
-        "ic": 0.0052,
-        "p_value": 0.7592,
-        "n": 3540,
+        "ic": -0.015,
+        "p_value": 0.419,
+        "n_dates": 120,
+        "n_dates_skipped": 60,
         "significant": false
       }
     },
     "comparative_strength": {
       "5": {
-        "ic": 0.0002,
-        "p_value": 0.9884,
-        "n": 3540,
+        "ic": -0.0099,
+        "p_value": 0.6413,
+        "n_dates": 120,
+        "n_dates_skipped": 60,
         "significant": false
       },
       "10": {
-        "ic": -0.02,
-        "p_value": 0.2344,
-        "n": 3540,
+        "ic": -0.0091,
+        "p_value": 0.6769,
+        "n_dates": 120,
+        "n_dates_skipped": 60,
         "significant": false
       },
       "20": {
-        "ic": -0.0147,
-        "p_value": 0.3831,
-        "n": 3540,
+        "ic": 0.0144,
+        "p_value": 0.462,
+        "n_dates": 120,
+        "n_dates_skipped": 60,
         "significant": false
       }
     },
     "support_resistance": {
       "5": {
-        "ic": -0.0094,
-        "p_value": 0.5749,
-        "n": 3540,
+        "ic": 0.013,
+        "p_value": 0.3924,
+        "n_dates": 120,
+        "n_dates_skipped": 60,
         "significant": false
       },
       "10": {
-        "ic": 0.0033,
-        "p_value": 0.8437,
-        "n": 3540,
+        "ic": 0.0105,
+        "p_value": 0.5187,
+        "n_dates": 120,
+        "n_dates_skipped": 60,
         "significant": false
       },
       "20": {
-        "ic": -0.0046,
-        "p_value": 0.7854,
-        "n": 3540,
+        "ic": 0.0185,
+        "p_value": 0.2615,
+        "n_dates": 120,
+        "n_dates_skipped": 60,
         "significant": false
       }
     }
