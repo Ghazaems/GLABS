@@ -835,13 +835,26 @@ html { overflow-x: hidden; }
           <div id="forward-body">
             <p class="loading-msg">Memuat forward_test_data.json...</p>
           </div>
+
+          <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--border-soft)">
+            <div class="report-group-head" style="justify-content:space-between; margin-bottom:12px">
+              <span style="display:flex; align-items:center; gap:8px">
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M4 15l4-6 4 3 4-8 4 5"/></svg>
+                <h2 style="font-size:14.5px">Uji Signifikansi <span>&middot; dari data nyata forward test</span></h2>
+              </span>
+              <select id="forward-ic-horizon-select" style="background:var(--bg-card-2); color:var(--text-primary); border:1px solid var(--border); border-radius:6px; padding:4px 8px; font-size:12px;"></select>
+            </div>
+            <div id="forward-ic-body">
+              <p class="loading-msg">Memuat...</p>
+            </div>
+          </div>
         </div>
-        <!-- ===== GRUP 3: UJI SIGNIFIKANSI (IC) ===== -->
+        <!-- ===== GRUP 3: UJI SIGNIFIKANSI (IC) - BACKTEST ===== -->
         <div class="report-group">
           <div class="report-group-head" style="justify-content:space-between">
             <span style="display:flex; align-items:center; gap:8px">
               <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M4 15l4-6 4 3 4-8 4 5"/></svg>
-              <h2>Uji Signifikansi <span>&middot; Information Coefficient</span></h2>
+              <h2>Uji Signifikansi <span>&middot; dari data backtest (simulasi)</span></h2>
             </span>
             <select id="ic-horizon-select" style="background:var(--bg-card-2); color:var(--text-primary); border:1px solid var(--border); border-radius:6px; padding:4px 8px; font-size:12px;"></select>
           </div>
@@ -1558,6 +1571,9 @@ async function loadForwardReport() {
     document.getElementById("forward-body").innerHTML =
       `<p class="loading-msg">Cron mingguan (<code>weekly-forward-test.yml</code>) akan mengisi
       <code>web/forward_test_data.json</code> otomatis setelah cukup waktu berjalan.</p>`;
+    document.getElementById("forward-ic-body").innerHTML =
+      `<p class="loading-msg">Menunggu data forward test juga.</p>`;
+    document.getElementById("forward-ic-horizon-select").style.display = "none";
     return;
   }
 
@@ -1599,9 +1615,18 @@ async function loadForwardReport() {
   const noteHtml = `<div class="note-card">${data.catatan || ""}</div>`;
   document.getElementById("forward-body").innerHTML =
     buildHorizonGridHtml(bySignal, horizons) + detailHtml + noteHtml;
+
+  if (data.ic) {
+    renderICReport("forward-ic-body", "forward-ic-horizon-select", data.ic);
+  } else {
+    document.getElementById("forward-ic-body").innerHTML =
+      `<p class="loading-msg">Belum ada uji IC di data ini (versi forward_test.py lama). Jalankan ulang setelah update.</p>`;
+    document.getElementById("forward-ic-horizon-select").style.display = "none";
+  }
 }
 
-// ---------- Uji Signifikansi (Information Coefficient) ----------
+// ---------- Uji Signifikansi (Information Coefficient) - dipakai bareng
+// oleh laporan Backtest (ic_data.json) dan Forward Test (forward_test_data.json -> ic) ----------
 function icSignifBadge(entry) {
   if (!entry) return `<span class="badge sig-none">n/a</span>`;
   if (!entry.significant) return `<span class="badge sig-none">tidak signifikan</span>`;
@@ -1615,23 +1640,13 @@ function fmtIC(entry) {
   return `${entry.ic >= 0 ? "+" : ""}${entry.ic.toFixed(4)}`;
 }
 
-async function loadICReport() {
-  let data;
-  try {
-    const res = await fetch("ic_data.json");
-    if (!res.ok) throw new Error("not found");
-    data = await res.json();
-  } catch (e) {
-    document.getElementById("ic-body").innerHTML =
-      `<p class="loading-msg">Belum ada data. Jalankan <code>python evaluate_ic.py</code> setelah
-      <code>backtest.py</code> (atau tunggu workflow mingguan jalan), lalu commit
-      <code>web/ic_data.json</code> yang terbentuk ke repo.</p>`;
-    document.getElementById("ic-horizon-select").style.display = "none";
-    return;
-  }
-
+/**
+ * Render 1 laporan IC (dipakai backtest maupun forward test).
+ * data harus berbentuk: { horizons, composite, components, winrate, expectancy }
+ */
+function renderICReport(bodyId, selectId, data) {
   const horizons = data.horizons || [];
-  const select = document.getElementById("ic-horizon-select");
+  const select = document.getElementById(selectId);
   select.innerHTML = horizons
     .map((h) => `<option value="${h}" ${h === REPORT_HORIZON ? "selected" : ""}>${h} hari bursa</option>`)
     .join("");
@@ -1644,10 +1659,6 @@ async function loadICReport() {
     const exp = data.expectancy?.[hKey];
 
     let html = `
-      <div class="section-title">
-        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M4 15l4-6 4 3 4-8 4 5"/></svg>
-        IC per komponen (horizon ${h} hari bursa)
-      </div>
       <div class="qcard"><table class="qtable"><thead><tr>
         <th>Komponen</th><th class="num">IC</th><th class="num">p-value</th><th>Status</th>
       </tr></thead><tbody>
@@ -1668,11 +1679,7 @@ async function loadICReport() {
         ? `<span class="badge sig-pos">beda dari coin flip</span>`
         : `<span class="badge sig-none">belum beda dari coin flip</span>`;
       html += `
-        <div class="section-title">
-          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-          Winrate &amp; expectancy
-        </div>
-        <div class="qcard" style="padding:14px 16px">
+        <div class="qcard" style="padding:14px 16px; margin-top:12px">
           <p style="margin:0 0 8px; font-size:13px;">
             Winrate <b>${winrate.winrate_pct}%</b> &middot; interval 95%:
             <b>[${winrate.ci_lower_pct}%, ${winrate.ci_upper_pct}%]</b> &middot; n=${winrate.n}
@@ -1688,14 +1695,34 @@ async function loadICReport() {
           </p>`;
       }
       html += `</div>`;
+    } else {
+      html += `<p class="loading-msg">Belum ada sampel matang untuk horizon ini.</p>`;
     }
 
-    document.getElementById("ic-body").innerHTML = html;
+    document.getElementById(bodyId).innerHTML = html;
   };
 
   renderForHorizon(defaultH);
   select.addEventListener("change", (e) => renderForHorizon(Number(e.target.value)));
 }
+
+async function loadICReport() {
+  let data;
+  try {
+    const res = await fetch("ic_data.json");
+    if (!res.ok) throw new Error("not found");
+    data = await res.json();
+  } catch (e) {
+    document.getElementById("ic-body").innerHTML =
+      `<p class="loading-msg">Belum ada data. Jalankan <code>python evaluate_ic.py</code> setelah
+      <code>backtest.py</code> (atau tunggu workflow mingguan jalan), lalu commit
+      <code>web/ic_data.json</code> yang terbentuk ke repo.</p>`;
+    document.getElementById("ic-horizon-select").style.display = "none";
+    return;
+  }
+  renderICReport("ic-body", "ic-horizon-select", data);
+}
+
 
 </script>
 <div class="drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>
