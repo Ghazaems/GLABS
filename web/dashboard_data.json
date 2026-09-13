@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-11T14:58:56.048452",
+  "generated_at": "2026-09-13T15:33:22.205858",
   "watchlist": [
     {
       "ticker": "AADI",
@@ -36,6 +36,11 @@
         "ratio_now": 1.86887,
         "ratio_start": 1.43611
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 18.8158,
+        "ratio_start": 14.4299
+      },
       "score": 90,
       "score_breakdown": {
         "trend": 30,
@@ -45,6 +50,33 @@
         "support_resistance": 0
       },
       "signal": "beli",
+      "score_swing": 60,
+      "score_breakdown_swing": {
+        "trend": 0,
+        "wyckoff": 30,
+        "vwap": 15,
+        "comparative_strength": 15,
+        "support_resistance": 0
+      },
+      "signal_swing": "beli",
+      "trend_swing": "sideways",
+      "support_swing": 7000.0,
+      "resistance_swing": null,
+      "vwap_swing": {
+        "vwap": 10858.81,
+        "last_close": 12225.0,
+        "position": "above"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 1.86887,
+        "ratio_start": 1.30421
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 18.8158,
+        "ratio_start": 13.04869
+      },
       "price_history": [
         {
           "date": "2025-12-10",
@@ -2073,6 +2105,11 @@
         "ratio_now": 0.23772,
         "ratio_start": 0.20391
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 2.39334,
+        "ratio_start": 2.04889
+      },
       "score": 90,
       "score_breakdown": {
         "trend": 30,
@@ -2082,6 +2119,33 @@
         "support_resistance": 0
       },
       "signal": "beli",
+      "score_swing": 30,
+      "score_breakdown_swing": {
+        "trend": -30,
+        "wyckoff": 30,
+        "vwap": 15,
+        "comparative_strength": 15,
+        "support_resistance": 0
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "downtrend",
+      "support_swing": 1436.1659461508993,
+      "resistance_swing": 1781.81953125,
+      "vwap_swing": {
+        "vwap": 1452.6,
+        "last_close": 1555.0,
+        "position": "above"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.23772,
+        "ratio_start": 0.18794
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 2.39334,
+        "ratio_start": 1.88031
+      },
       "price_history": [
         {
           "date": "2025-12-11",
@@ -4090,6 +4154,11 @@
         "ratio_now": 0.49989,
         "ratio_start": 0.47606
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 5.03294,
+        "ratio_start": 4.78339
+      },
       "score": 55,
       "score_breakdown": {
         "trend": 30,
@@ -4099,6 +4168,33 @@
         "support_resistance": -5
       },
       "signal": "beli",
+      "score_swing": 0,
+      "score_breakdown_swing": {
+        "trend": -30,
+        "wyckoff": 0,
+        "vwap": 15,
+        "comparative_strength": 15,
+        "support_resistance": 0
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "downtrend",
+      "support_swing": 3121.6034214564734,
+      "resistance_swing": 3997.5157670124922,
+      "vwap_swing": {
+        "vwap": 3150.53,
+        "last_close": 3270.0,
+        "position": "above"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.49989,
+        "ratio_start": 0.47857
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 5.03294,
+        "ratio_start": 4.7881
+      },
       "price_history": [
         {
           "date": "2025-12-11",
@@ -6123,6 +6219,11 @@
         "ratio_now": 0.46626,
         "ratio_start": 0.44273
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 4.69433,
+        "ratio_start": 4.44855
+      },
       "score": 45,
       "score_breakdown": {
         "trend": 30,
@@ -6132,6 +6233,33 @@
         "support_resistance": -5
       },
       "signal": "beli",
+      "score_swing": -15,
+      "score_breakdown_swing": {
+        "trend": -30,
+        "wyckoff": -10,
+        "vwap": 15,
+        "comparative_strength": 15,
+        "support_resistance": -5
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "downtrend",
+      "support_swing": 2955.635009765625,
+      "resistance_swing": 3114.861283129799,
+      "vwap_swing": {
+        "vwap": 2975.23,
+        "last_close": 3050.0,
+        "position": "above"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.46626,
+        "ratio_start": 0.46112
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 4.69433,
+        "ratio_start": 4.61351
+      },
       "price_history": [
         {
           "date": "2025-12-10",
@@ -8108,7 +8236,7 @@
           "high": 3050.0,
           "low": 2940.0,
           "close": 3050.0,
-          "volume": 32473600,
+          "volume": 32472800,
           "vwap": 3045.33,
           "swing_high": null,
           "swing_low": null
@@ -8156,6 +8284,11 @@
         "ratio_now": 1.35293,
         "ratio_start": 1.34486
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 13.62125,
+        "ratio_start": 13.51308
+      },
       "score": 40,
       "score_breakdown": {
         "trend": 30,
@@ -8165,6 +8298,33 @@
         "support_resistance": 0
       },
       "signal": "beli",
+      "score_swing": 10,
+      "score_breakdown_swing": {
+        "trend": 0,
+        "wyckoff": 10,
+        "vwap": -15,
+        "comparative_strength": 15,
+        "support_resistance": 0
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "sideways",
+      "support_swing": 8211.071819982395,
+      "resistance_swing": 10684.285856426886,
+      "vwap_swing": {
+        "vwap": 8885.89,
+        "last_close": 8850.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 1.35293,
+        "ratio_start": 1.25016
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 13.62125,
+        "ratio_start": 12.50799
+      },
       "price_history": [
         {
           "date": "2025-12-11",
@@ -10173,6 +10333,11 @@
         "ratio_now": 0.49989,
         "ratio_start": 0.49351
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 5.03294,
+        "ratio_start": 4.95878
+      },
       "score": 30,
       "score_breakdown": {
         "trend": 30,
@@ -10182,6 +10347,33 @@
         "support_resistance": 0
       },
       "signal": "pantau",
+      "score_swing": -5,
+      "score_breakdown_swing": {
+        "trend": -30,
+        "wyckoff": 0,
+        "vwap": 15,
+        "comparative_strength": 15,
+        "support_resistance": -5
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "downtrend",
+      "support_swing": 3090.113367151331,
+      "resistance_swing": 3360.0,
+      "vwap_swing": {
+        "vwap": 3265.99,
+        "last_close": 3270.0,
+        "position": "above"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.49989,
+        "ratio_start": 0.47956
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 5.03294,
+        "ratio_start": 4.79803
+      },
       "price_history": [
         {
           "date": "2025-12-11",
@@ -12158,7 +12350,7 @@
           "high": 3320.0,
           "low": 3250.0,
           "close": 3270.0,
-          "volume": 217303600,
+          "volume": 217302800,
           "vwap": 3352.97,
           "swing_high": null,
           "swing_low": null
@@ -12190,6 +12382,11 @@
         "ratio_now": 0.66653,
         "ratio_start": 0.65537
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 6.71058,
+        "ratio_start": 6.58514
+      },
       "score": 25,
       "score_breakdown": {
         "trend": 30,
@@ -12199,6 +12396,33 @@
         "support_resistance": -5
       },
       "signal": "pantau",
+      "score_swing": -30,
+      "score_breakdown_swing": {
+        "trend": -30,
+        "wyckoff": 0,
+        "vwap": 15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "downtrend",
+      "support_swing": 3995.8394689968964,
+      "resistance_swing": 4520.0,
+      "vwap_swing": {
+        "vwap": 4289.97,
+        "last_close": 4360.0,
+        "position": "above"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.66653,
+        "ratio_start": 0.7242
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 6.71058,
+        "ratio_start": 7.24567
+      },
       "price_history": [
         {
           "date": "2025-12-11",
@@ -14223,6 +14447,11 @@
         "ratio_now": 4.02056,
         "ratio_start": 3.66167
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 40.47898,
+        "ratio_start": 36.79226
+      },
       "score": 20,
       "score_breakdown": {
         "trend": 0,
@@ -14232,6 +14461,33 @@
         "support_resistance": 0
       },
       "signal": "pantau",
+      "score_swing": 20,
+      "score_breakdown_swing": {
+        "trend": 0,
+        "wyckoff": -10,
+        "vwap": 15,
+        "comparative_strength": 15,
+        "support_resistance": 0
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "sideways",
+      "support_swing": 23075.0,
+      "resistance_swing": 27650.0,
+      "vwap_swing": {
+        "vwap": 24680.76,
+        "last_close": 26300.0,
+        "position": "above"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 4.02056,
+        "ratio_start": 3.6939
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 40.47898,
+        "ratio_start": 36.95779
+      },
       "price_history": [
         {
           "date": "2025-12-11",
@@ -16256,6 +16512,11 @@
         "ratio_now": 0.40358,
         "ratio_start": 0.39195
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 4.06329,
+        "ratio_start": 3.93833
+      },
       "score": 10,
       "score_breakdown": {
         "trend": 0,
@@ -16265,6 +16526,33 @@
         "support_resistance": 0
       },
       "signal": "pantau",
+      "score_swing": 10,
+      "score_breakdown_swing": {
+        "trend": 0,
+        "wyckoff": 10,
+        "vwap": -15,
+        "comparative_strength": 15,
+        "support_resistance": 0
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "sideways",
+      "support_swing": 2110.0,
+      "resistance_swing": null,
+      "vwap_swing": {
+        "vwap": 2677.24,
+        "last_close": 2640.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.40358,
+        "ratio_start": 0.36615
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 4.06329,
+        "ratio_start": 3.66336
+      },
       "price_history": [
         {
           "date": "2025-12-10",
@@ -18289,6 +18577,11 @@
         "ratio_now": 0.34396,
         "ratio_start": 0.35863
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 3.46303,
+        "ratio_start": 3.60349
+      },
       "score": 10,
       "score_breakdown": {
         "trend": 30,
@@ -18298,6 +18591,33 @@
         "support_resistance": 0
       },
       "signal": "pantau",
+      "score_swing": 20,
+      "score_breakdown_swing": {
+        "trend": 0,
+        "wyckoff": 10,
+        "vwap": -15,
+        "comparative_strength": 15,
+        "support_resistance": 10
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "sideways",
+      "support_swing": 2211.529488031915,
+      "resistance_swing": 2589.5685161294973,
+      "vwap_swing": {
+        "vwap": 2272.3,
+        "last_close": 2250.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.34396,
+        "ratio_start": 0.31431
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 3.46303,
+        "ratio_start": 3.14465
+      },
       "price_history": [
         {
           "date": "2025-12-11",
@@ -20306,6 +20626,11 @@
         "ratio_now": 0.96692,
         "ratio_start": 1.00772
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 9.73496,
+        "ratio_start": 10.12546
+      },
       "score": 5,
       "score_breakdown": {
         "trend": 30,
@@ -20315,6 +20640,33 @@
         "support_resistance": 5
       },
       "signal": "pantau",
+      "score_swing": -30,
+      "score_breakdown_swing": {
+        "trend": 0,
+        "wyckoff": 0,
+        "vwap": -15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "sideways",
+      "support_swing": 6084.048970540364,
+      "resistance_swing": 6524.71018659736,
+      "vwap_swing": {
+        "vwap": 6478.84,
+        "last_close": 6325.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.96692,
+        "ratio_start": 0.98043
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 9.73496,
+        "ratio_start": 9.80929
+      },
       "price_history": [
         {
           "date": "2025-12-10",
@@ -20385,7 +20737,7 @@
         {
           "date": "2025-12-18",
           "open": 7658.74,
-          "high": 7873.48,
+          "high": 7873.47,
           "low": 7658.74,
           "close": 7801.9,
           "volume": 88497200,
@@ -20446,7 +20798,7 @@
           "volume": 78399400,
           "vwap": 7698.42,
           "swing_high": null,
-          "swing_low": 7587.17
+          "swing_low": null
         },
         {
           "date": "2025-12-30",
@@ -20457,7 +20809,7 @@
           "volume": 101995600,
           "vwap": 7685.67,
           "swing_high": null,
-          "swing_low": null
+          "swing_low": 7587.17
         },
         {
           "date": "2026-01-02",
@@ -20500,7 +20852,7 @@
           "close": 7778.04,
           "volume": 93152500,
           "vwap": 7718.44,
-          "swing_high": 7801.9,
+          "swing_high": null,
           "swing_low": null
         },
         {
@@ -20639,8 +20991,8 @@
           "date": "2026-01-27",
           "open": 7229.28,
           "high": 7277.0,
-          "low": 7157.7,
-          "close": 7157.7,
+          "low": 7157.71,
+          "close": 7157.71,
           "volume": 259830900,
           "vwap": 7305.93,
           "swing_high": null,
@@ -20739,7 +21091,7 @@
           "open": 7324.72,
           "high": 7372.44,
           "low": 7109.99,
-          "close": 7157.7,
+          "close": 7157.71,
           "volume": 174758300,
           "vwap": 7317.94,
           "swing_high": null,
@@ -20852,7 +21204,7 @@
           "close": 6990.69,
           "volume": 133278000,
           "vwap": 6930.3,
-          "swing_high": null,
+          "swing_high": 7038.41,
           "swing_low": null
         },
         {
@@ -20908,7 +21260,7 @@
           "volume": 216518700,
           "vwap": 6772.54,
           "swing_high": null,
-          "swing_low": 6513.51
+          "swing_low": null
         },
         {
           "date": "2026-03-05",
@@ -22339,6 +22691,11 @@
         "ratio_now": 1.11597,
         "ratio_start": 1.16634
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 11.23561,
+        "ratio_start": 11.71931
+      },
       "score": 5,
       "score_breakdown": {
         "trend": 30,
@@ -22348,6 +22705,33 @@
         "support_resistance": -5
       },
       "signal": "pantau",
+      "score_swing": -20,
+      "score_breakdown_swing": {
+        "trend": -30,
+        "wyckoff": 10,
+        "vwap": -15,
+        "comparative_strength": 15,
+        "support_resistance": 0
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "downtrend",
+      "support_swing": 5939.420548892989,
+      "resistance_swing": null,
+      "vwap_swing": {
+        "vwap": 7340.73,
+        "last_close": 7300.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 1.11597,
+        "ratio_start": 1.05539
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 11.23561,
+        "ratio_start": 10.55924
+      },
       "price_history": [
         {
           "date": "2025-12-11",
@@ -24356,6 +24740,11 @@
         "ratio_now": 0.19186,
         "ratio_start": 0.21423
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 1.9316,
+        "ratio_start": 2.15253
+      },
       "score": 0,
       "score_breakdown": {
         "trend": 30,
@@ -24365,6 +24754,33 @@
         "support_resistance": 0
       },
       "signal": "pantau",
+      "score_swing": -30,
+      "score_breakdown_swing": {
+        "trend": 0,
+        "wyckoff": 0,
+        "vwap": -15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "sideways",
+      "support_swing": 1071.6490759808084,
+      "resistance_swing": 1520.0,
+      "vwap_swing": {
+        "vwap": 1350.38,
+        "last_close": 1255.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.19186,
+        "ratio_start": 0.2252
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 1.9316,
+        "ratio_start": 2.25313
+      },
       "price_history": [
         {
           "date": "2025-12-10",
@@ -26367,6 +26783,11 @@
         "ratio_now": 0.03241,
         "ratio_start": 0.02825
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.32629,
+        "ratio_start": 0.28381
+      },
       "score": 0,
       "score_breakdown": {
         "trend": 0,
@@ -26376,6 +26797,33 @@
         "support_resistance": 0
       },
       "signal": "pantau",
+      "score_swing": 0,
+      "score_breakdown_swing": {
+        "trend": -30,
+        "wyckoff": 0,
+        "vwap": 15,
+        "comparative_strength": 15,
+        "support_resistance": 0
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "downtrend",
+      "support_swing": 200.0,
+      "resistance_swing": 268.0,
+      "vwap_swing": {
+        "vwap": 203.16,
+        "last_close": 212.0,
+        "position": "above"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.03241,
+        "ratio_start": 0.0277
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.32629,
+        "ratio_start": 0.27718
+      },
       "price_history": [
         {
           "date": "2025-12-11",
@@ -28400,6 +28848,11 @@
         "ratio_now": 0.75061,
         "ratio_start": 0.76169
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 7.5571,
+        "ratio_start": 7.65343
+      },
       "score": -5,
       "score_breakdown": {
         "trend": 0,
@@ -28409,6 +28862,33 @@
         "support_resistance": 5
       },
       "signal": "pantau",
+      "score_swing": -40,
+      "score_breakdown_swing": {
+        "trend": -30,
+        "wyckoff": -10,
+        "vwap": 15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal_swing": "jual",
+      "trend_swing": "downtrend",
+      "support_swing": 4350.0,
+      "resistance_swing": 5300.0,
+      "vwap_swing": {
+        "vwap": 4843.47,
+        "last_close": 4910.0,
+        "position": "above"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.75061,
+        "ratio_start": 0.7728
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 7.5571,
+        "ratio_start": 7.73196
+      },
       "price_history": [
         {
           "date": "2025-12-11",
@@ -30433,6 +30913,11 @@
         "ratio_now": 0.2446,
         "ratio_start": 0.24914
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 2.4626,
+        "ratio_start": 2.50331
+      },
       "score": -5,
       "score_breakdown": {
         "trend": 30,
@@ -30442,6 +30927,33 @@
         "support_resistance": 5
       },
       "signal": "pantau",
+      "score_swing": -70,
+      "score_breakdown_swing": {
+        "trend": -30,
+        "wyckoff": -10,
+        "vwap": -15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal_swing": "jual",
+      "trend_swing": "downtrend",
+      "support_swing": 1265.0,
+      "resistance_swing": 1990.0,
+      "vwap_swing": {
+        "vwap": 1666.23,
+        "last_close": 1600.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.2446,
+        "ratio_start": 0.25922
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 2.4626,
+        "ratio_start": 2.59353
+      },
       "price_history": [
         {
           "date": "2025-12-10",
@@ -32418,7 +32930,7 @@
           "high": 1645.0,
           "low": 1585.0,
           "close": 1600.0,
-          "volume": 37923600,
+          "volume": 37918600,
           "vwap": 1644.55,
           "swing_high": null,
           "swing_low": null
@@ -32450,6 +32962,11 @@
         "ratio_now": 0.57327,
         "ratio_start": 0.57286
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 5.77172,
+        "ratio_start": 5.75602
+      },
       "score": -5,
       "score_breakdown": {
         "trend": 0,
@@ -32459,6 +32976,33 @@
         "support_resistance": -5
       },
       "signal": "pantau",
+      "score_swing": -20,
+      "score_breakdown_swing": {
+        "trend": 0,
+        "wyckoff": 0,
+        "vwap": -15,
+        "comparative_strength": -15,
+        "support_resistance": 10
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "sideways",
+      "support_swing": 3672.4239612424,
+      "resistance_swing": 3990.0,
+      "vwap_swing": {
+        "vwap": 3775.47,
+        "last_close": 3750.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.57327,
+        "ratio_start": 0.60431
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 5.77172,
+        "ratio_start": 6.04616
+      },
       "price_history": [
         {
           "date": "2025-12-11",
@@ -34474,7 +35018,7 @@
         "phase": "B (masih membangun cause, tunggu Spring/SOS)"
       },
       "vwap": {
-        "vwap": 3250.3,
+        "vwap": 3250.34,
         "last_close": 3160.0,
         "position": "below"
       },
@@ -34482,6 +35026,11 @@
         "relative_strength_trend": "underperforming",
         "ratio_now": 0.48308,
         "ratio_start": 0.48717
+      },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 4.86363,
+        "ratio_start": 4.895
       },
       "score": -10,
       "score_breakdown": {
@@ -34492,6 +35041,33 @@
         "support_resistance": 10
       },
       "signal": "pantau",
+      "score_swing": -20,
+      "score_breakdown_swing": {
+        "trend": -30,
+        "wyckoff": 10,
+        "vwap": 15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "downtrend",
+      "support_swing": 3010.0,
+      "resistance_swing": 3370.0,
+      "vwap_swing": {
+        "vwap": 3098.02,
+        "last_close": 3160.0,
+        "position": "above"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.48308,
+        "ratio_start": 0.54112
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 4.86363,
+        "ratio_start": 5.41399
+      },
       "price_history": [
         {
           "date": "2025-12-10",
@@ -36468,8 +37044,8 @@
           "high": 3250.0,
           "low": 3140.0,
           "close": 3160.0,
-          "volume": 52897800,
-          "vwap": 3250.3,
+          "volume": 52753000,
+          "vwap": 3250.34,
           "swing_high": null,
           "swing_low": null
         }
@@ -36516,6 +37092,11 @@
         "ratio_now": 0.07644,
         "ratio_start": 0.07934
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.76956,
+        "ratio_start": 0.79723
+      },
       "score": -10,
       "score_breakdown": {
         "trend": 0,
@@ -36525,6 +37106,33 @@
         "support_resistance": 10
       },
       "signal": "pantau",
+      "score_swing": -50,
+      "score_breakdown_swing": {
+        "trend": -30,
+        "wyckoff": 10,
+        "vwap": -15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal_swing": "jual",
+      "trend_swing": "downtrend",
+      "support_swing": 476.0,
+      "resistance_swing": 570.0,
+      "vwap_swing": {
+        "vwap": 520.17,
+        "last_close": 500.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.07644,
+        "ratio_start": 0.09235
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.76956,
+        "ratio_start": 0.92394
+      },
       "price_history": [
         {
           "date": "2025-12-10",
@@ -38549,6 +39157,11 @@
         "ratio_now": 0.00764,
         "ratio_start": 0.00793
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.07696,
+        "ratio_start": 0.07972
+      },
       "score": -10,
       "score_breakdown": {
         "trend": 0,
@@ -38558,6 +39171,33 @@
         "support_resistance": 0
       },
       "signal": "pantau",
+      "score_swing": -40,
+      "score_breakdown_swing": {
+        "trend": 0,
+        "wyckoff": -10,
+        "vwap": -15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal_swing": "jual",
+      "trend_swing": "sideways",
+      "support_swing": null,
+      "resistance_swing": 58.0,
+      "vwap_swing": {
+        "vwap": 50.0,
+        "last_close": 50.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.00764,
+        "ratio_start": 0.0081
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.07696,
+        "ratio_start": 0.08105
+      },
       "price_history": [
         {
           "date": "2025-12-10",
@@ -40582,6 +41222,11 @@
         "ratio_now": 0.07949,
         "ratio_start": 0.08093
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.80034,
+        "ratio_start": 0.81318
+      },
       "score": -10,
       "score_breakdown": {
         "trend": 30,
@@ -40591,6 +41236,33 @@
         "support_resistance": 0
       },
       "signal": "pantau",
+      "score_swing": -70,
+      "score_breakdown_swing": {
+        "trend": -30,
+        "wyckoff": -10,
+        "vwap": -15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal_swing": "jual",
+      "trend_swing": "downtrend",
+      "support_swing": 398.0,
+      "resistance_swing": 565.0,
+      "vwap_swing": {
+        "vwap": 544.74,
+        "last_close": 520.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.07949,
+        "ratio_start": 0.08668
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.80034,
+        "ratio_start": 0.86721
+      },
       "price_history": [
         {
           "date": "2025-12-10",
@@ -42615,6 +43287,11 @@
         "ratio_now": 0.23237,
         "ratio_start": 0.23406
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 2.33947,
+        "ratio_start": 2.35183
+      },
       "score": -15,
       "score_breakdown": {
         "trend": 0,
@@ -42624,6 +43301,33 @@
         "support_resistance": 5
       },
       "signal": "pantau",
+      "score_swing": -20,
+      "score_breakdown_swing": {
+        "trend": 0,
+        "wyckoff": 10,
+        "vwap": -15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "sideways",
+      "support_swing": 1470.0,
+      "resistance_swing": 1580.0,
+      "vwap_swing": {
+        "vwap": 1525.71,
+        "last_close": 1520.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.23237,
+        "ratio_start": 0.25274
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 2.33947,
+        "ratio_start": 2.52869
+      },
       "price_history": [
         {
           "date": "2025-12-11",
@@ -44632,6 +45336,11 @@
         "ratio_now": 0.39747,
         "ratio_start": 0.411
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 4.00172,
+        "ratio_start": 4.12966
+      },
       "score": -25,
       "score_breakdown": {
         "trend": 0,
@@ -44641,6 +45350,33 @@
         "support_resistance": 5
       },
       "signal": "pantau",
+      "score_swing": -50,
+      "score_breakdown_swing": {
+        "trend": -30,
+        "wyckoff": 0,
+        "vwap": -15,
+        "comparative_strength": -15,
+        "support_resistance": 10
+      },
+      "signal_swing": "jual",
+      "trend_swing": "downtrend",
+      "support_swing": 2542.666940926657,
+      "resistance_swing": 2790.0,
+      "vwap_swing": {
+        "vwap": 2610.85,
+        "last_close": 2600.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.39747,
+        "ratio_start": 0.4504
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 4.00172,
+        "ratio_start": 4.50626
+      },
       "price_history": [
         {
           "date": "2025-12-11",
@@ -46665,6 +47401,11 @@
         "ratio_now": 0.0639,
         "ratio_start": 0.07077
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.64335,
+        "ratio_start": 0.71113
+      },
       "score": -30,
       "score_breakdown": {
         "trend": 0,
@@ -46674,6 +47415,33 @@
         "support_resistance": 10
       },
       "signal": "pantau",
+      "score_swing": -40,
+      "score_breakdown_swing": {
+        "trend": -30,
+        "wyckoff": -10,
+        "vwap": -15,
+        "comparative_strength": 15,
+        "support_resistance": 0
+      },
+      "signal_swing": "jual",
+      "trend_swing": "downtrend",
+      "support_swing": 398.0644996279762,
+      "resistance_swing": 496.0,
+      "vwap_swing": {
+        "vwap": 446.72,
+        "last_close": 418.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.0639,
+        "ratio_start": 0.06159
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.64335,
+        "ratio_start": 0.61621
+      },
       "price_history": [
         {
           "date": "2025-12-10",
@@ -48698,6 +49466,11 @@
         "ratio_now": 0.15669,
         "ratio_start": 0.16741
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 1.5776,
+        "ratio_start": 1.68216
+      },
       "score": -35,
       "score_breakdown": {
         "trend": 0,
@@ -48707,6 +49480,33 @@
         "support_resistance": 5
       },
       "signal": "pantau",
+      "score_swing": -10,
+      "score_breakdown_swing": {
+        "trend": 0,
+        "wyckoff": -10,
+        "vwap": -15,
+        "comparative_strength": 15,
+        "support_resistance": 0
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "sideways",
+      "support_swing": 918.2237311798392,
+      "resistance_swing": 1080.0,
+      "vwap_swing": {
+        "vwap": 1050.01,
+        "last_close": 1025.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 0.15669,
+        "ratio_start": 0.14338
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 1.5776,
+        "ratio_start": 1.43455
+      },
       "price_history": [
         {
           "date": "2025-12-10",
@@ -50731,6 +51531,11 @@
         "ratio_now": 1.08922,
         "ratio_start": 1.19808
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 10.96626,
+        "ratio_start": 12.0382
+      },
       "score": -40,
       "score_breakdown": {
         "trend": 0,
@@ -50740,6 +51545,33 @@
         "support_resistance": 0
       },
       "signal": "jual",
+      "score_swing": 0,
+      "score_breakdown_swing": {
+        "trend": 0,
+        "wyckoff": -10,
+        "vwap": -15,
+        "comparative_strength": 15,
+        "support_resistance": 10
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "insufficient_data",
+      "support_swing": 6948.520011578787,
+      "resistance_swing": 8270.902696793002,
+      "vwap_swing": {
+        "vwap": 7515.62,
+        "last_close": 7125.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 1.08922,
+        "ratio_start": 1.03226
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 10.96626,
+        "ratio_start": 10.32789
+      },
       "price_history": [
         {
           "date": "2025-12-10",
@@ -52764,6 +53596,11 @@
         "ratio_now": 0.11236,
         "ratio_start": 0.12695
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 1.13126,
+        "ratio_start": 1.27557
+      },
       "score": -40,
       "score_breakdown": {
         "trend": 0,
@@ -52773,6 +53610,33 @@
         "support_resistance": 0
       },
       "signal": "jual",
+      "score_swing": -40,
+      "score_breakdown_swing": {
+        "trend": 0,
+        "wyckoff": -10,
+        "vwap": -15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal_swing": "jual",
+      "trend_swing": "sideways",
+      "support_swing": 690.0,
+      "resistance_swing": 810.0,
+      "vwap_swing": {
+        "vwap": 787.2,
+        "last_close": 735.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.11236,
+        "ratio_start": 0.11503
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 1.13126,
+        "ratio_start": 1.15088
+      },
       "price_history": [
         {
           "date": "2025-12-11",
@@ -54797,6 +55661,11 @@
         "ratio_now": 0.24918,
         "ratio_start": 0.27453
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 2.50877,
+        "ratio_start": 2.75842
+      },
       "score": -60,
       "score_breakdown": {
         "trend": -30,
@@ -54806,6 +55675,33 @@
         "support_resistance": 10
       },
       "signal": "jual",
+      "score_swing": -40,
+      "score_breakdown_swing": {
+        "trend": 0,
+        "wyckoff": -10,
+        "vwap": -15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal_swing": "jual",
+      "trend_swing": "sideways",
+      "support_swing": 1574.288318264869,
+      "resistance_swing": 1845.0,
+      "vwap_swing": {
+        "vwap": 1721.69,
+        "last_close": 1630.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.24918,
+        "ratio_start": 0.26975
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 2.50877,
+        "ratio_start": 2.69889
+      },
       "price_history": [
         {
           "date": "2025-12-11",
@@ -56814,6 +57710,11 @@
         "ratio_now": 0.25988,
         "ratio_start": 0.29595
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 2.61651,
+        "ratio_start": 2.97368
+      },
       "score": -60,
       "score_breakdown": {
         "trend": -30,
@@ -56823,6 +57724,33 @@
         "support_resistance": 0
       },
       "signal": "jual",
+      "score_swing": -30,
+      "score_breakdown_swing": {
+        "trend": 0,
+        "wyckoff": 0,
+        "vwap": -15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal_swing": "pantau",
+      "trend_swing": "sideways",
+      "support_swing": 1268.6060634271644,
+      "resistance_swing": 1965.0,
+      "vwap_swing": {
+        "vwap": 1815.16,
+        "last_close": 1700.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.25988,
+        "ratio_start": 0.28807
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 2.61651,
+        "ratio_start": 2.88213
+      },
       "price_history": [
         {
           "date": "2025-12-11",
@@ -58799,7 +59727,7 @@
           "high": 1725.0,
           "low": 1685.0,
           "close": 1700.0,
-          "volume": 46176900,
+          "volume": 46175500,
           "vwap": 1749.66,
           "swing_high": null,
           "swing_low": null
@@ -58847,6 +59775,11 @@
         "ratio_now": 0.73838,
         "ratio_start": 0.79343
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 7.43397,
+        "ratio_start": 7.97232
+      },
       "score": -60,
       "score_breakdown": {
         "trend": -30,
@@ -58856,6 +59789,33 @@
         "support_resistance": 10
       },
       "signal": "jual",
+      "score_swing": -70,
+      "score_breakdown_swing": {
+        "trend": -30,
+        "wyckoff": -10,
+        "vwap": -15,
+        "comparative_strength": -15,
+        "support_resistance": 0
+      },
+      "signal_swing": "jual",
+      "trend_swing": "downtrend",
+      "support_swing": 3892.201332040148,
+      "resistance_swing": 5700.0,
+      "vwap_swing": {
+        "vwap": 5018.97,
+        "last_close": 4830.0,
+        "position": "below"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 0.73838,
+        "ratio_start": 0.83032
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "underperforming",
+        "ratio_now": 7.43397,
+        "ratio_start": 8.3074
+      },
       "price_history": [
         {
           "date": "2025-12-11",
@@ -60885,6 +61845,11 @@
         "ratio_now": 1.86887,
         "ratio_start": 1.43611
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 18.8158,
+        "ratio_start": 14.4299
+      },
       "score": 90,
       "score_breakdown": {
         "trend": 30,
@@ -60894,6 +61859,33 @@
         "support_resistance": 0
       },
       "signal": "beli",
+      "score_swing": 60,
+      "score_breakdown_swing": {
+        "trend": 0,
+        "wyckoff": 30,
+        "vwap": 15,
+        "comparative_strength": 15,
+        "support_resistance": 0
+      },
+      "signal_swing": "beli",
+      "trend_swing": "sideways",
+      "support_swing": 7000.0,
+      "resistance_swing": null,
+      "vwap_swing": {
+        "vwap": 10858.81,
+        "last_close": 12225.0,
+        "position": "above"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 1.86887,
+        "ratio_start": 1.30421
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 18.8158,
+        "ratio_start": 13.04869
+      },
       "price_history": [
         {
           "date": "2025-12-10",
@@ -62912,6 +63904,11 @@
         "ratio_now": 1.86887,
         "ratio_start": 1.43611
       },
+      "comparative_strength_lq45": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 18.8158,
+        "ratio_start": 14.4299
+      },
       "score": 90,
       "score_breakdown": {
         "trend": 30,
@@ -62921,6 +63918,33 @@
         "support_resistance": 0
       },
       "signal": "beli",
+      "score_swing": 60,
+      "score_breakdown_swing": {
+        "trend": 0,
+        "wyckoff": 30,
+        "vwap": 15,
+        "comparative_strength": 15,
+        "support_resistance": 0
+      },
+      "signal_swing": "beli",
+      "trend_swing": "sideways",
+      "support_swing": 7000.0,
+      "resistance_swing": null,
+      "vwap_swing": {
+        "vwap": 10858.81,
+        "last_close": 12225.0,
+        "position": "above"
+      },
+      "comparative_strength_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 1.86887,
+        "ratio_start": 1.30421
+      },
+      "comparative_strength_lq45_swing": {
+        "relative_strength_trend": "outperforming",
+        "ratio_now": 18.8158,
+        "ratio_start": 13.04869
+      },
       "price_history": [
         {
           "date": "2025-12-10",
