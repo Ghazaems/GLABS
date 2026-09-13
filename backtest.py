@@ -107,6 +107,8 @@ def run_backtest():
                 "signal": signal,
                 "entry_price": round(entry_price, 2),
             }
+            for comp_name, comp_score in scored["breakdown"].items():
+                row[f"comp_{comp_name}"] = comp_score
             for h in HORIZONS:
                 future_price = float(df["Close"].iloc[t + h])
                 row[f"return_{h}d_pct"] = round(
