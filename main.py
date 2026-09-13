@@ -76,7 +76,9 @@ def run_screening():
         # semua card selain Sinyal breakdown & Watchlist tetap pakai ini)
         scored = compute_score(trend, wy, vwap, cs, sr)
         signal_label = classify_signal(scored)
-        save_signal(ticker, date_str, "composite", signal_label, note=f"score={scored['score']}")
+        save_signal(ticker, date_str, "composite", signal_label,
+                    note=f"score={scored['score']}",
+                    score=scored["score"], breakdown=scored["breakdown"])
 
         # 6b. Skor komposit - SWING (khusus buat toggle di Sinyal breakdown & Watchlist)
         scored_swing = compute_score(trend_swing, wy, vwap_swing, cs_swing, sr_swing)
