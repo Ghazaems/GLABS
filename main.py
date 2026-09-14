@@ -11,6 +11,7 @@ from screener.trend import trend_structure, support_resistance_levels, find_swin
 from screener.wyckoff import analyze_latest_trading_range, comparative_strength
 from screener.vwap import price_vs_vwap, rolling_vwap
 from screener.scoring import compute_score, classify_signal
+from screener.volatility import forecast_volatility
 from storage.db import init_db, upsert_prices, save_signal, get_watchlist, add_to_watchlist
 
 # Watchlist awal - blue chip LQ45 untuk uji coba
@@ -87,6 +88,7 @@ def run_screening():
         # 6. Skor komposit - WEEKLY (dipakai Top pick, Trend structure, dst -
         # semua card selain Sinyal breakdown & Watchlist tetap pakai ini)
         scored = compute_score(trend, wy, vwap, cs, sr)
+        vol = forecast_volatility(df)
         signal_label = classify_signal(scored)
         save_signal(ticker, date_str, "composite", signal_label,
                     note=f"score={scored['score']}",
@@ -142,6 +144,7 @@ def run_screening():
             "comparative_strength_lq45": cs_lq45,
             "score": scored["score"],
             "score_breakdown": scored["breakdown"],
+            "volatility": vol,
             "signal": signal_label,
             "score_swing": scored_swing["score"],
             "score_breakdown_swing": scored_swing["breakdown"],
