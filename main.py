@@ -7,6 +7,7 @@ import json
 from datetime import datetime
 import pandas as pd
 from data.yfinance_fetcher import fetch_batch, fetch_daily
+from data.jarvis_fetcher import get_market_regime, get_stock_signals_batch
 from screener.trend import trend_structure, support_resistance_levels, find_swing_points
 from screener.wyckoff import analyze_latest_trading_range, comparative_strength
 from screener.vwap import price_vs_vwap, rolling_vwap
@@ -39,6 +40,13 @@ def run_screening():
     print("Mengambil data LQ45 untuk comparative strength (pembanding kedua, "
           "lebih apple-to-apple karena watchlist ini sebagian besar anggota LQ45)...")
     lq45 = fetch_daily("^JKLQ45", period="1y")
+
+    print("Mengambil market regime & sinyal dari Jarvis API (kalau token tersedia)...")
+    jarvis_regime = get_market_regime()
+    jarvis_signals = get_stock_signals_batch(tickers)
+    if jarvis_regime:
+        print(f"  Jarvis regime: {jarvis_regime}")
+    print(f"  Jarvis signal ditemukan untuk {len(jarvis_signals)}/{len(tickers)} ticker")
 
     results = []
 
@@ -132,6 +140,13 @@ def run_screening():
         print(f"  vs IHSG         : {cs.get('relative_strength_trend', '-')}")
         print(f"  vs LQ45         : {cs_lq45.get('relative_strength_trend', '-')}")
 
+        # 7. Sinyal Jarvis (opsional, murni tambahan/konfirmasi - TIDAK masuk
+        # compute_score. Kalau token belum diset atau ticker tidak ditemukan,
+        # nilainya None dan dashboard tinggal tampilkan "tidak ada data".
+        jarvis_signal = jarvis_signals.get(ticker)
+        if jarvis_signal:
+            print(f"  Jarvis signal   : {jarvis_signal}")
+
         results.append({
             "ticker": ticker,
             "last_close": round(float(df["Close"].iloc[-1]), 2),
@@ -156,13 +171,14 @@ def run_screening():
             "comparative_strength_swing": cs_swing,
             "comparative_strength_lq45_swing": cs_lq45_swing,
             "price_history": price_history,
+            "jarvis_signal": jarvis_signal,
         })
 
-    export_dashboard_json(results)
+    export_dashboard_json(results, jarvis_regime)
     print("\nSelesai. Data tersimpan di storage/screener.db dan web/dashboard_data.json")
 
 
-def export_dashboard_json(results: list[dict]):
+def export_dashboard_json(results: list[dict], jarvis_regime: dict | None = None):
     """Tulis ringkasan untuk dikonsumsi dashboard (web/index.html) via fetch()."""
     results_sorted = sorted(results, key=lambda r: r["score"], reverse=True)
     scores = [r["score"] for r in results]
@@ -190,6 +206,7 @@ def export_dashboard_json(results: list[dict]):
             "score_avg": round(sum(scores) / len(scores), 1) if scores else None,
             "top_pick": top_pick,
             "strongest_accumulation": strongest_accumulation,
+            "jarvis_regime": jarvis_regime,
         },
     }
 
