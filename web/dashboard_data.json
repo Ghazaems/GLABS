@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-15T14:25:17.348324",
+  "generated_at": "2026-09-15T14:33:42.149711",
   "watchlist": [
     {
       "ticker": "AADI",
@@ -428,7 +428,7 @@
           2.731
         ],
         "upper_band_95": [
-          12907.69,
+          12907.68,
           13184.6,
           13404.3,
           13594.7,
@@ -2468,7 +2468,7 @@
       "jarvis_signal": {
         "ticker": "AADI",
         "signal": null,
-        "asOf": "2026-09-15T14:24:23.100Z"
+        "asOf": "2026-09-15T14:32:50.524Z"
       }
     },
     {
@@ -4947,7 +4947,7 @@
       ],
       "jarvis_signal": {
         "ticker": "MEDC",
-        "asOf": "2026-09-15T14:24:47.715Z",
+        "asOf": "2026-09-15T14:33:14.553Z",
         "signal": {
           "setup": "momentum",
           "score": 84,
@@ -7424,7 +7424,7 @@
       "jarvis_signal": {
         "ticker": "ANTM",
         "signal": null,
-        "asOf": "2026-09-15T14:24:19.259Z"
+        "asOf": "2026-09-15T14:32:46.351Z"
       }
     },
     {
@@ -9900,7 +9900,7 @@
       "jarvis_signal": {
         "ticker": "PGAS",
         "signal": null,
-        "asOf": "2026-09-15T14:24:21.835Z"
+        "asOf": "2026-09-15T14:32:49.144Z"
       }
     },
     {
@@ -12359,7 +12359,7 @@
       ],
       "jarvis_signal": {
         "ticker": "AMRT",
-        "asOf": "2026-09-15T14:24:26.098Z",
+        "asOf": "2026-09-15T14:32:53.394Z",
         "signal": {
           "setup": "reversal",
           "score": 78,
@@ -14851,7 +14851,7 @@
       ],
       "jarvis_signal": {
         "ticker": "AKRA",
-        "asOf": "2026-09-15T14:24:52.119Z",
+        "asOf": "2026-09-15T14:33:18.827Z",
         "signal": {
           "setup": "pullback",
           "score": 86,
@@ -17327,7 +17327,7 @@
       ],
       "jarvis_signal": {
         "ticker": "BBRI",
-        "asOf": "2026-09-15T14:24:10.596Z",
+        "asOf": "2026-09-15T14:32:34.609Z",
         "signal": {
           "setup": "pullback",
           "score": 82,
@@ -19803,7 +19803,7 @@
       ],
       "jarvis_signal": {
         "ticker": "BMRI",
-        "asOf": "2026-09-15T14:24:12.084Z",
+        "asOf": "2026-09-15T14:32:36.076Z",
         "signal": {
           "setup": "pullback",
           "score": 85,
@@ -22274,7 +22274,7 @@
       "jarvis_signal": {
         "ticker": "BUMI",
         "signal": null,
-        "asOf": "2026-09-15T14:24:30.450Z"
+        "asOf": "2026-09-15T14:32:57.550Z"
       }
     },
     {
@@ -22720,7 +22720,7 @@
           4.514
         ],
         "upper_band_95": [
-          5451.08,
+          5451.07,
           5636.15,
           5787.92,
           5922.89,
@@ -22732,7 +22732,7 @@
           6583.34
         ],
         "lower_band_95": [
-          4678.43,
+          4678.44,
           4524.81,
           4406.16,
           4305.75,
@@ -24760,7 +24760,7 @@
       "jarvis_signal": {
         "ticker": "AMMN",
         "signal": null,
-        "asOf": "2026-09-15T14:24:53.519Z"
+        "asOf": "2026-09-15T14:33:20.302Z"
       }
     },
     {
@@ -27219,7 +27219,7 @@
       ],
       "jarvis_signal": {
         "ticker": "BBCA",
-        "asOf": "2026-09-15T14:24:09.095Z",
+        "asOf": "2026-09-15T14:32:32.978Z",
         "signal": {
           "setup": "pullback",
           "score": 82,
@@ -29695,7 +29695,7 @@
       ],
       "jarvis_signal": {
         "ticker": "TLKM",
-        "asOf": "2026-09-15T14:24:13.410Z",
+        "asOf": "2026-09-15T14:32:38.028Z",
         "signal": {
           "setup": "breakout",
           "score": 66,
@@ -32165,7 +32165,7 @@
       ],
       "jarvis_signal": {
         "ticker": "INDY",
-        "asOf": "2026-09-15T14:25:03.636Z",
+        "asOf": "2026-09-15T14:33:28.594Z",
         "signal": {
           "setup": "pullback",
           "score": 84,
@@ -34657,7 +34657,7 @@
       ],
       "jarvis_signal": {
         "ticker": "CPIN",
-        "asOf": "2026-09-15T14:24:32.104Z",
+        "asOf": "2026-09-15T14:32:58.939Z",
         "signal": {
           "setup": "reversal",
           "score": 66,
@@ -37149,7 +37149,7 @@
       ],
       "jarvis_signal": {
         "ticker": "INDF",
-        "asOf": "2026-09-15T14:24:39.311Z",
+        "asOf": "2026-09-15T14:33:06.015Z",
         "signal": {
           "setup": "pullback",
           "score": 92,
@@ -37623,7 +37623,7 @@
           7534.93,
           7454.35,
           7378.52,
-          7306.72
+          7306.71
         ],
         "hist_vol_60d_pct": 1.902,
         "current_forecast_vol_pct": 2.58,
@@ -39641,7 +39641,7 @@
       ],
       "jarvis_signal": {
         "ticker": "INKP",
-        "asOf": "2026-09-15T14:24:41.101Z",
+        "asOf": "2026-09-15T14:33:07.625Z",
         "signal": {
           "setup": "pullback",
           "score": 81,
@@ -40111,11 +40111,11 @@
           2419.3,
           2394.03,
           2372.02,
-          2352.34,
-          2334.41,
+          2352.33,
+          2334.4,
           2317.87,
           2302.47,
-          2288.03
+          2288.02
         ],
         "hist_vol_60d_pct": 1.909,
         "current_forecast_vol_pct": 2.011,
@@ -42133,7 +42133,7 @@
       ],
       "jarvis_signal": {
         "ticker": "ADRO",
-        "asOf": "2026-09-15T14:24:20.590Z",
+        "asOf": "2026-09-15T14:32:47.757Z",
         "signal": {
           "setup": "pullback",
           "score": 87,
@@ -44630,7 +44630,7 @@
       ],
       "jarvis_signal": {
         "ticker": "ISAT",
-        "asOf": "2026-09-15T14:25:04.952Z",
+        "asOf": "2026-09-15T14:33:29.995Z",
         "signal": {
           "setup": "pullback",
           "score": 93,
@@ -47132,7 +47132,7 @@
       ],
       "jarvis_signal": {
         "ticker": "MAPI",
-        "asOf": "2026-09-15T14:25:09.335Z",
+        "asOf": "2026-09-15T14:33:32.737Z",
         "signal": {
           "setup": "reversal",
           "score": 84,
@@ -49608,7 +49608,7 @@
       ],
       "jarvis_signal": {
         "ticker": "NCKL",
-        "asOf": "2026-09-15T14:25:10.644Z",
+        "asOf": "2026-09-15T14:33:34.236Z",
         "signal": {
           "setup": "reversal",
           "score": 67,
@@ -52101,7 +52101,7 @@
       "jarvis_signal": {
         "ticker": "MDKA",
         "signal": null,
-        "asOf": "2026-09-15T14:24:46.470Z"
+        "asOf": "2026-09-15T14:33:13.186Z"
       }
     },
     {
@@ -54555,7 +54555,7 @@
       "jarvis_signal": {
         "ticker": "CUAN",
         "signal": null,
-        "asOf": "2026-09-15T14:24:56.380Z"
+        "asOf": "2026-09-15T14:33:23.052Z"
       }
     },
     {
@@ -57008,7 +57008,7 @@
       ],
       "jarvis_signal": {
         "ticker": "HRTA",
-        "asOf": "2026-09-15T14:25:02.386Z",
+        "asOf": "2026-09-15T14:33:27.226Z",
         "signal": {
           "setup": "reversal",
           "score": 73,
@@ -59484,7 +59484,7 @@
       ],
       "jarvis_signal": {
         "ticker": "ITMG",
-        "asOf": "2026-09-15T14:25:08.071Z",
+        "asOf": "2026-09-15T14:33:31.357Z",
         "signal": {
           "setup": "pullback",
           "score": 89,
@@ -61987,7 +61987,7 @@
       "jarvis_signal": {
         "ticker": "PTBA",
         "signal": null,
-        "asOf": "2026-09-15T14:25:11.887Z"
+        "asOf": "2026-09-15T14:33:35.638Z"
       }
     },
     {
@@ -62441,7 +62441,7 @@
           1660.25,
           1625.56,
           1594.29,
-          1565.73,
+          1565.72,
           1539.38,
           1514.92,
           1492.06
@@ -64462,7 +64462,7 @@
       ],
       "jarvis_signal": {
         "ticker": "WIFI",
-        "asOf": "2026-09-15T14:25:14.423Z",
+        "asOf": "2026-09-15T14:33:38.427Z",
         "signal": {
           "setup": "reversal",
           "score": 69,
@@ -66955,7 +66955,7 @@
       "jarvis_signal": {
         "ticker": "ASII",
         "signal": null,
-        "asOf": "2026-09-15T14:24:14.915Z"
+        "asOf": "2026-09-15T14:32:39.416Z"
       }
     },
     {
@@ -69430,7 +69430,7 @@
       ],
       "jarvis_signal": {
         "ticker": "ADMR",
-        "asOf": "2026-09-15T14:24:24.510Z",
+        "asOf": "2026-09-15T14:32:51.917Z",
         "signal": {
           "setup": "reversal",
           "score": 68,
@@ -71906,7 +71906,7 @@
       ],
       "jarvis_signal": {
         "ticker": "BBNI",
-        "asOf": "2026-09-15T14:24:27.524Z",
+        "asOf": "2026-09-15T14:32:54.802Z",
         "signal": {
           "setup": "pullback",
           "score": 84,
@@ -72347,43 +72347,43 @@
           }
         ],
         "daily_vol_forecast_pct": [
-          0.01,
-          0.01,
-          0.011,
-          0.011,
-          0.011,
-          0.011,
-          0.011,
-          0.011,
-          0.011,
-          0.011
+          0.0,
+          0.0,
+          0.0,
+          0.001,
+          0.001,
+          0.001,
+          0.001,
+          0.001,
+          0.001,
+          0.001
         ],
         "upper_band_95": [
-          50.01,
-          50.01,
-          50.02,
-          50.02,
-          50.02,
-          50.03,
-          50.03,
-          50.03,
-          50.03,
-          50.03
+          50.0,
+          50.0,
+          50.0,
+          50.0,
+          50.0,
+          50.0,
+          50.0,
+          50.0,
+          50.0,
+          50.0
         ],
         "lower_band_95": [
-          49.99,
-          49.99,
-          49.98,
-          49.98,
-          49.98,
-          49.97,
-          49.97,
-          49.97,
-          49.97,
-          49.97
+          50.0,
+          50.0,
+          50.0,
+          50.0,
+          50.0,
+          50.0,
+          50.0,
+          50.0,
+          50.0,
+          50.0
         ],
         "hist_vol_60d_pct": 0.0,
-        "current_forecast_vol_pct": 0.01,
+        "current_forecast_vol_pct": 0.0,
         "regime": "tinggi"
       },
       "signal": "pantau",
@@ -74398,7 +74398,7 @@
       ],
       "jarvis_signal": {
         "ticker": "GOTO",
-        "asOf": "2026-09-15T14:24:36.499Z",
+        "asOf": "2026-09-15T14:33:03.224Z",
         "signal": {
           "setup": "reversal",
           "score": 70,
@@ -76890,7 +76890,7 @@
       ],
       "jarvis_signal": {
         "ticker": "MBMA",
-        "asOf": "2026-09-15T14:24:45.243Z",
+        "asOf": "2026-09-15T14:33:11.789Z",
         "signal": {
           "setup": "reversal",
           "score": 70,
@@ -79382,7 +79382,7 @@
       ],
       "jarvis_signal": {
         "ticker": "PGEO",
-        "asOf": "2026-09-15T14:24:49.057Z",
+        "asOf": "2026-09-15T14:33:15.929Z",
         "signal": {
           "setup": "pullback",
           "score": 81,
@@ -79843,7 +79843,7 @@
           29224.13,
           29512.34,
           29782.61,
-          30038.12,
+          30038.11,
           30281.23
         ],
         "lower_band_95": [
@@ -79856,7 +79856,7 @@
           23082.21,
           22872.74,
           22678.19,
-          22496.11
+          22496.12
         ],
         "hist_vol_60d_pct": 1.993,
         "current_forecast_vol_pct": 2.159,
@@ -81875,7 +81875,7 @@
       "jarvis_signal": {
         "ticker": "UNTR",
         "signal": null,
-        "asOf": "2026-09-15T14:24:50.508Z"
+        "asOf": "2026-09-15T14:33:17.336Z"
       }
     },
     {
@@ -84350,7 +84350,7 @@
       ],
       "jarvis_signal": {
         "ticker": "EMTK",
-        "asOf": "2026-09-15T14:24:34.901Z",
+        "asOf": "2026-09-15T14:33:01.831Z",
         "signal": {
           "setup": "reversal",
           "score": 72,
@@ -86842,7 +86842,7 @@
       ],
       "jarvis_signal": {
         "ticker": "JPFA",
-        "asOf": "2026-09-15T14:24:42.433Z",
+        "asOf": "2026-09-15T14:33:09.007Z",
         "signal": {
           "setup": "pullback",
           "score": 85,
@@ -89345,7 +89345,7 @@
       "jarvis_signal": {
         "ticker": "ESSA",
         "signal": null,
-        "asOf": "2026-09-15T14:24:57.634Z"
+        "asOf": "2026-09-15T14:33:24.428Z"
       }
     },
     {
@@ -89771,7 +89771,7 @@
         "daily_vol_forecast_pct": [
           2.441,
           2.532,
-          2.616,
+          2.617,
           2.695,
           2.768,
           2.837,
@@ -91821,7 +91821,7 @@
       "jarvis_signal": {
         "ticker": "SCMA",
         "signal": null,
-        "asOf": "2026-09-15T14:25:13.183Z"
+        "asOf": "2026-09-15T14:33:37.013Z"
       }
     },
     {
@@ -94297,7 +94297,7 @@
       "jarvis_signal": {
         "ticker": "KLBF",
         "signal": null,
-        "asOf": "2026-09-15T14:24:43.862Z"
+        "asOf": "2026-09-15T14:33:10.406Z"
       }
     },
     {
@@ -94747,7 +94747,7 @@
         "lower_band_95": [
           1128.1,
           1105.08,
-          1087.57,
+          1087.58,
           1072.92,
           1060.08,
           1048.53,
@@ -96773,7 +96773,7 @@
       "jarvis_signal": {
         "ticker": "BBTN",
         "signal": null,
-        "asOf": "2026-09-15T14:24:54.944Z"
+        "asOf": "2026-09-15T14:33:21.668Z"
       }
     },
     {
@@ -99258,7 +99258,7 @@
       ],
       "jarvis_signal": {
         "ticker": "EXCL",
-        "asOf": "2026-09-15T14:24:59.157Z",
+        "asOf": "2026-09-15T14:33:25.806Z",
         "signal": {
           "setup": "reversal",
           "score": 73,
@@ -101751,7 +101751,7 @@
       "jarvis_signal": {
         "ticker": "ICBP",
         "signal": null,
-        "asOf": "2026-09-15T14:24:17.889Z"
+        "asOf": "2026-09-15T14:32:44.530Z"
       }
     },
     {
@@ -104227,7 +104227,7 @@
       "jarvis_signal": {
         "ticker": "DEWA",
         "signal": null,
-        "asOf": "2026-09-15T14:24:33.403Z"
+        "asOf": "2026-09-15T14:33:00.456Z"
       }
     },
     {
@@ -106702,7 +106702,7 @@
       ],
       "jarvis_signal": {
         "ticker": "UNVR",
-        "asOf": "2026-09-15T14:24:16.498Z",
+        "asOf": "2026-09-15T14:32:42.194Z",
         "signal": {
           "setup": "reversal",
           "score": 77,
@@ -107158,7 +107158,7 @@
           1435.94,
           1417.48,
           1400.27,
-          1384.04,
+          1384.05,
           1368.62,
           1353.86
         ],
@@ -109179,7 +109179,7 @@
       "jarvis_signal": {
         "ticker": "BRPT",
         "signal": null,
-        "asOf": "2026-09-15T14:24:29.131Z"
+        "asOf": "2026-09-15T14:32:56.179Z"
       }
     },
     {
@@ -111654,7 +111654,7 @@
       ],
       "jarvis_signal": {
         "ticker": "INCO",
-        "asOf": "2026-09-15T14:24:37.925Z",
+        "asOf": "2026-09-15T14:33:04.595Z",
         "signal": {
           "setup": "reversal",
           "score": 69,
@@ -112112,7 +112112,7 @@
           2.731
         ],
         "upper_band_95": [
-          12907.69,
+          12907.68,
           13184.6,
           13404.3,
           13594.7,
@@ -114152,7 +114152,7 @@
       "jarvis_signal": {
         "ticker": "AADI",
         "signal": null,
-        "asOf": "2026-09-15T14:24:23.100Z"
+        "asOf": "2026-09-15T14:32:50.524Z"
       }
     },
     "strongest_accumulation": {
@@ -114582,7 +114582,7 @@
           2.731
         ],
         "upper_band_95": [
-          12907.69,
+          12907.68,
           13184.6,
           13404.3,
           13594.7,
@@ -116622,14 +116622,14 @@
       "jarvis_signal": {
         "ticker": "AADI",
         "signal": null,
-        "asOf": "2026-09-15T14:24:23.100Z"
+        "asOf": "2026-09-15T14:32:50.524Z"
       }
     },
     "jarvis_regime": {
-      "asOf": "2026-09-15T14:24:08.687Z",
+      "asOf": "2026-09-15T14:32:32.472Z",
       "methodology": "V5",
       "regime": "RISK ON",
-      "universeSize": 135
+      "universeSize": 142
     }
   }
 }
