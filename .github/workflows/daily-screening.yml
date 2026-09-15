@@ -1,9 +1,16 @@
-name: Daily Stock Screening
+
+name: Daily Stock Screening (962 Ticker IDX)
 
 on:
   schedule:
-    # Jam 16:30 WIB (09:30 UTC) - setelah bursa IDX tutup (15:00-16:15 WIB + buffer)
-    - cron: "30 9 * * 1-5"   # Senin-Jumat saja
+    # Opsi 1: 15:55 WIB (08:55 UTC) — 5 menit sebelum closing auction
+    # Data hari itu mungkin belum lengkap, pakai data kemarin sebagai latest
+    - cron: "55 8 * * 1-5"   # Senin-Jumat
+
+    # Opsi 2 (RECOMMENDED): 16:05 WIB (09:05 UTC) — 5 menit setelah closing auction
+    # Data hari itu sudah lengkap dan final
+    # - cron: "5 9 * * 1-5"   # Senin-Jumat
+
   workflow_dispatch: {}       # bisa trigger manual dari tab Actions di GitHub
 
 permissions:
@@ -12,6 +19,7 @@ permissions:
 jobs:
   run-screening:
     runs-on: ubuntu-latest
+    timeout-minutes: 30       # 962 ticker butuh waktu, kasih buffer
     env:
       JARVIS_API_TOKEN: ${{ secrets.JARVIS_API_TOKEN }}
     steps:
@@ -26,8 +34,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run screening pipeline
+      - name: Run screening pipeline (962 ticker IDX)
         run: python main.py
+        env:
+          PYTHONUNBUFFERED: "1"  # biar log muncul real-time di GitHub Actions
 
       - name: Commit updated dashboard data
         run: |
