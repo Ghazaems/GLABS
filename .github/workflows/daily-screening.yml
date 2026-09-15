@@ -12,6 +12,8 @@ permissions:
 jobs:
   run-screening:
     runs-on: ubuntu-latest
+    env:
+      JARVIS_API_TOKEN: ${{ secrets.JARVIS_API_TOKEN }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
