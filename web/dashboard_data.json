@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-15T14:33:42.149711",
+  "generated_at": "2026-09-15T15:43:32.194515",
   "watchlist": [
     {
       "ticker": "AADI",
@@ -2465,11 +2465,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "AADI",
-        "signal": null,
-        "asOf": "2026-09-15T14:32:50.524Z"
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "MEDC",
@@ -2909,7 +2905,7 @@
         ],
         "upper_band_95": [
           1655.0,
-          1698.6,
+          1698.61,
           1734.12,
           1765.03,
           1792.79,
@@ -4945,27 +4941,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "MEDC",
-        "asOf": "2026-09-15T14:33:14.553Z",
-        "signal": {
-          "setup": "momentum",
-          "score": 84,
-          "close": 1565,
-          "sector": "Energy",
-          "entryLow": 1549,
-          "entryHigh": 1581,
-          "invalidation": 1471,
-          "target": 1752,
-          "riskReward": 2,
-          "reasons": [
-            "Price is above its 20- and 50-day trends",
-            "Momentum is positive without being extremely overbought",
-            "Broader technical readings are constructive"
-          ],
-          "caution": "Momentum setups can reverse quickly when market breadth deteriorates."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "ANTM",
@@ -7421,11 +7397,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "ANTM",
-        "signal": null,
-        "asOf": "2026-09-15T14:32:46.351Z"
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "PGAS",
@@ -9897,11 +9869,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "PGAS",
-        "signal": null,
-        "asOf": "2026-09-15T14:32:49.144Z"
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "AMRT",
@@ -12357,27 +12325,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "AMRT",
-        "asOf": "2026-09-15T14:32:53.394Z",
-        "signal": {
-          "setup": "reversal",
-          "score": 78,
-          "close": 1300,
-          "sector": "Consumer Non-Cyclicals",
-          "entryLow": 1287,
-          "entryHigh": 1313,
-          "invalidation": 1248,
-          "target": 1388,
-          "riskReward": 1.7,
-          "reasons": [
-            "Price is near its 1-month low",
-            "Selling pressure is no longer accelerating",
-            "The latest close shows an initial rebound"
-          ],
-          "caution": "This is counter-trend and needs confirmation; use smaller size."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "AKRA",
@@ -14849,27 +14797,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "AKRA",
-        "asOf": "2026-09-15T14:33:18.827Z",
-        "signal": {
-          "setup": "pullback",
-          "score": 86,
-          "close": 1490,
-          "sector": "Energy",
-          "entryLow": 1475,
-          "entryHigh": 1505,
-          "invalidation": 1430,
-          "target": 1609,
-          "riskReward": 2,
-          "reasons": [
-            "Price is close to its 20-day trend",
-            "The medium-term trend remains intact",
-            "Selling volume is relatively controlled"
-          ],
-          "caution": "The setup is invalid if price closes decisively below support."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "BBRI",
@@ -17325,27 +17253,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "BBRI",
-        "asOf": "2026-09-15T14:32:34.609Z",
-        "signal": {
-          "setup": "pullback",
-          "score": 82,
-          "close": 3320,
-          "sector": "Financials",
-          "entryLow": 3287,
-          "entryHigh": 3353,
-          "invalidation": 3187,
-          "target": 3586,
-          "riskReward": 2,
-          "reasons": [
-            "Price is close to its 20-day trend",
-            "The medium-term trend remains intact",
-            "Selling volume is relatively controlled"
-          ],
-          "caution": "The setup is invalid if price closes decisively below support."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "BMRI",
@@ -19801,27 +19709,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "BMRI",
-        "asOf": "2026-09-15T14:32:36.076Z",
-        "signal": {
-          "setup": "pullback",
-          "score": 85,
-          "close": 4340,
-          "sector": "Financials",
-          "entryLow": 4297,
-          "entryHigh": 4383,
-          "invalidation": 4166,
-          "target": 4687,
-          "riskReward": 2,
-          "reasons": [
-            "Price is close to its 20-day trend",
-            "The medium-term trend remains intact",
-            "Selling volume is relatively controlled"
-          ],
-          "caution": "The setup is invalid if price closes decisively below support."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "BUMI",
@@ -22271,11 +22159,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "BUMI",
-        "signal": null,
-        "asOf": "2026-09-15T14:32:57.550Z"
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "AMMN",
@@ -24757,11 +24641,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "AMMN",
-        "signal": null,
-        "asOf": "2026-09-15T14:33:20.302Z"
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "BBCA",
@@ -25194,7 +25074,7 @@
         "lower_band_95": [
           6155.22,
           6055.0,
-          5978.44,
+          5978.43,
           5914.17,
           5857.83,
           5807.17,
@@ -27217,27 +27097,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "BBCA",
-        "asOf": "2026-09-15T14:32:32.978Z",
-        "signal": {
-          "setup": "pullback",
-          "score": 82,
-          "close": 6400,
-          "sector": "Financials",
-          "entryLow": 6336,
-          "entryHigh": 6464,
-          "invalidation": 6250,
-          "target": 6912,
-          "riskReward": 2,
-          "reasons": [
-            "Price is close to its 20-day trend",
-            "The medium-term trend remains intact",
-            "Selling volume is relatively controlled"
-          ],
-          "caution": "The setup is invalid if price closes decisively below support."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "TLKM",
@@ -29693,27 +29553,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "TLKM",
-        "asOf": "2026-09-15T14:32:38.028Z",
-        "signal": {
-          "setup": "breakout",
-          "score": 66,
-          "close": 2700,
-          "sector": "Infrastructures",
-          "entryLow": 2673,
-          "entryHigh": 2727,
-          "invalidation": 2550,
-          "target": 3024,
-          "riskReward": 2,
-          "reasons": [
-            "Price is testing its 1-month high",
-            "Volume is above its 10-day average",
-            "Momentum is strengthening"
-          ],
-          "caution": "A close back below the breakout area weakens this setup."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "INDY",
@@ -32163,27 +32003,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "INDY",
-        "asOf": "2026-09-15T14:33:28.594Z",
-        "signal": {
-          "setup": "pullback",
-          "score": 84,
-          "close": 2740,
-          "sector": "Energy",
-          "entryLow": 2713,
-          "entryHigh": 2767,
-          "invalidation": 2630,
-          "target": 2959,
-          "riskReward": 2,
-          "reasons": [
-            "Price is close to its 20-day trend",
-            "The medium-term trend remains intact",
-            "Selling volume is relatively controlled"
-          ],
-          "caution": "The setup is invalid if price closes decisively below support."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "CPIN",
@@ -34655,27 +34475,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "CPIN",
-        "asOf": "2026-09-15T14:32:58.939Z",
-        "signal": {
-          "setup": "reversal",
-          "score": 66,
-          "close": 3090,
-          "sector": "Consumer Non-Cyclicals",
-          "entryLow": 3059,
-          "entryHigh": 3121,
-          "invalidation": 2966,
-          "target": 3300,
-          "riskReward": 1.7,
-          "reasons": [
-            "Price is near its 1-month low",
-            "Selling pressure is no longer accelerating",
-            "Price is attempting to stabilise"
-          ],
-          "caution": "This is counter-trend and needs confirmation; use smaller size."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "INDF",
@@ -37147,27 +36947,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "INDF",
-        "asOf": "2026-09-15T14:33:06.015Z",
-        "signal": {
-          "setup": "pullback",
-          "score": 92,
-          "close": 7275,
-          "sector": "Consumer Non-Cyclicals",
-          "entryLow": 7202,
-          "entryHigh": 7348,
-          "invalidation": 7075,
-          "target": 7857,
-          "riskReward": 2,
-          "reasons": [
-            "Price is close to its 20-day trend",
-            "The medium-term trend remains intact",
-            "Selling volume is relatively controlled"
-          ],
-          "caution": "The setup is invalid if price closes decisively below support."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "INKP",
@@ -39639,27 +39419,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "INKP",
-        "asOf": "2026-09-15T14:33:07.625Z",
-        "signal": {
-          "setup": "pullback",
-          "score": 81,
-          "close": 8675,
-          "sector": "Basic Materials",
-          "entryLow": 8588,
-          "entryHigh": 8762,
-          "invalidation": 8450,
-          "target": 9369,
-          "riskReward": 2,
-          "reasons": [
-            "Price is close to its 20-day trend",
-            "The medium-term trend remains intact",
-            "Selling volume is relatively controlled"
-          ],
-          "caution": "The setup is invalid if price closes decisively below support."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "ADRO",
@@ -40111,8 +39871,8 @@
           2419.3,
           2394.03,
           2372.02,
-          2352.33,
-          2334.4,
+          2352.34,
+          2334.41,
           2317.87,
           2302.47,
           2288.02
@@ -42131,27 +41891,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "ADRO",
-        "asOf": "2026-09-15T14:32:47.757Z",
-        "signal": {
-          "setup": "pullback",
-          "score": 87,
-          "close": 2590,
-          "sector": "Energy",
-          "entryLow": 2564,
-          "entryHigh": 2616,
-          "invalidation": 2500,
-          "target": 2797,
-          "riskReward": 2,
-          "reasons": [
-            "Price is close to its 20-day trend",
-            "The medium-term trend remains intact",
-            "Selling volume is relatively controlled"
-          ],
-          "caution": "The setup is invalid if price closes decisively below support."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "ISAT",
@@ -44628,27 +44368,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "ISAT",
-        "asOf": "2026-09-15T14:33:29.995Z",
-        "signal": {
-          "setup": "pullback",
-          "score": 93,
-          "close": 2390,
-          "sector": "Infrastructures",
-          "entryLow": 2366,
-          "entryHigh": 2414,
-          "invalidation": 2300,
-          "target": 2581,
-          "riskReward": 2,
-          "reasons": [
-            "Price is close to its 20-day trend",
-            "The medium-term trend remains intact",
-            "Selling volume is relatively controlled"
-          ],
-          "caution": "The setup is invalid if price closes decisively below support."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "MAPI",
@@ -47130,27 +46850,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "MAPI",
-        "asOf": "2026-09-15T14:33:32.737Z",
-        "signal": {
-          "setup": "reversal",
-          "score": 84,
-          "close": 1385,
-          "sector": "Consumer Cyclicals",
-          "entryLow": 1371,
-          "entryHigh": 1399,
-          "invalidation": 1330,
-          "target": 1479,
-          "riskReward": 1.7,
-          "reasons": [
-            "Price is near its 1-month low",
-            "Selling pressure is no longer accelerating",
-            "The latest close shows an initial rebound"
-          ],
-          "caution": "This is counter-trend and needs confirmation; use smaller size."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "NCKL",
@@ -49606,27 +49306,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "NCKL",
-        "asOf": "2026-09-15T14:33:34.236Z",
-        "signal": {
-          "setup": "reversal",
-          "score": 67,
-          "close": 915,
-          "sector": "Basic Materials",
-          "entryLow": 906,
-          "entryHigh": 924,
-          "invalidation": 900,
-          "target": 977,
-          "riskReward": 1.7,
-          "reasons": [
-            "Price is near its 1-month low",
-            "Selling pressure is no longer accelerating",
-            "Price is attempting to stabilise"
-          ],
-          "caution": "This is counter-trend and needs confirmation; use smaller size."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "MDKA",
@@ -52098,11 +51778,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "MDKA",
-        "signal": null,
-        "asOf": "2026-09-15T14:33:13.186Z"
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "CUAN",
@@ -54552,11 +54228,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "CUAN",
-        "signal": null,
-        "asOf": "2026-09-15T14:33:23.052Z"
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "HRTA",
@@ -57006,27 +56678,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "HRTA",
-        "asOf": "2026-09-15T14:33:27.226Z",
-        "signal": {
-          "setup": "reversal",
-          "score": 73,
-          "close": 2150,
-          "sector": "Basic Materials",
-          "entryLow": 2129,
-          "entryHigh": 2172,
-          "invalidation": 2110,
-          "target": 2296,
-          "riskReward": 1.7,
-          "reasons": [
-            "Price is near its 1-month low",
-            "Selling pressure is no longer accelerating",
-            "The latest close shows an initial rebound"
-          ],
-          "caution": "This is counter-trend and needs confirmation; use smaller size."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "ITMG",
@@ -59482,27 +59134,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "ITMG",
-        "asOf": "2026-09-15T14:33:31.357Z",
-        "signal": {
-          "setup": "pullback",
-          "score": 89,
-          "close": 26175,
-          "sector": "Energy",
-          "entryLow": 25913,
-          "entryHigh": 26437,
-          "invalidation": 25128,
-          "target": 28269,
-          "riskReward": 2,
-          "reasons": [
-            "Price is close to its 20-day trend",
-            "The medium-term trend remains intact",
-            "Selling volume is relatively controlled"
-          ],
-          "caution": "The setup is invalid if price closes decisively below support."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "PTBA",
@@ -61984,11 +61616,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "PTBA",
-        "signal": null,
-        "asOf": "2026-09-15T14:33:35.638Z"
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "WIFI",
@@ -64460,27 +64088,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "WIFI",
-        "asOf": "2026-09-15T14:33:38.427Z",
-        "signal": {
-          "setup": "reversal",
-          "score": 69,
-          "close": 1940,
-          "sector": "Technology",
-          "entryLow": 1921,
-          "entryHigh": 1959,
-          "invalidation": 1910,
-          "target": 2072,
-          "riskReward": 1.7,
-          "reasons": [
-            "Price is near its 1-month low",
-            "Selling pressure is no longer accelerating",
-            "Price is attempting to stabilise"
-          ],
-          "caution": "This is counter-trend and needs confirmation; use smaller size."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "ASII",
@@ -66952,11 +66560,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "ASII",
-        "signal": null,
-        "asOf": "2026-09-15T14:32:39.416Z"
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "ADMR",
@@ -69428,27 +69032,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "ADMR",
-        "asOf": "2026-09-15T14:32:51.917Z",
-        "signal": {
-          "setup": "reversal",
-          "score": 68,
-          "close": 1580,
-          "sector": "Energy",
-          "entryLow": 1564,
-          "entryHigh": 1596,
-          "invalidation": 1560,
-          "target": 1687,
-          "riskReward": 1.7,
-          "reasons": [
-            "Price is near its 1-month low",
-            "Selling pressure is no longer accelerating",
-            "Price is attempting to stabilise"
-          ],
-          "caution": "This is counter-trend and needs confirmation; use smaller size."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "BBNI",
@@ -71904,27 +71488,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "BBNI",
-        "asOf": "2026-09-15T14:32:54.802Z",
-        "signal": {
-          "setup": "pullback",
-          "score": 84,
-          "close": 3750,
-          "sector": "Financials",
-          "entryLow": 3713,
-          "entryHigh": 3788,
-          "invalidation": 3600,
-          "target": 4050,
-          "riskReward": 2,
-          "reasons": [
-            "Price is close to its 20-day trend",
-            "The medium-term trend remains intact",
-            "Selling volume is relatively controlled"
-          ],
-          "caution": "The setup is invalid if price closes decisively below support."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "GOTO",
@@ -74396,27 +73960,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "GOTO",
-        "asOf": "2026-09-15T14:33:03.224Z",
-        "signal": {
-          "setup": "reversal",
-          "score": 70,
-          "close": 50,
-          "sector": "Technology",
-          "entryLow": 50,
-          "entryHigh": 51,
-          "invalidation": 50,
-          "target": 53,
-          "riskReward": 1.7,
-          "reasons": [
-            "Price is near its 1-month low",
-            "Selling pressure is no longer accelerating",
-            "Price is attempting to stabilise"
-          ],
-          "caution": "This is counter-trend and needs confirmation; use smaller size."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "MBMA",
@@ -76888,27 +76432,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "MBMA",
-        "asOf": "2026-09-15T14:33:11.789Z",
-        "signal": {
-          "setup": "reversal",
-          "score": 70,
-          "close": 496,
-          "sector": "Basic Materials",
-          "entryLow": 491,
-          "entryHigh": 501,
-          "invalidation": 486,
-          "target": 530,
-          "riskReward": 1.7,
-          "reasons": [
-            "Price is near its 1-month low",
-            "Selling pressure is no longer accelerating",
-            "Price is attempting to stabilise"
-          ],
-          "caution": "This is counter-trend and needs confirmation; use smaller size."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "PGEO",
@@ -79380,27 +78904,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "PGEO",
-        "asOf": "2026-09-15T14:33:15.929Z",
-        "signal": {
-          "setup": "pullback",
-          "score": 81,
-          "close": 1055,
-          "sector": "Infrastructures",
-          "entryLow": 1044,
-          "entryHigh": 1066,
-          "invalidation": 1013,
-          "target": 1139,
-          "riskReward": 2,
-          "reasons": [
-            "Price is close to its 20-day trend",
-            "The medium-term trend remains intact",
-            "Trading activity remains healthy"
-          ],
-          "caution": "The setup is invalid if price closes decisively below support."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "UNTR",
@@ -81872,11 +81376,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "UNTR",
-        "signal": null,
-        "asOf": "2026-09-15T14:33:17.336Z"
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "EMTK",
@@ -84348,27 +83848,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "EMTK",
-        "asOf": "2026-09-15T14:33:01.831Z",
-        "signal": {
-          "setup": "reversal",
-          "score": 72,
-          "close": 492,
-          "sector": "Technology",
-          "entryLow": 487,
-          "entryHigh": 497,
-          "invalidation": 488,
-          "target": 525,
-          "riskReward": 1.7,
-          "reasons": [
-            "Price is near its 1-month low",
-            "Selling pressure is no longer accelerating",
-            "Price is attempting to stabilise"
-          ],
-          "caution": "This is counter-trend and needs confirmation; use smaller size."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "JPFA",
@@ -86840,27 +86320,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "JPFA",
-        "asOf": "2026-09-15T14:33:09.007Z",
-        "signal": {
-          "setup": "pullback",
-          "score": 85,
-          "close": 2270,
-          "sector": "Consumer Non-Cyclicals",
-          "entryLow": 2247,
-          "entryHigh": 2293,
-          "invalidation": 2179,
-          "target": 2452,
-          "riskReward": 2,
-          "reasons": [
-            "Price is close to its 20-day trend",
-            "The medium-term trend remains intact",
-            "Selling volume is relatively controlled"
-          ],
-          "caution": "The setup is invalid if price closes decisively below support."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "ESSA",
@@ -89342,11 +88802,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "ESSA",
-        "signal": null,
-        "asOf": "2026-09-15T14:33:24.428Z"
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "SCMA",
@@ -89771,7 +89227,7 @@
         "daily_vol_forecast_pct": [
           2.441,
           2.532,
-          2.617,
+          2.616,
           2.695,
           2.768,
           2.837,
@@ -91818,11 +91274,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "SCMA",
-        "signal": null,
-        "asOf": "2026-09-15T14:33:37.013Z"
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "KLBF",
@@ -94294,11 +93746,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "KLBF",
-        "signal": null,
-        "asOf": "2026-09-15T14:33:10.406Z"
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "BBTN",
@@ -96770,11 +96218,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "BBTN",
-        "signal": null,
-        "asOf": "2026-09-15T14:33:21.668Z"
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "EXCL",
@@ -99256,27 +98700,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "EXCL",
-        "asOf": "2026-09-15T14:33:25.806Z",
-        "signal": {
-          "setup": "reversal",
-          "score": 73,
-          "close": 2550,
-          "sector": "Infrastructures",
-          "entryLow": 2525,
-          "entryHigh": 2576,
-          "invalidation": 2540,
-          "target": 2723,
-          "riskReward": 1.7,
-          "reasons": [
-            "Price is near its 1-month low",
-            "Selling pressure is no longer accelerating",
-            "Price is attempting to stabilise"
-          ],
-          "caution": "This is counter-trend and needs confirmation; use smaller size."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "ICBP",
@@ -101748,11 +101172,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "ICBP",
-        "signal": null,
-        "asOf": "2026-09-15T14:32:44.530Z"
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "DEWA",
@@ -104224,11 +103644,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "DEWA",
-        "signal": null,
-        "asOf": "2026-09-15T14:33:00.456Z"
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "UNVR",
@@ -106700,27 +106116,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "UNVR",
-        "asOf": "2026-09-15T14:32:42.194Z",
-        "signal": {
-          "setup": "reversal",
-          "score": 77,
-          "close": 1625,
-          "sector": "Consumer Non-Cyclicals",
-          "entryLow": 1609,
-          "entryHigh": 1641,
-          "invalidation": 1615,
-          "target": 1736,
-          "riskReward": 1.7,
-          "reasons": [
-            "Price is near its 1-month low",
-            "Selling pressure is no longer accelerating",
-            "The latest close shows an initial rebound"
-          ],
-          "caution": "This is counter-trend and needs confirmation; use smaller size."
-        }
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "BRPT",
@@ -109176,11 +108572,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "BRPT",
-        "signal": null,
-        "asOf": "2026-09-15T14:32:56.179Z"
-      }
+      "jarvis_signal": null
     },
     {
       "ticker": "INCO",
@@ -111652,27 +111044,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "INCO",
-        "asOf": "2026-09-15T14:33:04.595Z",
-        "signal": {
-          "setup": "reversal",
-          "score": 69,
-          "close": 4640,
-          "sector": "Basic Materials",
-          "entryLow": 4594,
-          "entryHigh": 4686,
-          "invalidation": 4630,
-          "target": 4956,
-          "riskReward": 1.7,
-          "reasons": [
-            "Price is near its 1-month low",
-            "Selling pressure is no longer accelerating",
-            "Price is attempting to stabilise"
-          ],
-          "caution": "This is counter-trend and needs confirmation; use smaller size."
-        }
-      }
+      "jarvis_signal": null
     }
   ],
   "summary": {
@@ -114149,11 +113521,7 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "AADI",
-        "signal": null,
-        "asOf": "2026-09-15T14:32:50.524Z"
-      }
+      "jarvis_signal": null
     },
     "strongest_accumulation": {
       "ticker": "AADI",
@@ -116619,17 +115987,8 @@
           "swing_low": null
         }
       ],
-      "jarvis_signal": {
-        "ticker": "AADI",
-        "signal": null,
-        "asOf": "2026-09-15T14:32:50.524Z"
-      }
+      "jarvis_signal": null
     },
-    "jarvis_regime": {
-      "asOf": "2026-09-15T14:32:32.472Z",
-      "methodology": "V5",
-      "regime": "RISK ON",
-      "universeSize": 142
-    }
+    "jarvis_regime": null
   }
 }
