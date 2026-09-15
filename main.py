@@ -1,13 +1,6 @@
---- main.py (原始)
-
-
-+++ main.py (修改后)
 """
 Pipeline screening harian.
-Jalankan manual: python main.py
-Nanti dijadwalkan via GitHub Actions (cron gratis).
-
-UPDATE: Sekarang menggunakan fetch_batch_fast untuk kecepatan 28x lebih cepat!
+UPDATE: Sekarang support SEMUA 900+ saham IDX dengan batch download cepat!
 """
 import json
 from datetime import datetime
@@ -21,9 +14,10 @@ from screener.scoring import compute_score, classify_signal
 from screener.volatility import forecast_volatility
 from storage.db import init_db, upsert_prices, save_signal, get_watchlist, add_to_watchlist
 
-# Watchlist awal - blue chip LQ45 untuk uji coba
-# Watchlist - SELURUH 45 anggota LQ45 periode Agustus-Oktober 2026
-DEFAULT_WATCHLIST = [
+# MODE: "LQ45" (45 saham) atau "ALL_IDX" (900+ saham)
+MODE = "ALL_IDX"
+
+LQ45_WATCHLIST = [
     "AADI", "ADMR", "ADRO", "AKRA", "AMMN", "AMRT", "ANTM", "ASII", "BBCA",
     "BBNI", "BBRI", "BBTN", "BMRI", "BRPT", "BUMI", "CPIN", "CUAN", "DEWA",
     "EMTK", "ESSA", "EXCL", "GOTO", "HRTA", "ICBP", "INCO", "INDF", "INDY",
@@ -31,6 +25,18 @@ DEFAULT_WATCHLIST = [
     "NCKL", "PGAS", "PGEO", "PTBA", "SCMA", "TLKM", "UNTR", "UNVR", "WIFI",
 ]
 
+try:
+    from idx_tickers import IDX_TICKERS_COMPLETE
+    ALL_IDX_WATCHLIST = IDX_TICKERS_COMPLETE
+except ImportError:
+    print("⚠️  idx_tickers.py tidak ditemukan, pakai LQ45")
+    ALL_IDX_WATCHLIST = LQ45_WATCHLIST
+
+if MODE == "LQ45":
+    DEFAULT_WATCHLIST = LQ45_WATCHLIST
+else:
+    DEFAULT_WATCHLIST = ALL_IDX_WATCHLIST
+    print(f"\n📊 Mode: ALL IDX ({len(DEFAULT_WATCHLIST)} saham)")
 
 def run_screening():
     init_db()
@@ -38,76 +44,49 @@ def run_screening():
     tickers = get_watchlist() or DEFAULT_WATCHLIST
 
     print(f"\n{'='*60}")
-    print(f"  ⚡ GLABS — Fast Batch Download Screening")
+    print(f"  ⚡ GLABS — Fast Batch Download")
     print(f"{'='*60}")
     print(f"\n📊 Mengambil data untuk {len(tickers)} saham...")
+    
+    price_data = fetch_batch_fast(tickers, period="1y", batch_size=50)
 
-    # ⚡ UPDATE: Gunakan fetch_batch_fast untuk kecepatan 28x lebih cepat!
-    # Sequential (fetch_batch): 900+ ticker = 15-30 menit
-    # Batch download (fetch_batch_fast): 900+ ticker = 1-2 menit
-    price_data = fetch_batch_fast(tickers, period="1y", batch_size=50)  # 1y biar TR & event lebih kebentuk
-
-    print("\nMengambil data IHSG untuk comparative strength...")
+    print("\nMengambil data IHSG...")
     ihsg = fetch_daily("^JKSE", period="1y")
-
-    print("Mengambil data LQ45 untuk comparative strength (pembanding kedua, "
-          "lebih apple-to-apple karena watchlist ini sebagian besar anggota LQ45)...")
     lq45 = fetch_daily("^JKLQ45", period="1y")
 
-    print("Mengambil market regime & sinyal dari Jarvis API (kalau token tersedia)...")
     jarvis_regime = get_market_regime()
     jarvis_signals = get_stock_signals_batch(tickers)
-    if jarvis_regime:
-        print(f"  Jarvis regime: {jarvis_regime}")
-    print(f"  Jarvis signal ditemukan untuk {len(jarvis_signals)}/{len(tickers)} ticker")
 
     results = []
 
     for ticker, df in price_data.items():
         if len(df) < 60:
-            print(f"[SKIP] {ticker}: data terlalu sedikit ({len(df)} baris)")
             continue
 
         upsert_prices(ticker, df)
-
         date_str = df.index[-1].strftime("%Y-%m-%d")
 
-        # 1. Trend structure - profil WEEKLY (default, window pendek)
         trend = trend_structure(df, window=5)
         save_signal(ticker, date_str, "trend", trend)
-
-        # 1b. Trend structure - profil SWING (window lebih panjang, ~1 bulan
-        # per swing point, cocok gaya 3-4 bulanan sesuai temuan backtest)
         trend_swing = trend_structure(df, window=20)
 
-        # 2. Support/resistance - WEEKLY (default) & SWING (lookback lebih panjang)
         sr = support_resistance_levels(df, window=5, lookback=60)
         sr_swing = support_resistance_levels(df, window=20, lookback=180)
 
-        # 3. Wyckoff - trading range + event detection (dipakai bersama, belum
-        # dibedakan per gaya - deteksi TR-nya tidak diparameterisasi window)
         wy = analyze_latest_trading_range(df)
         if wy.get("bias") and wy["bias"] != "unclear":
             events_str = ", ".join(e["type"] for e in wy["events"])
             save_signal(ticker, date_str, "wyckoff", wy["bias"],
                         note=f"phase={wy['phase']}, events={events_str}")
 
-        # 4. VWAP - weekly (5 hari) & swing (~1 bulan/20 hari)
         vwap = price_vs_vwap(df, window=5)
         vwap_swing = price_vs_vwap(df, window=20)
 
-        # 5. Comparative strength vs IHSG - weekly (20 hari) & swing (60 hari)
         cs = comparative_strength(df, ihsg) if ihsg is not None else {"status": "no_ihsg_data"}
         cs_swing = comparative_strength(df, ihsg, window=60) if ihsg is not None else {"status": "no_ihsg_data"}
-
-        # 5b. Comparative strength vs LQ45 - benchmark kedua, BELUM dipakai di
-        # compute_score (murni data tambahan dulu, biar bisa dicek datanya
-        # masuk akal sebelum diputuskan mau dipakai gantiin/nemenin IHSG).
         cs_lq45 = comparative_strength(df, lq45) if lq45 is not None else {"status": "no_lq45_data"}
         cs_lq45_swing = comparative_strength(df, lq45, window=60) if lq45 is not None else {"status": "no_lq45_data"}
 
-        # 6. Skor komposit - WEEKLY (dipakai Top pick, Trend structure, dst -
-        # semua card selain Sinyal breakdown & Watchlist tetap pakai ini)
         scored = compute_score(trend, wy, vwap, cs, sr)
         vol = forecast_volatility(df)
         signal_label = classify_signal(scored)
@@ -115,18 +94,15 @@ def run_screening():
                     note=f"score={scored['score']}",
                     score=scored["score"], breakdown=scored["breakdown"])
 
-        # 6b. Skor komposit - SWING (khusus buat toggle di Sinyal breakdown & Watchlist)
         scored_swing = compute_score(trend_swing, wy, vwap_swing, cs_swing, sr_swing)
         signal_label_swing = classify_signal(scored_swing)
 
-        # Data visual untuk cockpit. Batasi 180 bar agar file dashboard tetap ringan.
         visual_df = find_swing_points(df.tail(180).copy())
         visual_df["vwap_5"] = rolling_vwap(visual_df, window=5)
         price_history = []
         for idx, row in visual_df.iterrows():
             def clean(value):
                 return None if pd.isna(value) else round(float(value), 2)
-
             price_history.append({
                 "date": idx.strftime("%Y-%m-%d"),
                 "open": clean(row["Open"]),
@@ -139,26 +115,13 @@ def run_screening():
                 "swing_low": clean(row.get("swing_low")),
             })
 
-        print(f"\n{ticker}: skor={scored['score']} -> {signal_label} (swing: {scored_swing['score']} -> {signal_label_swing})")
-        print(f"  Trend           : {trend}")
-        print(f"  Support         : {sr['nearest_support']}")
-        print(f"  Resistance      : {sr['nearest_resistance']}")
-        if wy.get("status") == "no_trading_range_found":
-            print(f"  Wyckoff TR      : tidak ditemukan (belum konsolidasi)")
+        if len(tickers) <= 100:
+            print(f"\n{ticker}: skor={scored['score']} -> {signal_label}")
         else:
-            print(f"  Wyckoff TR      : {wy['tr_low']} - {wy['tr_high']} ({wy['tr_start']} s/d {wy['tr_end']})")
-            print(f"  Wyckoff bias    : {wy['bias']} | fase: {wy['phase']}")
-            print(f"  Wyckoff events  : {[e['type'] for e in wy['events']]}")
-        print(f"  vs VWAP(5d)     : {vwap.get('position', '-')}")
-        print(f"  vs IHSG         : {cs.get('relative_strength_trend', '-')}")
-        print(f"  vs LQ45         : {cs_lq45.get('relative_strength_trend', '-')}")
+            if len(results) % 50 == 0:
+                print(f"  ... {len(results)}/{len(tickers)} tickers")
 
-        # 7. Sinyal Jarvis (opsional, murni tambahan/konfirmasi - TIDAK masuk
-        # compute_score. Kalau token belum diset atau ticker tidak ditemukan,
-        # nilainya None dan dashboard tinggal tampilkan "tidak ada data".
         jarvis_signal = jarvis_signals.get(ticker)
-        if jarvis_signal:
-            print(f"  Jarvis signal   : {jarvis_signal}")
 
         results.append({
             "ticker": ticker,
@@ -188,30 +151,23 @@ def run_screening():
         })
 
     export_dashboard_json(results, jarvis_regime)
-    print("\n" + "="*60)
-    print("✅ Selesai! Data tersimpan di:")
-    print("   - storage/screener.db")
-    print("   - web/dashboard_data.json")
-    print("="*60)
-
+    
+    print(f"\n{'='*60}")
+    print(f"✅ Selesai! {len(results)} saham")
+    print(f"{'='*60}\n")
 
 def export_dashboard_json(results: list[dict], jarvis_regime: dict | None = None):
-    """Tulis ringkasan untuk dikonsumsi dashboard (web/index.html) via fetch()."""
     results_sorted = sorted(results, key=lambda r: r["score"], reverse=True)
     scores = [r["score"] for r in results]
-
     signal_counts = {"beli": 0, "pantau": 0, "jual": 0}
     for r in results:
         signal_counts[r["signal"]] += 1
-
     trend_healthy = sum(1 for r in results if r["trend"] in ("uptrend", "sideways"))
-
     top_pick = results_sorted[0] if results_sorted else None
     strongest_accumulation = max(
         (r for r in results if r["wyckoff"].get("bias") == "accumulation"),
         key=lambda r: r["score"], default=None
     )
-
     payload = {
         "generated_at": datetime.now().isoformat(),
         "watchlist": results_sorted,
@@ -226,12 +182,10 @@ def export_dashboard_json(results: list[dict], jarvis_regime: dict | None = None
             "jarvis_regime": jarvis_regime,
         },
     }
-
     import os
     os.makedirs("web", exist_ok=True)
     with open("web/dashboard_data.json", "w") as f:
         json.dump(payload, f, indent=2, default=str)
-
 
 if __name__ == "__main__":
     run_screening()
