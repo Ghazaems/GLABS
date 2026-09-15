@@ -1,35 +1,286 @@
-name: Weekly Forward Test
 
-on:
-  schedule:
-    - cron: "0 10 * * 6"   # Sabtu jam 17:00 WIB, setelah 5 hari bursa terkumpul
-  workflow_dispatch: {}
+"""
+Forward-test: mengukur hasil NYATA (bukan simulasi) dari sinyal komposit
+(beli/pantau/jual) yang pernah muncul, dibandingkan harga N hari bursa
+kemudian - menggunakan data yang benar-benar terkumpul harian dari cron job.
 
-permissions:
-  contents: write
+BEDA dengan backtest historis:
+- Backtest: bisa langsung dihitung hari ini pakai data 3 tahun lalu (instan)
+- Forward-test: HARUS menunggu waktu nyata berjalan - sinyal yang muncul
+  kemarin baru bisa diukur horizon 5 harinya, 5 hari bursa dari sekarang
 
-jobs:
-  run-forward-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+Selain ringkasan performa per label sinyal (seperti sebelumnya), sekarang
+forward test ini JUGA menghitung uji signifikansi statistik yang sama
+seperti evaluate_ic.py untuk backtest: Information Coefficient (IC) per
+komponen skor, winrate confidence interval, dan expectancy - tapi dari
+data NYATA, bukan simulasi.
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+UPDATE: Sekarang otomatis mencakup SELURUH 962 ticker IDX yang tersimpan
+di database (dari main.py yang sudah diupdate). Tidak perlu ubah watchlist
+di sini — forward test baca semua data dari storage/screener.db.
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+CATATAN SOAL DATA LAMA:
+Skor komposit numerik (dan breakdown per komponen) baru mulai disimpan
+sebagai angka sejak storage/db.py & main.py diperbarui. Sinyal yang
+tercatat SEBELUM pembaruan ini cuma punya skor komposit di teks catatan
+(note="score=82"), yang tetap coba diselamatkan di sini lewat pencarian
+teks - tapi breakdown per komponennya (trend/wyckoff/vwap/dst) TIDAK bisa
+diselamatkan untuk data lama, karena memang belum pernah dicatat. Jadi
+uji IC per komponen baru akan punya sampel yang berarti setelah cron
+harian berjalan beberapa waktu SEJAK pembaruan ini di-deploy.
 
-      - name: Run forward test
-        run: python forward_test.py
+Jalankan: python forward_test.py
+Butuh minimal beberapa minggu data terkumpul dulu supaya horizon 20 hari
+punya cukup sampel (kalau belum, laporan tetap jalan tapi sampelnya sedikit/kosong).
+"""
+import json
+import re
+from datetime import datetime
+from storage.db import get_conn
 
-      - name: Commit updated forward test data
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add web/forward_test_data.json
-          git diff --staged --quiet || git commit -m "chore: update forward test data $(date -u +%Y-%m-%d)"
-          git push
+from scipy.stats import spearmanr
+from statsmodels.stats.proportion import proportion_confint
+
+HORIZONS = [5, 10, 20]  # hari bursa setelah sinyal muncul
+
+COMPONENT_KEYS = [
+    "comp_trend",
+    "comp_wyckoff",
+    "comp_vwap",
+    "comp_comparative_strength",
+    "comp_support_resistance",
+]
+
+_SCORE_IN_NOTE_RE = re.compile(r"score=(-?\d+(?:\.\d+)?)")
+
+
+def get_composite_signals():
+    """Ambil semua sinyal komposit yang pernah tersimpan, urut per ticker+tanggal.
+    Otomatis mencakup SELURUH 962 ticker IDX dari database."""
+    with get_conn() as conn:
+        rows = conn.execute("""
+            SELECT ticker, date, direction AS signal, note,
+                   score, comp_trend, comp_wyckoff, comp_vwap,
+                   comp_comparative_strength, comp_support_resistance
+            FROM signals
+            WHERE signal_type = 'composite'
+            ORDER BY ticker, date
+        """).fetchall()
+    return [dict(r) for r in rows]
+
+
+def get_price_series(ticker: str) -> list[dict]:
+    """Ambil semua harga historis ticker tsb, urut tanggal naik."""
+    with get_conn() as conn:
+        rows = conn.execute("""
+            SELECT date, close FROM prices WHERE ticker = ? ORDER BY date ASC
+        """, (ticker,)).fetchall()
+    return [dict(r) for r in rows]
+
+
+def _resolve_score(sig: dict):
+    """Skor numerik kalau ada; kalau tidak, coba selamatkan dari teks note lama."""
+    if sig.get("score") is not None:
+        return sig["score"]
+    match = _SCORE_IN_NOTE_RE.search(sig.get("note") or "")
+    return float(match.group(1)) if match else None
+
+
+def compute_forward_returns():
+    signals = get_composite_signals()
+    price_cache = {}  # ticker -> list of {date, close}
+
+    # Hitung jumlah ticker unik untuk logging
+    unique_tickers = set(sig["ticker"] for sig in signals)
+    print(f"Forward test: {len(signals)} sinyal dari {len(unique_tickers)} ticker (seluruh IDX)")
+
+    results = []
+
+    for sig in signals:
+        ticker = sig["ticker"]
+        if ticker not in price_cache:
+            price_cache[ticker] = get_price_series(ticker)
+        prices = price_cache[ticker]
+
+        # cari index tanggal sinyal muncul di deretan harga
+        dates = [p["date"] for p in prices]
+        try:
+            idx = dates.index(sig["date"])
+        except ValueError:
+            continue  # tanggal sinyal belum punya harga tersimpan, skip
+
+        entry_price = prices[idx]["close"]
+        row = {
+            "ticker": ticker,
+            "date": sig["date"],
+            "signal": sig["signal"],
+            "entry_price": entry_price,
+            "score": _resolve_score(sig),
+            "returns": {},
+        }
+        for comp in COMPONENT_KEYS:
+            row[comp] = sig.get(comp)
+
+        for h in HORIZONS:
+            target_idx = idx + h
+            if target_idx < len(prices):
+                future_price = prices[target_idx]["close"]
+                pct = round((future_price - entry_price) / entry_price * 100, 2)
+                row["returns"][str(h)] = pct
+            else:
+                row["returns"][str(h)] = None  # belum cukup waktu berjalan
+
+        results.append(row)
+
+    return results
+
+
+def aggregate_by_signal(results: list[dict]) -> dict:
+    """Ringkas performa per horizon per label sinyal (beli/pantau/jual)."""
+    agg = {str(h): {} for h in HORIZONS}
+
+    for h in HORIZONS:
+        h_key = str(h)
+        by_label = {}
+        for r in results:
+            pct = r["returns"].get(h_key)
+            if pct is None:
+                continue
+            by_label.setdefault(r["signal"], []).append(pct)
+
+        rows = []
+        for label, pcts in by_label.items():
+            untung = sum(1 for p in pcts if p > 0)
+            rows.append({
+                "signal": label,
+                "jumlah_sampel": len(pcts),
+                "rata_rata_return_pct": round(sum(pcts) / len(pcts), 2),
+                "persen_untung": round(untung / len(pcts) * 100, 1),
+            })
+        agg[h_key] = rows
+
+    return agg
+
+
+def _information_coefficient(pairs: list[tuple]):
+    """pairs = list of (score_value, return_pct), sudah dibuang yang None."""
+    if len(pairs) < 30:
+        return None
+    xs = [p[0] for p in pairs]
+    ys = [p[1] for p in pairs]
+    if len(set(xs)) < 2:
+        return None
+    ic, p_value = spearmanr(xs, ys)
+    return {"ic": round(ic, 4), "p_value": round(p_value, 4), "n": len(pairs),
+            "significant": bool(p_value < 0.05)}
+
+
+def _winrate_ci(returns: list):
+    total = len(returns)
+    if total == 0:
+        return None
+    wins = sum(1 for r in returns if r > 0)
+    winrate = wins / total * 100
+    lower, upper = proportion_confint(wins, total, alpha=0.05, method="wilson")
+    return {
+        "winrate_pct": round(winrate, 2),
+        "ci_lower_pct": round(lower * 100, 2),
+        "ci_upper_pct": round(upper * 100, 2),
+        "n": total,
+        "beats_coinflip": bool(lower * 100 > 50),
+    }
+
+
+def _expectancy(returns: list):
+    if not returns:
+        return None
+    wins = [r for r in returns if r > 0]
+    losses = [r for r in returns if r <= 0]
+    avg_win = sum(wins) / len(wins) if wins else 0
+    avg_loss = sum(losses) / len(losses) if losses else 0
+    winrate = len(wins) / len(returns)
+    exp = winrate * avg_win + (1 - winrate) * avg_loss
+    return {
+        "avg_win_pct": round(avg_win, 3),
+        "avg_loss_pct": round(avg_loss, 3),
+        "expectancy_pct": round(exp, 4),
+        "positive": bool(exp > 0),
+    }
+
+
+def compute_ic_report(results: list[dict]) -> dict:
+    """
+    Uji signifikansi statistik dari data forward test NYATA - struktur JSON-nya
+    sengaja dibuat SAMA PERSIS dengan web/ic_data.json (hasil evaluate_ic.py
+    untuk backtest), supaya bisa dirender pakai fungsi JS yang sama di
+    web/index.html (renderICReport), tidak perlu bikin komponen tampilan baru.
+    """
+    report = {
+        "horizons": HORIZONS,
+        "composite": {},
+        "components": {c.replace("comp_", ""): {} for c in COMPONENT_KEYS},
+        "winrate": {},
+        "expectancy": {},
+    }
+
+    for h in HORIZONS:
+        h_key = str(h)
+        matured = [r for r in results if r["returns"].get(h_key) is not None]
+        returns = [r["returns"][h_key] for r in matured]
+
+        composite_pairs = [
+            (r["score"], r["returns"][h_key]) for r in matured if r["score"] is not None
+        ]
+        report["composite"][h_key] = _information_coefficient(composite_pairs)
+
+        for comp in COMPONENT_KEYS:
+            name = comp.replace("comp_", "")
+            comp_pairs = [
+                (r[comp], r["returns"][h_key]) for r in matured if r.get(comp) is not None
+            ]
+            report["components"][name][h_key] = _information_coefficient(comp_pairs)
+
+        report["winrate"][h_key] = _winrate_ci(returns)
+        report["expectancy"][h_key] = _expectancy(returns)
+
+    return report
+
+
+def export_forward_test_json(results: list[dict]):
+    matured = [r for r in results if any(v is not None for v in r["returns"].values())]
+
+    # Hitung ticker unik yang sudah matang
+    matured_tickers = set(r["ticker"] for r in matured)
+
+    payload = {
+        "generated_at": datetime.now().isoformat(),
+        "jenis": "forward_test",
+        "catatan": (
+            "Ini hasil NYATA (bukan simulasi historis) dari sinyal yang pernah "
+            "muncul, diukur pakai harga real setelah waktu berjalan. Sampel akan "
+            "terus bertambah tiap hari cron job jalan. Horizon yang belum cukup "
+            "waktu (misal sinyal baru muncul 3 hari lalu, horizon 20 hari) belum "
+            "masuk hitungan sampai waktunya cukup. Mencakup SELURUH 962 ticker IDX."
+        ),
+        "total_sampel_matang": len(matured),
+        "total_sampel_terdaftar": len(results),
+        "total_ticker_matang": len(matured_tickers),
+        "horizons_hari_bursa": HORIZONS,
+        "by_signal": aggregate_by_signal(results),
+        "detail_terbaru": sorted(results, key=lambda r: r["date"], reverse=True)[:50],
+        "ic": compute_ic_report(results),
+    }
+
+    import os
+    os.makedirs("web", exist_ok=True)
+    with open("web/forward_test_data.json", "w") as f:
+        json.dump(payload, f, indent=2, default=str)
+
+    print(f"Selesai. {len(matured)}/{len(results)} sampel sudah matang (punya hasil).")
+    print(f"Ticker unik yang sudah matang: {len(matured_tickers)} (dari seluruh IDX)")
+    print("Tersimpan di web/forward_test_data.json (termasuk uji IC di dalamnya)")
+
+
+if __name__ == "__main__":
+    results = compute_forward_returns()
+    export_forward_test_json(results)
