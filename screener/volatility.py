@@ -119,7 +119,7 @@ def forecast_volatility_batch(
     return out
 
 
-+++ public/volatility_optimized.py (修改后)
++++ public/volatility_optimized.py
 """
 Forecast volatilitas harga pakai GARCH(1,1) — 100% GARCH, adaptive maxiter.
 
