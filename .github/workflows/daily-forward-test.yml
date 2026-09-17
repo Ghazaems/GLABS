@@ -1,0 +1,42 @@
+
+name: Daily Forward Test (962 Ticker IDX)
+
+on:
+  schedule:
+    # 16:10 WIB (09:10 UTC) — 15 menit setelah daily screening selesai
+    # Forward test butuh data dari daily screening yang baru saja jalan
+    - cron: "10 9 * * 1-5"   # Senin-Jumat saja
+
+  workflow_dispatch: {}       # bisa trigger manual dari tab Actions di GitHub
+
+permissions:
+  contents: write
+
+jobs:
+  run-forward-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10       # forward test cepat, cuma baca dari database
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run forward test (962 ticker IDX)
+        run: python forward_test.py
+        env:
+          PYTHONUNBUFFERED: "1"
+
+      - name: Commit updated forward test data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add web/forward_test_data.json
+          git diff --staged --quiet || git commit -m "chore: update forward test data $(date -u +%Y-%m-%d)"
+          git push
