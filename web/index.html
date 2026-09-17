@@ -588,7 +588,7 @@ html { overflow-x: hidden; }
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><rect x="7" y="12" width="2.5" height="5"/><rect x="11.5" y="8" width="2.5" height="9"/><rect x="16" y="10" width="2.5" height="7"/></svg>
         <span class="tip">Watchlist</span>
       </div>
-      <div class="icon-btn">
+      <div class="icon-btn" id="nav-riwayat" onclick="showView('riwayat')">
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
         <span class="tip">Riwayat sinyal</span>
       </div>
@@ -796,7 +796,7 @@ html { overflow-x: hidden; }
         <div class="pill"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Cek Wyckoff</div>
         <div class="pill"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>Cek VWAP</div>
         <div class="pill"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>Duplikat screener</div>
-        <div class="pill"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Riwayat sinyal</div>
+        <div class="pill" onclick="showView('riwayat')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Riwayat sinyal</div>
       </div>
 
       <!-- PROMPT PANEL -->
@@ -950,6 +950,50 @@ html { overflow-x: hidden; }
           </table>
         </div>
       </div><!-- /view-screener -->
+
+      <div id="view-riwayat" style="display:none">
+        <div class="greet-row">
+          <div class="greet">
+            <h1>Riwayat <em>Volatilitas</em></h1>
+            <p id="riwayat-sub">Forecast rentang wajar pergerakan harga 10 hari ke depan, per saham (model GARCH).</p>
+          </div>
+        </div>
+
+        <div class="pills" id="riwayat-ticker-tabs" style="margin-top:0"></div>
+
+        <div class="grid" style="grid-template-columns:repeat(3,1fr); margin-top:14px;">
+          <div class="card" style="min-height:auto">
+            <div class="card-head"><div class="label">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
+              Harga terakhir
+            </div></div>
+            <div class="big-stat" id="riwayat-stat-price">-</div>
+          </div>
+          <div class="card" style="min-height:auto">
+            <div class="card-head"><div class="label">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-6-8.5"/></svg>
+              Vol. forecast harian
+            </div></div>
+            <div class="big-stat" id="riwayat-stat-vol">-</div>
+          </div>
+          <div class="card" style="min-height:auto">
+            <div class="card-head"><div class="label">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+              Regime
+            </div></div>
+            <div class="big-stat" id="riwayat-stat-regime">-</div>
+          </div>
+        </div>
+
+        <div class="qcard" style="margin-top:14px; padding:20px;">
+          <div style="display:flex; flex-wrap:wrap; gap:16px; margin-bottom:10px; font-size:12px; color:var(--text-secondary);">
+            <span style="display:flex; align-items:center; gap:5px;"><i style="width:10px;height:2px;background:#32d74b;display:inline-block;"></i>Harga historis</span>
+            <span style="display:flex; align-items:center; gap:5px;"><i style="width:10px;height:10px;border-radius:2px;background:rgba(96,165,250,0.15);border:1px solid #60a5fa;display:inline-block;"></i>Band 95% (10 hari)</span>
+          </div>
+          <div id="riwayat-chart-wrap"><p class="loading-msg">Memuat...</p></div>
+          <p class="loading-msg" id="riwayat-note" style="padding:12px 0 0;"></p>
+        </div>
+      </div><!-- /view-riwayat -->
 
     </div>
   </div>
@@ -1224,6 +1268,100 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+// ---------- Riwayat sinyal (forecast volatilitas GARCH per saham) ----------
+let riwayatTicker = null;
+
+function renderRiwayatView() {
+  const wl = ALL_WATCHLIST.filter(r => r.volatility && r.volatility.status === "ok");
+  const tabsEl = document.getElementById("riwayat-ticker-tabs");
+  if (!wl.length) {
+    tabsEl.innerHTML = "";
+    document.getElementById("riwayat-chart-wrap").innerHTML =
+      `<p class="loading-msg">Belum ada data volatilitas. Jalankan ulang "Daily Stock Screening" setelah update terbaru main.py.</p>`;
+    document.getElementById("riwayat-stat-price").textContent = "-";
+    document.getElementById("riwayat-stat-vol").textContent = "-";
+    document.getElementById("riwayat-stat-regime").textContent = "-";
+    document.getElementById("riwayat-note").textContent = "";
+    return;
+  }
+  if (!riwayatTicker || !wl.some(r => r.ticker === riwayatTicker)) riwayatTicker = wl[0].ticker;
+
+  tabsEl.innerHTML = wl.map(r => {
+    const activeStyle = r.ticker === riwayatTicker
+      ? "background:var(--bg-hover); color:var(--text-primary); border-color:rgba(255,255,255,0.22);"
+      : "";
+    return `<div class="pill" style="${activeStyle}" onclick="selectRiwayatTicker('${r.ticker}')">${r.ticker}</div>`;
+  }).join("");
+
+  renderRiwayatDetail(wl.find(r => r.ticker === riwayatTicker));
+}
+
+function selectRiwayatTicker(ticker) {
+  riwayatTicker = ticker;
+  renderRiwayatView();
+}
+
+function renderRiwayatDetail(stock) {
+  const v = stock.volatility;
+  document.getElementById("riwayat-stat-price").textContent = "Rp " + fmtNum(stock.last_close);
+  document.getElementById("riwayat-stat-vol").innerHTML = v.current_forecast_vol_pct + `<span class="unit">%/hari</span>`;
+
+  const regimeEl = document.getElementById("riwayat-stat-regime");
+  regimeEl.textContent = v.regime.charAt(0).toUpperCase() + v.regime.slice(1);
+  regimeEl.style.color = v.regime === "tinggi" ? "var(--danger)" : v.regime === "rendah" ? "var(--success)" : "var(--text-primary)";
+
+  document.getElementById("riwayat-chart-wrap").innerHTML = buildVolatilitySvg(stock);
+
+  const last = v.upper_band_95.length - 1;
+  document.getElementById("riwayat-note").innerHTML =
+    `GARCH(1,1) dari statsmodels/arch, dilatih pakai data harian 500 hari terakhir. ` +
+    `Band 10 hari (95%): <b>${fmtNum(v.lower_band_95[last])} &ndash; ${fmtNum(v.upper_band_95[last])}</b>. ` +
+    `Ini rentang wajar pergerakan harga berdasar pola volatilitas historis, BUKAN tebakan harga pasti ` +
+    `dan BUKAN sinyal beli/jual — dipakai sebagai referensi risk sizing / lebar stop-loss.`;
+}
+
+function buildVolatilitySvg(stock) {
+  const v = stock.volatility;
+  const hist = (v.price_history || []).slice(-90);
+  const W = 1080, H = 320, top = 20, bottom = 30, left = 10, right = 60;
+  const plotH = H - bottom - top, plotW = W - left - right;
+  const histN = hist.length, fcN = (v.upper_band_95 || []).length, totalN = histN + fcN;
+  const values = hist.map(d => d.close).concat(v.upper_band_95 || []).concat(v.lower_band_95 || []);
+  const min = Math.min(...values) * .97, max = Math.max(...values) * 1.03, span = max - min || 1;
+  const x = i => left + (i + .5) * plotW / totalN, y = val => top + (max - val) / span * plotH;
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; display:block;" role="img" aria-label="Forecast volatilitas ${stock.ticker}">`;
+  for (let i = 0; i < 5; i++) {
+    const yy = top + i * plotH / 4, val = max - i * span / 4;
+    svg += `<line x1="${left}" y1="${yy}" x2="${W - right}" y2="${yy}" stroke="rgba(255,255,255,0.07)"/><text x="${W - right + 8}" y="${yy + 4}" fill="rgba(245,245,242,0.4)" font-size="10">${fmtNum(val)}</text>`;
+  }
+
+  let path = "";
+  hist.forEach((d, i) => { path += `${i ? "L" : "M"}${x(i)},${y(d.close)}`; });
+  svg += `<path d="${path}" fill="none" stroke="#32d74b" stroke-width="2"/>`;
+
+  if (fcN) {
+    const startIdx = histN - 1, lastClose = hist.length ? hist[hist.length - 1].close : v.last_price;
+    let up = `M${x(startIdx)},${y(lastClose)}`, low = `M${x(startIdx)},${y(lastClose)}`;
+    v.upper_band_95.forEach((u, i) => { up += ` L${x(startIdx + 1 + i)},${y(u)}`; });
+    v.lower_band_95.forEach((l, i) => { low += ` L${x(startIdx + 1 + i)},${y(l)}`; });
+
+    let bandFill = `M${x(startIdx)},${y(lastClose)}`;
+    v.upper_band_95.forEach((u, i) => { bandFill += ` L${x(startIdx + 1 + i)},${y(u)}`; });
+    for (let i = v.lower_band_95.length - 1; i >= 0; i--) { bandFill += ` L${x(startIdx + 1 + i)},${y(v.lower_band_95[i])}`; }
+    bandFill += " Z";
+
+    svg += `<path d="${bandFill}" fill="rgba(96,165,250,0.12)"/>`;
+    svg += `<path d="${up}" fill="none" stroke="#60a5fa" stroke-width="1.4" stroke-dasharray="5 4"/>`;
+    svg += `<path d="${low}" fill="none" stroke="#60a5fa" stroke-width="1.4" stroke-dasharray="5 4"/>`;
+    svg += `<line x1="${x(startIdx)}" y1="${top}" x2="${x(startIdx)}" y2="${H - bottom}" stroke="rgba(255,255,255,0.18)" stroke-dasharray="2 3"/>`;
+  }
+
+  svg += `<text x="${left}" y="${H - 8}" fill="rgba(245,245,242,0.4)" font-size="10">${hist[0]?.date || ""}</text><text x="${W - right}" y="${H - 8}" fill="rgba(245,245,242,0.4)" font-size="10" text-anchor="end">+${fcN} hari ke depan</text>`;
+  svg += `</svg>`;
+  return svg;
+}
+
 async function loadDashboard() {
   let data;
   try {
@@ -1405,12 +1543,15 @@ function showView(name) {
   document.getElementById("view-watchlist").style.display = name === "watchlist" ? "" : "none";
   document.getElementById("view-screener").style.display = name === "screener" ? "" : "none";
   document.getElementById("view-laporan").style.display = name === "laporan" ? "" : "none";
+  document.getElementById("view-riwayat").style.display = name === "riwayat" ? "" : "none";
   document.getElementById("nav-overview").classList.toggle("active", name === "overview");
   document.getElementById("nav-watchlist").classList.toggle("active", name === "watchlist");
   document.getElementById("nav-screener").classList.toggle("active", name === "screener");
   document.getElementById("nav-laporan").classList.toggle("active", name === "laporan");
+  document.getElementById("nav-riwayat").classList.toggle("active", name === "riwayat");
   if (name === "watchlist") applyWatchlistFilter();
   if (name === "screener") applyScreenerFilterAndSort();
+  if (name === "riwayat") renderRiwayatView();
   if (name === "laporan" && !reportLoaded) {
     reportLoaded = true;
     loadBacktestReport();
