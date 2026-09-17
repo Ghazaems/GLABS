@@ -959,7 +959,13 @@ html { overflow-x: hidden; }
           </div>
         </div>
 
-        <div class="pills" id="riwayat-ticker-tabs" style="margin-top:0"></div>
+        <div style="position:relative; max-width:280px; margin-bottom:16px;">
+          <label class="search" for="riwayat-search" style="width:100%;">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input id="riwayat-search" type="search" placeholder="Cari ticker..." autocomplete="off" onfocus="openRiwayatDropdown()" oninput="filterRiwayatDropdown()" />
+          </label>
+          <div id="riwayat-dropdown" class="qcard" style="display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; max-height:280px; overflow-y:auto; z-index:10; padding:6px;"></div>
+        </div>
 
         <div class="grid" style="grid-template-columns:repeat(3,1fr); margin-top:14px;">
           <div class="card" style="min-height:auto">
@@ -1269,37 +1275,77 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ---------- Riwayat sinyal (forecast volatilitas GARCH per saham) ----------
+// Dropdown-search dipakai daripada nampilin semua ticker sebagai pill (dulu
+// bikin berat kalau watchlist ratusan saham) - lihat data cuma pas dicari/dipilih.
 let riwayatTicker = null;
+let riwayatOptions = []; // subset ALL_WATCHLIST yang punya data volatility "ok"
+
+function riwayatWatchlistWithVol() {
+  return ALL_WATCHLIST.filter(r => r.volatility && r.volatility.status === "ok");
+}
 
 function renderRiwayatView() {
-  const wl = ALL_WATCHLIST.filter(r => r.volatility && r.volatility.status === "ok");
-  const tabsEl = document.getElementById("riwayat-ticker-tabs");
+  const wl = riwayatWatchlistWithVol();
+  riwayatOptions = wl;
   if (!wl.length) {
-    tabsEl.innerHTML = "";
     document.getElementById("riwayat-chart-wrap").innerHTML =
       `<p class="loading-msg">Belum ada data volatilitas. Jalankan ulang "Daily Stock Screening" setelah update terbaru main.py.</p>`;
     document.getElementById("riwayat-stat-price").textContent = "-";
     document.getElementById("riwayat-stat-vol").textContent = "-";
     document.getElementById("riwayat-stat-regime").textContent = "-";
     document.getElementById("riwayat-note").textContent = "";
+    document.getElementById("riwayat-search").value = "";
     return;
   }
-  if (!riwayatTicker || !wl.some(r => r.ticker === riwayatTicker)) riwayatTicker = wl[0].ticker;
-
-  tabsEl.innerHTML = wl.map(r => {
-    const activeStyle = r.ticker === riwayatTicker
-      ? "background:var(--bg-hover); color:var(--text-primary); border-color:rgba(255,255,255,0.22);"
-      : "";
-    return `<div class="pill" style="${activeStyle}" onclick="selectRiwayatTicker('${r.ticker}')">${r.ticker}</div>`;
-  }).join("");
-
+  // Default: top pick (skor tertinggi) di antara yang punya data volatilitas.
+  if (!riwayatTicker || !wl.some(r => r.ticker === riwayatTicker)) {
+    const topPick = [...wl].sort((a, b) => (b.score || 0) - (a.score || 0))[0];
+    riwayatTicker = topPick.ticker;
+  }
+  document.getElementById("riwayat-search").value = riwayatTicker;
   renderRiwayatDetail(wl.find(r => r.ticker === riwayatTicker));
+}
+
+function openRiwayatDropdown() {
+  filterRiwayatDropdown();
+}
+
+function closeRiwayatDropdown() {
+  const dd = document.getElementById("riwayat-dropdown");
+  if (dd) dd.style.display = "none";
+}
+
+function filterRiwayatDropdown() {
+  const q = (document.getElementById("riwayat-search").value || "").toUpperCase().trim();
+  const matches = riwayatOptions
+    .filter(r => r.ticker.includes(q))
+    .sort((a, b) => (b.score || 0) - (a.score || 0))
+    .slice(0, 30);
+  const dd = document.getElementById("riwayat-dropdown");
+  dd.innerHTML = matches.length
+    ? matches.map(r => `
+        <div class="wl-row" style="padding:8px 10px; cursor:pointer; border-radius:8px;"
+             onmousedown="selectRiwayatTicker('${r.ticker}')">
+          <span class="t">${r.ticker}</span>
+          <span class="s">skor ${r.score}</span>
+        </div>`).join("")
+    : `<div style="padding:10px; color:var(--text-muted); font-size:12.5px;">Tidak ada ticker cocok.</div>`;
+  dd.style.display = "block";
 }
 
 function selectRiwayatTicker(ticker) {
   riwayatTicker = ticker;
-  renderRiwayatView();
+  closeRiwayatDropdown();
+  document.getElementById("riwayat-search").value = ticker;
+  renderRiwayatDetail(riwayatOptions.find(r => r.ticker === ticker));
 }
+
+document.addEventListener("click", (e) => {
+  const input = document.getElementById("riwayat-search");
+  const dd = document.getElementById("riwayat-dropdown");
+  if (!input || !dd) return;
+  if (e.target !== input && !dd.contains(e.target)) closeRiwayatDropdown();
+});
 
 function renderRiwayatDetail(stock) {
   const v = stock.volatility;
