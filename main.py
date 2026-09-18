@@ -1,11 +1,8 @@
 """
 Pipeline screening harian untuk 500 emiten IDX.
 
-Jalankan secara manual:
+Jalankan manual:
     python main.py
-
-Pipeline otomatis dijalankan melalui GitHub Actions setiap
-Senin sampai Jumat setelah perdagangan BEI berakhir.
 """
 
 import json
@@ -16,7 +13,7 @@ import pandas as pd
 
 from data.yfinance_fetcher import fetch_batch, fetch_daily
 from idx_tickers_500 import IDX_TICKERS_500
-from screener.scoring import compute_score, classify_signal
+from screener.scoring import classify_signal, compute_score
 from screener.trend import (
     find_swing_points,
     support_resistance_levels,
@@ -37,60 +34,55 @@ from storage.db import (
 
 
 EXPECTED_TICKER_COUNT = 500
+MINIMUM_ANALYSIS_ROWS = 60
+MINIMUM_GARCH_ROWS = 120
 DEFAULT_WATCHLIST = IDX_TICKERS_500
 
 
 def clean_number(value):
-    """
-    Ubah nilai numerik menjadi float dua desimal.
-
-    Nilai kosong atau NaN diubah menjadi None agar aman diekspor
-    ke JSON.
-    """
+    """Ubah nilai numerik menjadi float dua desimal."""
     if value is None or pd.isna(value):
         return None
 
     return round(float(value), 2)
 
 
-def validate_ticker_universe(tickers: list[str]) -> None:
-    """
-    Pastikan universe berisi tepat 500 ticker unik.
-    """
+def validate_ticker_universe(
+    tickers: list[str],
+) -> None:
+    """Pastikan universe berisi tepat 500 ticker unik."""
     if len(tickers) != EXPECTED_TICKER_COUNT:
         raise RuntimeError(
-            f"Universe harus berisi tepat "
+            f"Universe harus berisi "
             f"{EXPECTED_TICKER_COUNT} ticker, "
             f"tetapi ditemukan {len(tickers)}."
         )
 
     if len(set(tickers)) != len(tickers):
         raise RuntimeError(
-            "Universe ticker mengandung ticker duplikat."
+            "Universe mengandung ticker duplikat."
         )
 
 
 def build_price_history(
     dataframe: pd.DataFrame,
 ) -> list[dict]:
-    """
-    Buat data visual harga untuk cockpit dashboard.
-    """
-    visual_df = find_swing_points(
+    """Buat data harga untuk chart dashboard."""
+    visual = find_swing_points(
         dataframe.tail(180).copy()
     )
 
-    visual_df["vwap_5"] = rolling_vwap(
-        visual_df,
+    visual["vwap_5"] = rolling_vwap(
+        visual,
         window=5,
     )
 
-    price_history = []
+    history = []
 
-    for index, row in visual_df.iterrows():
+    for index, row in visual.iterrows():
         volume = row.get("Volume")
 
-        price_history.append({
+        history.append({
             "date": index.strftime("%Y-%m-%d"),
             "open": clean_number(row.get("Open")),
             "high": clean_number(row.get("High")),
@@ -102,7 +94,9 @@ def build_price_history(
                 and not pd.isna(volume)
                 else 0
             ),
-            "vwap": clean_number(row.get("vwap_5")),
+            "vwap": clean_number(
+                row.get("vwap_5")
+            ),
             "swing_high": clean_number(
                 row.get("swing_high")
             ),
@@ -111,426 +105,261 @@ def build_price_history(
             ),
         })
 
-    return price_history
+    return history
 
 
-def run_screening():
-    """
-    Jalankan screening untuk tepat 500 emiten IDX.
-    """
-    init_db()
+def safe_comparative_strength(
+    stock_data: pd.DataFrame,
+    benchmark: pd.DataFrame | None,
+    window: int | None = None,
+    missing_status: str = "no_benchmark_data",
+) -> dict:
+    """Hitung comparative strength dengan aman."""
+    if benchmark is None or benchmark.empty:
+        return {"status": missing_status}
 
-    # Jangan membaca seluruh watchlist dari database lama.
-    # Database mungkin masih menyimpan ticker dari proses 849/962 emiten.
-    tickers = list(DEFAULT_WATCHLIST)
+    try:
+        if window is None:
+            return comparative_strength(
+                stock_data,
+                benchmark,
+            )
 
-    validate_ticker_universe(tickers)
+        return comparative_strength(
+            stock_data,
+            benchmark,
+            window=window,
+        )
 
-    # Tetap simpan ticker terpilih ke database untuk kompatibilitas.
-    add_to_watchlist(tickers)
+    except Exception as error:
+        return {
+            "status": "calculation_failed",
+            "error": (
+                f"{type(error).__name__}: "
+                f"{error}"
+            ),
+        }
 
-    print(
-        f"Mengambil data untuk "
-        f"{len(tickers)} emiten IDX..."
+
+def process_ticker(
+    ticker: str,
+    dataframe: pd.DataFrame,
+    ihsg: pd.DataFrame | None,
+    lq45: pd.DataFrame | None,
+    volatility_results: dict[str, dict],
+) -> dict:
+    """Analisis satu ticker dan susun hasil dashboard."""
+    upsert_prices(ticker, dataframe)
+
+    date_string = dataframe.index[
+        -1
+    ].strftime("%Y-%m-%d")
+
+    trend = trend_structure(
+        dataframe,
+        window=5,
     )
 
-    price_data = fetch_batch(
-        tickers,
-        period="1y",
+    trend_swing = trend_structure(
+        dataframe,
+        window=20,
     )
 
-    failed_fetch = [
-        ticker
-        for ticker in tickers
-        if ticker not in price_data
-    ]
-
-    print(
-        f"Coverage fetch: "
-        f"{len(price_data)}/{len(tickers)} berhasil, "
-        f"{len(failed_fetch)} gagal atau tidak tersedia."
+    support_resistance = (
+        support_resistance_levels(
+            dataframe,
+            window=5,
+            lookback=60,
+        )
     )
 
-    print(
-        "Mengambil data IHSG untuk "
-        "comparative strength..."
+    support_resistance_swing = (
+        support_resistance_levels(
+            dataframe,
+            window=20,
+            lookback=180,
+        )
     )
 
-    ihsg = fetch_daily(
-        "^JKSE",
-        period="1y",
+    vwap = price_vs_vwap(
+        dataframe,
+        window=5,
     )
 
-    print(
-        "Mengambil data LQ45 untuk "
-        "comparative strength..."
+    vwap_swing = price_vs_vwap(
+        dataframe,
+        window=20,
     )
 
-    lq45 = fetch_daily(
-        "^JKLQ45",
-        period="1y",
+    wyckoff = analyze_latest_trading_range(
+        dataframe
     )
 
-    print(
-        f"Menghitung volatilitas GARCH untuk "
-        f"{len(price_data)} ticker..."
+    cs_ihsg = safe_comparative_strength(
+        dataframe,
+        ihsg,
+        missing_status="no_ihsg_data",
     )
 
-    volatility_items = [
-        (ticker, dataframe)
-        for ticker, dataframe in price_data.items()
-        if len(dataframe) >= 120
-    ]
-
-    volatility_results = forecast_volatility_batch(
-        volatility_items
+    cs_ihsg_swing = safe_comparative_strength(
+        dataframe,
+        ihsg,
+        window=60,
+        missing_status="no_ihsg_data",
     )
 
-    volatility_success = sum(
-        1
-        for result in volatility_results.values()
-        if result.get("status") == "ok"
+    cs_lq45 = safe_comparative_strength(
+        dataframe,
+        lq45,
+        missing_status="no_lq45_data",
     )
 
-    volatility_failed = sum(
-        1
-        for result in volatility_results.values()
-        if result.get("status") != "ok"
+    cs_lq45_swing = safe_comparative_strength(
+        dataframe,
+        lq45,
+        window=60,
+        missing_status="no_lq45_data",
     )
 
-    print(
-        f"Volatilitas selesai: "
-        f"{volatility_success} berhasil, "
-        f"{volatility_failed} gagal."
+    scored = compute_score(
+        trend,
+        wyckoff,
+        vwap,
+        cs_ihsg,
+        support_resistance,
     )
 
-    results = []
-    insufficient_data = []
+    scored_swing = compute_score(
+        trend_swing,
+        wyckoff,
+        vwap_swing,
+        cs_ihsg_swing,
+        support_resistance_swing,
+    )
 
-    for ticker, dataframe in price_data.items():
-        try:
-            if len(dataframe) < 60:
-                print(
-                    f"[SKIP] {ticker}: "
-                    f"data hanya {len(dataframe)} baris."
-                )
+    signal = classify_signal(scored)
+    signal_swing = classify_signal(
+        scored_swing
+    )
 
-                insufficient_data.append(ticker)
-                continue
+    save_signal(
+        ticker,
+        date_string,
+        "trend",
+        trend,
+    )
 
-            upsert_prices(
-                ticker,
-                dataframe,
+    if (
+        wyckoff.get("bias")
+        and wyckoff.get("bias") != "unclear"
+    ):
+        events = ", ".join(
+            event.get("type", "")
+            for event in wyckoff.get(
+                "events",
+                [],
             )
+        )
 
-            date_string = dataframe.index[
-                -1
-            ].strftime("%Y-%m-%d")
+        save_signal(
+            ticker,
+            date_string,
+            "wyckoff",
+            wyckoff["bias"],
+            note=(
+                f"phase={wyckoff.get('phase')}, "
+                f"events={events}"
+            ),
+        )
 
-            # Analisis profil weekly.
-            trend = trend_structure(
-                dataframe,
-                window=5,
-            )
+    save_signal(
+        ticker,
+        date_string,
+        "composite",
+        signal,
+        note=f"score={scored['score']}",
+        score=scored["score"],
+        breakdown=scored["breakdown"],
+    )
 
-            support_resistance = (
-                support_resistance_levels(
-                    dataframe,
-                    window=5,
-                    lookback=60,
-                )
-            )
+    volatility = volatility_results.get(
+        ticker,
+        {
+            "status": "skipped",
+            "error": (
+                "Data historis tidak cukup "
+                "untuk perhitungan GARCH."
+            ),
+        },
+    )
 
-            vwap = price_vs_vwap(
-                dataframe,
-                window=5,
-            )
-
-            # Analisis profil swing.
-            trend_swing = trend_structure(
-                dataframe,
-                window=20,
-            )
-
-            support_resistance_swing = (
-                support_resistance_levels(
-                    dataframe,
-                    window=20,
-                    lookback=180,
-                )
-            )
-
-            vwap_swing = price_vs_vwap(
-                dataframe,
-                window=20,
-            )
-
-            save_signal(
-                ticker,
-                date_string,
-                "trend",
-                trend,
-            )
-
-            # Analisis Wyckoff.
-            wyckoff = analyze_latest_trading_range(
-                dataframe
-            )
-
-            if (
-                wyckoff.get("bias")
-                and wyckoff.get("bias") != "unclear"
-            ):
-                events = ", ".join(
-                    event.get("type", "")
-                    for event in wyckoff.get(
-                        "events",
-                        [],
-                    )
-                )
-
-                save_signal(
-                    ticker,
-                    date_string,
-                    "wyckoff",
-                    wyckoff["bias"],
-                    note=(
-                        f"phase={wyckoff.get('phase')}, "
-                        f"events={events}"
-                    ),
-                )
-
-            # Comparative strength terhadap IHSG.
-            if ihsg is not None:
-                comparative_strength_ihsg = (
-                    comparative_strength(
-                        dataframe,
-                        ihsg,
-                    )
-                )
-
-                comparative_strength_ihsg_swing = (
-                    comparative_strength(
-                        dataframe,
-                        ihsg,
-                        window=60,
-                    )
-                )
-            else:
-                comparative_strength_ihsg = {
-                    "status": "no_ihsg_data"
-                }
-
-                comparative_strength_ihsg_swing = {
-                    "status": "no_ihsg_data"
-                }
-
-            # Comparative strength terhadap LQ45.
-            if lq45 is not None:
-                comparative_strength_lq45 = (
-                    comparative_strength(
-                        dataframe,
-                        lq45,
-                    )
-                )
-
-                comparative_strength_lq45_swing = (
-                    comparative_strength(
-                        dataframe,
-                        lq45,
-                        window=60,
-                    )
-                )
-            else:
-                comparative_strength_lq45 = {
-                    "status": "no_lq45_data"
-                }
-
-                comparative_strength_lq45_swing = {
-                    "status": "no_lq45_data"
-                }
-
-            # Skor profil weekly.
-            scored = compute_score(
-                trend,
-                wyckoff,
-                vwap,
-                comparative_strength_ihsg,
-                support_resistance,
-            )
-
-            signal_label = classify_signal(scored)
-
-            save_signal(
-                ticker,
-                date_string,
-                "composite",
-                signal_label,
-                note=f"score={scored['score']}",
-                score=scored["score"],
-                breakdown=scored["breakdown"],
-            )
-
-            # Skor profil swing.
-            scored_swing = compute_score(
-                trend_swing,
-                wyckoff,
-                vwap_swing,
-                comparative_strength_ihsg_swing,
-                support_resistance_swing,
-            )
-
-            signal_label_swing = classify_signal(
-                scored_swing
-            )
-
-            volatility = volatility_results.get(
-                ticker,
-                {
-                    "status": "skipped",
-                    "error": (
-                        "Data historis tidak cukup untuk "
-                        "perhitungan GARCH."
-                    ),
-                },
-            )
-
-            price_history = build_price_history(
-                dataframe
-            )
-
-            last_close = clean_number(
-                dataframe["Close"].iloc[-1]
-            )
-
-            result = {
-                "ticker": ticker,
-                "last_close": last_close,
-                "trend": trend,
-                "support": (
-                    support_resistance.get(
-                        "nearest_support"
-                    )
-                ),
-                "resistance": (
-                    support_resistance.get(
-                        "nearest_resistance"
-                    )
-                ),
-                "wyckoff": wyckoff,
-                "vwap": vwap,
-                "comparative_strength": (
-                    comparative_strength_ihsg
-                ),
-                "comparative_strength_lq45": (
-                    comparative_strength_lq45
-                ),
-                "score": scored["score"],
-                "score_breakdown": (
-                    scored["breakdown"]
-                ),
-                "volatility": volatility,
-                "signal": signal_label,
-                "score_swing": (
-                    scored_swing["score"]
-                ),
-                "score_breakdown_swing": (
-                    scored_swing["breakdown"]
-                ),
-                "signal_swing": (
-                    signal_label_swing
-                ),
-                "trend_swing": trend_swing,
-                "support_swing": (
-                    support_resistance_swing.get(
-                        "nearest_support"
-                    )
-                ),
-                "resistance_swing": (
-                    support_resistance_swing.get(
-                        "nearest_resistance"
-                    )
-                ),
-                "vwap_swing": vwap_swing,
-                "comparative_strength_swing": (
-                    comparative_strength_ihsg_swing
-                ),
-                "comparative_strength_lq45_swing": (
-                    comparative_strength_lq45_swing
-                ),
-                "price_history": price_history,
-            }
-
-            results.append(result)
-
-            print(
-                f"{ticker}: "
-                f"weekly={scored['score']} "
-                f"({signal_label}), "
-                f"swing={scored_swing['score']} "
-                f"({signal_label_swing}), "
-                f"volatilitas="
-                f"{volatility.get('status')}"
-            )
-
-        except Exception as error:
-            print(
-                f"[ERROR] {ticker}: "
-                f"{type(error).__name__}: {error}"
-            )
-
-            insufficient_data.append(ticker)
-
-    coverage = {
-        "requested": len(tickers),
-        "fetched": len(price_data),
-        "success": len(results),
-        "failed_fetch": failed_fetch,
-        "insufficient_or_failed": (
-            insufficient_data
+    return {
+        "ticker": ticker,
+        "last_close": clean_number(
+            dataframe["Close"].iloc[-1]
         ),
-        "volatility_success": (
-            volatility_success
+        "trend": trend,
+        "support": support_resistance.get(
+            "nearest_support"
         ),
-        "volatility_failed": (
-            volatility_failed
+        "resistance": support_resistance.get(
+            "nearest_resistance"
+        ),
+        "wyckoff": wyckoff,
+        "vwap": vwap,
+        "comparative_strength": cs_ihsg,
+        "comparative_strength_lq45": cs_lq45,
+        "score": scored["score"],
+        "score_breakdown": (
+            scored["breakdown"]
+        ),
+        "volatility": volatility,
+        "signal": signal,
+        "score_swing": (
+            scored_swing["score"]
+        ),
+        "score_breakdown_swing": (
+            scored_swing["breakdown"]
+        ),
+        "signal_swing": signal_swing,
+        "trend_swing": trend_swing,
+        "support_swing": (
+            support_resistance_swing.get(
+                "nearest_support"
+            )
+        ),
+        "resistance_swing": (
+            support_resistance_swing.get(
+                "nearest_resistance"
+            )
+        ),
+        "vwap_swing": vwap_swing,
+        "comparative_strength_swing": (
+            cs_ihsg_swing
+        ),
+        "comparative_strength_lq45_swing": (
+            cs_lq45_swing
+        ),
+        "price_history": build_price_history(
+            dataframe
         ),
     }
-
-    export_dashboard_json(
-        results,
-        coverage,
-    )
-
-    print(
-        f"Screening selesai. "
-        f"{len(results)}/{len(tickers)} "
-        f"ticker berhasil diproses."
-    )
-
-    print(
-        "Data tersimpan di "
-        "storage/screener.db dan "
-        "web/dashboard_data.json."
-    )
 
 
 def export_dashboard_json(
     results: list[dict],
-    coverage: dict | None = None,
-):
-    """
-    Ekspor hasil screening ke dashboard.
-    """
-    results_sorted = sorted(
+    coverage: dict,
+) -> None:
+    """Ekspor hasil screening ke dashboard."""
+    sorted_results = sorted(
         results,
-        key=lambda result: result["score"],
+        key=lambda item: item["score"],
         reverse=True,
     )
 
     scores = [
-        result["score"]
-        for result in results
+        item["score"]
+        for item in results
     ]
 
     signal_counts = {
@@ -539,29 +368,23 @@ def export_dashboard_json(
         "jual": 0,
     }
 
-    for result in results:
-        signal = result.get("signal")
+    for item in results:
+        signal = item.get("signal")
 
         if signal in signal_counts:
             signal_counts[signal] += 1
 
     trend_healthy = sum(
         1
-        for result in results
-        if result.get("trend")
+        for item in results
+        if item.get("trend")
         in ("uptrend", "sideways")
     )
 
-    top_pick = (
-        results_sorted[0]
-        if results_sorted
-        else None
-    )
-
-    accumulation_candidates = [
-        result
-        for result in results
-        if result.get(
+    accumulation = [
+        item
+        for item in results
+        if item.get(
             "wyckoff",
             {},
         ).get("bias") == "accumulation"
@@ -569,21 +392,22 @@ def export_dashboard_json(
 
     strongest_accumulation = (
         max(
-            accumulation_candidates,
-            key=lambda result: result["score"],
+            accumulation,
+            key=lambda item: item["score"],
         )
-        if accumulation_candidates
+        if accumulation
         else None
     )
 
     payload = {
         "generated_at": datetime.now().isoformat(),
         "universe_size": EXPECTED_TICKER_COUNT,
-        "watchlist": results_sorted,
+        "watchlist": sorted_results,
         "summary": {
             "signal_counts": signal_counts,
             "trend_healthy": (
-                f"{trend_healthy}/{len(results)}"
+                f"{trend_healthy}/"
+                f"{len(results)}"
             ),
             "score_min": (
                 round(min(scores), 1)
@@ -603,7 +427,11 @@ def export_dashboard_json(
                 if scores
                 else None
             ),
-            "top_pick": top_pick,
+            "top_pick": (
+                sorted_results[0]
+                if sorted_results
+                else None
+            ),
             "strongest_accumulation": (
                 strongest_accumulation
             ),
@@ -628,6 +456,189 @@ def export_dashboard_json(
             ensure_ascii=False,
             default=str,
         )
+
+
+def run_screening() -> None:
+    """Jalankan screening 500 emiten."""
+    init_db()
+
+    tickers = list(DEFAULT_WATCHLIST)
+
+    validate_ticker_universe(tickers)
+    add_to_watchlist(tickers)
+
+    print(
+        f"Mengambil data untuk "
+        f"{len(tickers)} emiten IDX..."
+    )
+
+    price_data = fetch_batch(
+        tickers,
+        period="1y",
+    )
+
+    failed_fetch = [
+        ticker
+        for ticker in tickers
+        if ticker not in price_data
+    ]
+
+    print(
+        f"Coverage fetch: "
+        f"{len(price_data)}/{len(tickers)} "
+        f"berhasil; "
+        f"{len(failed_fetch)} gagal."
+    )
+
+    print("Mengambil data IHSG...")
+    ihsg = fetch_daily(
+        "^JKSE",
+        period="1y",
+    )
+
+    print("Mengambil data LQ45...")
+    lq45 = fetch_daily(
+        "^JKLQ45",
+        period="1y",
+    )
+
+    volatility_items = [
+        (ticker, dataframe)
+        for ticker, dataframe
+        in price_data.items()
+        if len(dataframe)
+        >= MINIMUM_GARCH_ROWS
+    ]
+
+    print(
+        f"Menghitung GARCH untuk "
+        f"{len(volatility_items)} ticker..."
+    )
+
+    volatility_results = (
+        forecast_volatility_batch(
+            volatility_items
+        )
+    )
+
+    volatility_success = sum(
+        1
+        for value
+        in volatility_results.values()
+        if value.get("status") == "ok"
+    )
+
+    volatility_failed = sum(
+        1
+        for value
+        in volatility_results.values()
+        if value.get("status") != "ok"
+    )
+
+    results = []
+    insufficient_data = []
+    analysis_failed = []
+
+    for ticker in tickers:
+        dataframe = price_data.get(ticker)
+
+        if dataframe is None:
+            continue
+
+        if len(dataframe) < MINIMUM_ANALYSIS_ROWS:
+            insufficient_data.append(ticker)
+
+            print(
+                f"[SKIP] {ticker}: "
+                f"hanya {len(dataframe)} baris."
+            )
+
+            continue
+
+        try:
+            result = process_ticker(
+                ticker,
+                dataframe,
+                ihsg,
+                lq45,
+                volatility_results,
+            )
+
+            results.append(result)
+
+            print(
+                f"[OK] {ticker}: "
+                f"score={result['score']}, "
+                f"signal={result['signal']}, "
+                f"volatility="
+                f"{result['volatility'].get('status')}"
+            )
+
+        except Exception as error:
+            analysis_failed.append({
+                "ticker": ticker,
+                "error": (
+                    f"{type(error).__name__}: "
+                    f"{error}"
+                ),
+            })
+
+            print(
+                f"[ERROR] {ticker}: "
+                f"{type(error).__name__}: "
+                f"{error}"
+            )
+
+    coverage = {
+        "requested": len(tickers),
+        "fetched": len(price_data),
+        "success": len(results),
+        "failed_fetch": failed_fetch,
+        "insufficient_data": insufficient_data,
+        "analysis_failed": analysis_failed,
+        "volatility_success": (
+            volatility_success
+        ),
+        "volatility_failed": (
+            volatility_failed
+        ),
+    }
+
+    export_dashboard_json(
+        results,
+        coverage,
+    )
+
+    print(
+        f"Screening selesai: "
+        f"{len(results)}/{len(tickers)} "
+        f"ticker berhasil."
+    )
+
+    print(
+        f"Gagal fetch: "
+        f"{len(failed_fetch)}."
+    )
+
+    print(
+        f"Data kurang: "
+        f"{len(insufficient_data)}."
+    )
+
+    print(
+        f"Gagal analisis: "
+        f"{len(analysis_failed)}."
+    )
+
+    print(
+        f"Volatilitas berhasil: "
+        f"{volatility_success}."
+    )
+
+    print(
+        "Data disimpan ke "
+        "web/dashboard_data.json."
+    )
 
 
 if __name__ == "__main__":
