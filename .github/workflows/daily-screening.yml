@@ -1,48 +1,66 @@
-
-name: Daily Stock Screening (962 Ticker IDX)
+name: Daily Stock Screening (500 Emiten IDX)
 
 on:
   schedule:
-    # 15:55 WIB (08:55 UTC) — 5 menit sebelum closing auction
-    # Data hari itu mungkin belum lengkap, pakai data kemarin sebagai latest
-    - cron: "55 8 * * 1-5"   # Senin-Jumat saja
+    # GitHub Actions menggunakan zona waktu UTC.
+    # 09:15 UTC sama dengan 16:15 WIB.
+    #
+    # Workflow dijalankan Senin-Jumat setelah perdagangan
+    # reguler Bursa Efek Indonesia berakhir.
+    - cron: "15 9 * * 1-5"
 
-    # Opsi alternatif: 16:05 WIB (09:05 UTC) — 5 menit setelah closing auction
-    # Data hari itu sudah lengkap dan final
-    # - cron: "5 9 * * 1-5"   # Senin-Jumat
-
-  workflow_dispatch: {}       # bisa trigger manual dari tab Actions di GitHub
+  # Memungkinkan workflow dijalankan manual dari tab Actions.
+  workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: daily-stock-screening-500
+  cancel-in-progress: false
+
 jobs:
   run-screening:
+    name: Screen 500 IDX issuers
     runs-on: ubuntu-latest
-    timeout-minutes: 15       # yfinance-only + chunking harusnya jauh lebih cepat dari 30 menit lama
+    timeout-minutes: 45
+
     env:
+      PYTHONUNBUFFERED: "1"
       JARVIS_API_TOKEN: ${{ secrets.JARVIS_API_TOKEN }}
+
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
 
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run screening pipeline (962 ticker IDX)
+      - name: Validate 500 ticker universe
+        run: |
+          python -c "from idx_tickers_500 import IDX_TICKERS_500; assert len(IDX_TICKERS_500) == 500, f'Universe berisi {len(IDX_TICKERS_500)}, bukan 500'; assert len(set(IDX_TICKERS_500)) == 500, 'Universe mengandung ticker duplikat'; print('Valid: 500 ticker unik')"
+
+      - name: Run daily screening
         run: python main.py
-        env:
-          PYTHONUNBUFFERED: "1"  # biar log muncul real-time di GitHub Actions
+
+      - name: Validate dashboard output
+        run: |
+          python -c "import json; data = json.load(open('web/dashboard_data.json', encoding='utf-8')); requested = data.get('summary', {}).get('data_coverage', {}).get('requested'); results = len(data.get('watchlist', [])); volatility_ok = data.get('summary', {}).get('data_coverage', {}).get('volatility_success', 0); print(f'Requested: {requested}'); print(f'Results: {results}'); print(f'Volatility success: {volatility_ok}'); assert requested == 500, f'Requested harus 500, ditemukan {requested}'; assert results > 0, 'Dashboard tidak memiliki hasil'; assert volatility_ok > 0, 'Tidak ada forecast volatilitas yang berhasil'"
 
       - name: Commit updated dashboard data
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add web/dashboard_data.json storage/screener.db
           git diff --staged --quiet || git commit -m "chore: update screening data $(date -u +%Y-%m-%d)"
           git push
