@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-18T07:35:19.337304",
+  "generated_at": "2026-09-18T10:47:36.974303",
   "jenis": "forward_test",
   "catatan": "Ini hasil NYATA (bukan simulasi historis) dari sinyal yang pernah muncul, diukur pakai harga real setelah waktu berjalan. Sampel akan terus bertambah tiap hari cron job jalan. Horizon yang belum cukup waktu (misal sinyal baru muncul 3 hari lalu, horizon 20 hari) belum masuk hitungan sampai waktunya cukup.",
   "total_sampel_matang": 0,
