@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-18T10:53:18.457832",
+  "generated_at": "2026-09-18T13:14:45.967273",
   "watchlist": [
     {
       "ticker": "BOAT",
@@ -69,16 +69,16 @@
         "error": "ARCHModel.fit() got an unexpected keyword argument 'maxiter'"
       },
       "signal": "beli",
-      "score_swing": 60,
+      "score_swing": 90,
       "score_breakdown_swing": {
-        "trend": 0,
+        "trend": 30,
         "wyckoff": 30,
         "vwap": 15,
         "comparative_strength": 15,
         "support_resistance": 0
       },
       "signal_swing": "beli",
-      "trend_swing": "insufficient_data",
+      "trend_swing": "uptrend",
       "support_swing": 38.0,
       "resistance_swing": null,
       "vwap_swing": {
@@ -23315,7 +23315,7 @@
           "volume": 21600,
           "vwap": 22.27,
           "swing_high": null,
-          "swing_low": null
+          "swing_low": 21.83
         },
         {
           "date": "2026-07-09",
@@ -23634,7 +23634,7 @@
           "volume": 157500,
           "vwap": 22.4,
           "swing_high": null,
-          "swing_low": 22.36
+          "swing_low": null
         },
         {
           "date": "2026-08-19",
@@ -38037,7 +38037,7 @@
           {
             "date": "2025-10-10 00:00:00",
             "type": "AR",
-            "level": 23.043960571289062
+            "level": 23.043962478637695
           },
           {
             "date": "2025-10-28 00:00:00",
@@ -38960,7 +38960,7 @@
           "volume": 7300,
           "vwap": 24.29,
           "swing_high": 24.46,
-          "swing_low": null
+          "swing_low": 24.18
         },
         {
           "date": "2026-04-23",
@@ -39015,7 +39015,7 @@
           "volume": 2900,
           "vwap": 24.25,
           "swing_high": null,
-          "swing_low": 24.18
+          "swing_low": null
         },
         {
           "date": "2026-04-30",
@@ -50395,7 +50395,7 @@
           {
             "date": "2025-10-03 00:00:00",
             "type": "AR",
-            "level": 42.46550697446088
+            "level": 42.46550315311961
           },
           {
             "date": "2025-10-10 00:00:00",
@@ -68928,7 +68928,7 @@
           {
             "date": "2025-10-14 00:00:00",
             "type": "AR",
-            "level": 19.725963204256303
+            "level": 19.725961289514853
           },
           {
             "date": "2025-10-14 00:00:00",
@@ -70291,7 +70291,7 @@
           "volume": 7200,
           "vwap": 20.02,
           "swing_high": null,
-          "swing_low": 19.91
+          "swing_low": null
         },
         {
           "date": "2026-06-22",
@@ -70302,7 +70302,7 @@
           "volume": 11200,
           "vwap": 20.01,
           "swing_high": null,
-          "swing_low": null
+          "swing_low": 19.91
         },
         {
           "date": "2026-06-23",
@@ -88390,7 +88390,7 @@
           {
             "date": "2026-06-12 00:00:00",
             "type": "AR",
-            "level": 51.39833769511122
+            "level": 51.398341541341004
           },
           {
             "date": "2026-06-24 00:00:00",
@@ -105119,7 +105119,7 @@
           "open": 251.59,
           "high": 257.06,
           "low": 250.12,
-          "close": 253.33,
+          "close": 253.34,
           "volume": 17800,
           "vwap": 251.84,
           "swing_high": null,
@@ -116221,7 +116221,7 @@
           "close": 50.71,
           "volume": 51600,
           "vwap": 50.65,
-          "swing_high": null,
+          "swing_high": 50.75,
           "swing_low": null
         },
         {
@@ -116254,7 +116254,7 @@
           "close": 50.72,
           "volume": 34400,
           "vwap": 50.71,
-          "swing_high": 50.75,
+          "swing_high": null,
           "swing_low": null
         },
         {
@@ -151564,7 +151564,7 @@
           {
             "date": "2025-10-06 00:00:00",
             "type": "AR",
-            "level": 87.5285449689815
+            "level": 87.52855262425035
           },
           {
             "date": "2025-10-14 00:00:00",
@@ -170317,7 +170317,7 @@
           "close": 9.77,
           "volume": 49500,
           "vwap": 9.89,
-          "swing_high": 10.05,
+          "swing_high": null,
           "swing_low": null
         },
         {
@@ -172234,7 +172234,7 @@
           {
             "date": "2025-09-25 00:00:00",
             "type": "AR",
-            "level": 22.51920603184546
+            "level": 22.51920412588152
           },
           {
             "date": "2025-10-15 00:00:00",
@@ -172453,7 +172453,7 @@
           "volume": 5800,
           "vwap": 22.8,
           "swing_high": null,
-          "swing_low": null
+          "swing_low": 22.77
         },
         {
           "date": "2026-01-21",
@@ -172475,7 +172475,7 @@
           "volume": 14300,
           "vwap": 22.79,
           "swing_high": null,
-          "swing_low": 22.77
+          "swing_low": null
         },
         {
           "date": "2026-01-23",
@@ -173586,7 +173586,7 @@
           "volume": 3200,
           "vwap": 22.92,
           "swing_high": null,
-          "swing_low": 22.86
+          "swing_low": null
         },
         {
           "date": "2026-06-18",
@@ -174303,7 +174303,7 @@
           {
             "date": "2025-10-07 00:00:00",
             "type": "AR",
-            "level": 38.47863003237559
+            "level": 38.478637641037956
           },
           {
             "date": "2025-10-21 00:00:00",
@@ -176372,7 +176372,7 @@
           {
             "date": "2025-09-19 00:00:00",
             "type": "AR",
-            "level": 38.793947777516394
+            "level": 38.79395168192555
           },
           {
             "date": "2025-10-02 00:00:00",
@@ -196352,7 +196352,7 @@
           {
             "date": "2025-10-16 00:00:00",
             "type": "AR",
-            "level": 19.006806939991723
+            "level": 19.006808865915307
           },
           {
             "date": "2025-10-29 00:00:00",
@@ -223849,7 +223849,7 @@
           {
             "date": "2025-10-10 00:00:00",
             "type": "AR",
-            "level": 28.578535160611978
+            "level": 28.578538971603408
           },
           {
             "date": "2025-10-28 00:00:00",
@@ -227987,7 +227987,7 @@
           {
             "date": "2026-04-23 00:00:00",
             "type": "AR",
-            "level": 96.70947179040742
+            "level": 96.70946336291193
           },
           {
             "date": "2026-05-13 00:00:00",
@@ -243145,7 +243145,7 @@
           "open": 19.72,
           "high": 19.83,
           "low": 19.53,
-          "close": 19.66,
+          "close": 19.67,
           "volume": 341300,
           "vwap": 19.79,
           "swing_high": null,
@@ -243375,7 +243375,7 @@
           "date": "2026-04-21",
           "open": 24.12,
           "high": 24.74,
-          "low": 24.03,
+          "low": 24.04,
           "close": 24.27,
           "volume": 443700,
           "vwap": 24.21,
@@ -256961,7 +256961,7 @@
           {
             "date": "2025-10-03 00:00:00",
             "type": "AR",
-            "level": 30.84262062565862
+            "level": 30.842622554927438
           },
           {
             "date": "2025-10-16 00:00:00",
@@ -259354,7 +259354,7 @@
           "volume": 9200,
           "vwap": 16.02,
           "swing_high": null,
-          "swing_low": 15.89
+          "swing_low": null
         },
         {
           "date": "2026-02-05",
@@ -259365,7 +259365,7 @@
           "volume": 7200,
           "vwap": 16.0,
           "swing_high": null,
-          "swing_low": null
+          "swing_low": 15.89
         },
         {
           "date": "2026-02-06",
@@ -287697,16 +287697,16 @@
         "error": "ARCHModel.fit() got an unexpected keyword argument 'maxiter'"
       },
       "signal": "beli",
-      "score_swing": 60,
+      "score_swing": 90,
       "score_breakdown_swing": {
-        "trend": 0,
+        "trend": 30,
         "wyckoff": 30,
         "vwap": 15,
         "comparative_strength": 15,
         "support_resistance": 0
       },
       "signal_swing": "beli",
-      "trend_swing": "insufficient_data",
+      "trend_swing": "uptrend",
       "support_swing": 38.0,
       "resistance_swing": null,
       "vwap_swing": {
@@ -289775,16 +289775,16 @@
         "error": "ARCHModel.fit() got an unexpected keyword argument 'maxiter'"
       },
       "signal": "beli",
-      "score_swing": 60,
+      "score_swing": 90,
       "score_breakdown_swing": {
-        "trend": 0,
+        "trend": 30,
         "wyckoff": 30,
         "vwap": 15,
         "comparative_strength": 15,
         "support_resistance": 0
       },
       "signal_swing": "beli",
-      "trend_swing": "insufficient_data",
+      "trend_swing": "uptrend",
       "support_swing": 38.0,
       "resistance_swing": null,
       "vwap_swing": {
