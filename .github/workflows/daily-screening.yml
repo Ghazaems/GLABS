@@ -19,7 +19,7 @@ permissions:
 jobs:
   run-screening:
     runs-on: ubuntu-latest
-    timeout-minutes: 30       # 962 ticker butuh waktu, kasih buffer 30 menit
+    timeout-minutes: 15       # yfinance-only + chunking harusnya jauh lebih cepat dari 30 menit lama
     env:
       JARVIS_API_TOKEN: ${{ secrets.JARVIS_API_TOKEN }}
     steps:
