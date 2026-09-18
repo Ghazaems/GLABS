@@ -7,7 +7,6 @@ import json
 from datetime import datetime
 import pandas as pd
 from data.yfinance_fetcher import fetch_batch, fetch_daily
-from data.jarvis_fetcher import get_market_regime
 from screener.trend import trend_structure, support_resistance_levels, find_swing_points
 from screener.wyckoff import analyze_latest_trading_range, comparative_strength
 from screener.vwap import price_vs_vwap, rolling_vwap
@@ -33,16 +32,6 @@ def run_screening():
 
     print("Mengambil data LQ45 untuk comparative strength (pembanding kedua)...")
     lq45 = fetch_daily("^JKLQ45", period="1y")
-
-    print("Mengambil market regime dari Jarvis API (kalau token tersedia)...")
-    jarvis_regime = get_market_regime()
-    if jarvis_regime:
-        print(f"  Jarvis regime: {jarvis_regime}")
-    # Catatan: get_stock_signals_batch() (sinyal per-ticker) sengaja DIHAPUS -
-    # itu manggil API 962x dengan jeda 1.1 detik/request (patuh rate limit
-    # Jarvis), total ~17.6 menit cuma buat data yang sudah tidak dipakai.
-    # Kalau nanti mau dipakai lagi, cache hasilnya (jangan fetch ulang tiap
-    # run) atau cuma query ticker yang masuk weekly-picks Jarvis sendiri.
 
     # ============================================================
     # BATCH VOLATILITY (GARCH paralel) — di luar loop, sekali jalan
@@ -165,12 +154,12 @@ def run_screening():
             "price_history": price_history,
         })
 
-    export_dashboard_json(results, jarvis_regime)
+    export_dashboard_json(results)
     print(f"\nSelesai. {len(results)} ticker diproses.")
     print("Data tersimpan di storage/screener.db dan web/dashboard_data.json")
 
 
-def export_dashboard_json(results: list[dict], jarvis_regime: dict | None = None):
+def export_dashboard_json(results: list[dict]):
     """Tulis ringkasan untuk dikonsumsi dashboard (web/index.html) via fetch()."""
     results_sorted = sorted(results, key=lambda r: r["score"], reverse=True)
     scores = [r["score"] for r in results]
@@ -198,7 +187,6 @@ def export_dashboard_json(results: list[dict], jarvis_regime: dict | None = None
             "score_avg": round(sum(scores) / len(scores), 1) if scores else None,
             "top_pick": top_pick,
             "strongest_accumulation": strongest_accumulation,
-            "jarvis_regime": jarvis_regime,
         },
     }
 
