@@ -27,6 +27,12 @@ def run_screening():
     print(f"Mengambil data untuk {len(tickers)} saham (SELURUH IDX)...")
     price_data = fetch_batch(tickers, period="1y")  # 1y biar TR & event lebih kebentuk
 
+    # Ticker yang gagal difetch sama sekali (bukan yfinance, bukan RTI - dua-duanya
+    # sudah dibuang; ini murni "tidak ada datanya di yfinance").
+    failed_fetch = [t for t in tickers if t not in price_data]
+    print(f"  Coverage fetch: {len(price_data)}/{len(tickers)} berhasil, "
+          f"{len(failed_fetch)} gagal/tidak ada di yfinance.")
+
     print("Mengambil data IHSG untuk comparative strength...")
     ihsg = fetch_daily("^JKSE", period="1y")
 
@@ -42,10 +48,12 @@ def run_screening():
     print(f"  Selesai: {len(vol_results)} ticker dihitung")
 
     results = []
+    insufficient_data = []  # sempat kefetch, tapi datanya terlalu pendek buat dianalisis
 
     for ticker, df in price_data.items():
         if len(df) < 60:
             print(f"[SKIP] {ticker}: data terlalu sedikit ({len(df)} baris)")
+            insufficient_data.append(ticker)
             continue
 
         upsert_prices(ticker, df)
@@ -154,12 +162,21 @@ def run_screening():
             "price_history": price_history,
         })
 
-    export_dashboard_json(results)
+    coverage = {
+        "requested": len(tickers),
+        "success": len(results),
+        "failed_fetch": failed_fetch,
+        "insufficient_data": insufficient_data,
+    }
+
+    export_dashboard_json(results, coverage)
     print(f"\nSelesai. {len(results)} ticker diproses.")
+    print(f"Coverage: {len(results)}/{len(tickers)} sukses, "
+          f"{len(failed_fetch)} gagal fetch, {len(insufficient_data)} data kurang.")
     print("Data tersimpan di storage/screener.db dan web/dashboard_data.json")
 
 
-def export_dashboard_json(results: list[dict]):
+def export_dashboard_json(results: list[dict], coverage: dict | None = None):
     """Tulis ringkasan untuk dikonsumsi dashboard (web/index.html) via fetch()."""
     results_sorted = sorted(results, key=lambda r: r["score"], reverse=True)
     scores = [r["score"] for r in results]
@@ -187,6 +204,7 @@ def export_dashboard_json(results: list[dict]):
             "score_avg": round(sum(scores) / len(scores), 1) if scores else None,
             "top_pick": top_pick,
             "strongest_accumulation": strongest_accumulation,
+            "data_coverage": coverage,
         },
     }
 
