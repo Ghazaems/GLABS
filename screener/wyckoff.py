@@ -284,10 +284,21 @@ def _estimate_phase(events: list[dict], bias: str | None = None) -> str:
 # 4. COMPARATIVE STRENGTH vs IHSG
 # ---------------------------------------------------------------------------
 
+def _as_series(x) -> pd.Series:
+    """
+    Defensif: kadang df['Close'] balik sebagai DataFrame 1 kolom (bukan
+    Series) - misal kalau ada kolom duplikat setelah flatten MultiIndex.
+    Ini yang nyebabin crash 'Data must be 1-dimensional' di comparative_strength.
+    """
+    if isinstance(x, pd.DataFrame):
+        return x.iloc[:, 0]
+    return x
+
+
 def comparative_strength(df: pd.DataFrame, market_df: pd.DataFrame, window: int = 20) -> dict:
     aligned = pd.DataFrame({
-        "stock": df["Close"],
-        "market": market_df["Close"],
+        "stock": _as_series(df["Close"]),
+        "market": _as_series(market_df["Close"]),
     }).dropna()
 
     if len(aligned) < window:
