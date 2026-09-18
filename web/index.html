@@ -790,6 +790,22 @@ html { overflow-x: hidden; }
         </div>
       </div>
 
+      <!-- COVERAGE: ticker yang gagal fetch/data kurang -->
+      <div class="grid" style="grid-template-columns: 1fr; margin-top:0;">
+        <div class="card" style="min-height:auto;">
+          <div class="card-head">
+            <div class="label">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
+              Ticker belum terproses
+            </div>
+            <div class="stamp" id="coverage-stamp"></div>
+          </div>
+          <div class="card-body">
+            <p id="coverage-text" style="word-break:break-word; line-height:2;">Memuat...</p>
+          </div>
+        </div>
+      </div>
+
       <!-- PILLS -->
       <div class="pills">
         <div class="pill"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/></svg>Cek trend</div>
@@ -1435,6 +1451,26 @@ async function loadDashboard() {
   document.getElementById("summary-text").innerHTML =
     `<b>${wl.length} ticker discreening</b> — ${sc.beli||0} beli, ${sc.pantau||0} pantau, ${sc.jual||0} jual. ` +
     `<b>${topName}</b> skor tertinggi di <b>${topScore}</b>.`;
+
+  // Ticker belum terproses (gagal fetch / data kurang) - cuma daftar kode, tanpa analisis apapun.
+  const coverage = s.data_coverage;
+  const covEl = document.getElementById("coverage-text");
+  const covStampEl = document.getElementById("coverage-stamp");
+  if (covEl) {
+    if (!coverage) {
+      covEl.textContent = "Data coverage belum tersedia (jalankan ulang screening setelah update main.py terbaru).";
+    } else {
+      const allFailed = [...(coverage.failed_fetch || []), ...(coverage.insufficient_data || [])];
+      if (!allFailed.length) {
+        covEl.textContent = "Semua ticker berhasil diproses.";
+      } else {
+        covEl.innerHTML = allFailed
+          .map(t => `<span class="badge pantau" style="margin:2px 4px 2px 0; display:inline-block;">${t}</span>`)
+          .join("");
+      }
+      if (covStampEl) covStampEl.textContent = `${allFailed.length} dari ${coverage.requested}`;
+    }
+  }
 
   // Top pick, Sinyal breakdown, Watchlist, Trend structure, VWAP,
   // Distribusi skor, Comparative strength - semua ikut toggle Weekly/Swing,
