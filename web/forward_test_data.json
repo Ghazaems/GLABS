@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-12T13:25:42.047297",
+  "generated_at": "2026-09-18T07:35:19.337304",
   "jenis": "forward_test",
   "catatan": "Ini hasil NYATA (bukan simulasi historis) dari sinyal yang pernah muncul, diukur pakai harga real setelah waktu berjalan. Sampel akan terus bertambah tiap hari cron job jalan. Horizon yang belum cukup waktu (misal sinyal baru muncul 3 hari lalu, horizon 20 hari) belum masuk hitungan sampai waktunya cukup.",
   "total_sampel_matang": 0,
-  "total_sampel_terdaftar": 0,
+  "total_sampel_terdaftar": 1275,
   "horizons_hari_bursa": [
     5,
     10,
@@ -14,5 +14,905 @@
     "10": [],
     "20": []
   },
-  "detail_terbaru": []
+  "detail_terbaru": [
+    {
+      "ticker": "ACES",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 29.43400001525879,
+      "score": 20.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 10.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 10.0
+    },
+    {
+      "ticker": "AGRO",
+      "date": "2026-09-17",
+      "signal": "beli",
+      "entry_price": 11.829999923706055,
+      "score": 60.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 30.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": 15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "AIMS",
+      "date": "2026-09-17",
+      "signal": "jual",
+      "entry_price": 27.31999969482422,
+      "score": -65.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": -5.0
+    },
+    {
+      "ticker": "ALTO",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 4.019999980926514,
+      "score": -25.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 5.0
+    },
+    {
+      "ticker": "AMAN",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 10.649999618530273,
+      "score": -30.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "ARKO",
+      "date": "2026-09-17",
+      "signal": "jual",
+      "entry_price": 4.340000152587891,
+      "score": -60.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": -30.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "ASPI",
+      "date": "2026-09-17",
+      "signal": "jual",
+      "entry_price": 3.244999885559082,
+      "score": -90.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": -30.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "BALI",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 34.369998931884766,
+      "score": -35.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": -10.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 5.0
+    },
+    {
+      "ticker": "BBCA",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 104.16999816894531,
+      "score": -10.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": 10.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 10.0
+    },
+    {
+      "ticker": "BCIC",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 7.070000171661377,
+      "score": 35.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 30.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 5.0
+    },
+    {
+      "ticker": "BESS",
+      "date": "2026-09-17",
+      "signal": "jual",
+      "entry_price": 2.8399999141693115,
+      "score": -50.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": -30.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 10.0
+    },
+    {
+      "ticker": "BIPI",
+      "date": "2026-09-17",
+      "signal": "jual",
+      "entry_price": 16.0,
+      "score": -55.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 5.0
+    },
+    {
+      "ticker": "BIRD",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 2.440000057220459,
+      "score": 30.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": 15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "BLES",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 48.75,
+      "score": 15.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 30.0,
+      "comp_wyckoff": 10.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 5.0
+    },
+    {
+      "ticker": "BOAT",
+      "date": "2026-09-17",
+      "signal": "beli",
+      "entry_price": 53.43000030517578,
+      "score": 90.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 30.0,
+      "comp_wyckoff": 30.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": 15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "BOLT",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 3.3450000286102295,
+      "score": 30.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 30.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": 15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "BSBK",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 9.109999656677246,
+      "score": -5.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": -10.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 5.0
+    },
+    {
+      "ticker": "BULL",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 7.710000038146973,
+      "score": -30.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 30.0,
+      "comp_wyckoff": -30.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "CAMP",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 4.03000020980835,
+      "score": -20.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 10.0
+    },
+    {
+      "ticker": "CARE",
+      "date": "2026-09-17",
+      "signal": "jual",
+      "entry_price": 30.469999313354492,
+      "score": -50.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 10.0
+    },
+    {
+      "ticker": "CARS",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 11.350000381469727,
+      "score": -30.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "CASH",
+      "date": "2026-09-17",
+      "signal": "jual",
+      "entry_price": 77.4800033569336,
+      "score": -40.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": 10.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 10.0
+    },
+    {
+      "ticker": "CASS",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 55.470001220703125,
+      "score": 5.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 5.0
+    },
+    {
+      "ticker": "CBRE",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 139.32000732421875,
+      "score": -10.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 10.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 10.0
+    },
+    {
+      "ticker": "CENT",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 40.4900016784668,
+      "score": 0.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": -10.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 10.0
+    },
+    {
+      "ticker": "CINT",
+      "date": "2026-09-17",
+      "signal": "jual",
+      "entry_price": 3.140000104904175,
+      "score": -60.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "CNTX",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 0.382999986410141,
+      "score": -30.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "COAL",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 25.801000595092773,
+      "score": 10.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 30.0,
+      "comp_wyckoff": 10.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "COCO",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 56.2400016784668,
+      "score": -30.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "CPRI",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 14.949999809265137,
+      "score": -20.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": -30.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": 15.0,
+      "comp_support_resistance": 10.0
+    },
+    {
+      "ticker": "CPRO",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 28.510000228881836,
+      "score": -5.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 30.0,
+      "comp_wyckoff": -10.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 5.0
+    },
+    {
+      "ticker": "DRMA",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 1.159999966621399,
+      "score": 15.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 20.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": -5.0
+    },
+    {
+      "ticker": "EDGE",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 51.62699890136719,
+      "score": -5.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": -10.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 5.0
+    },
+    {
+      "ticker": "EPAC",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 35.599998474121094,
+      "score": 30.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 30.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "ESTA",
+      "date": "2026-09-17",
+      "signal": "jual",
+      "entry_price": 69.55999755859375,
+      "score": -50.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": 10.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "FAST",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 49.18000030517578,
+      "score": -20.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 10.0
+    },
+    {
+      "ticker": "GDST",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 12.5,
+      "score": -15.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": 0.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "GLOB",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 37.72999954223633,
+      "score": -20.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 10.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "GOLD",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 46.869998931884766,
+      "score": -20.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": -20.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": 15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "GOLF",
+      "date": "2026-09-17",
+      "signal": "jual",
+      "entry_price": 81.55000305175781,
+      "score": -50.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": 10.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "GOOD",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 12.75,
+      "score": -5.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 30.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": -5.0
+    },
+    {
+      "ticker": "HALO",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 109.68000030517578,
+      "score": 15.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": -10.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": 15.0,
+      "comp_support_resistance": -5.0
+    },
+    {
+      "ticker": "HEAL",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 29.450000762939453,
+      "score": 15.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 30.0,
+      "comp_wyckoff": -10.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": -5.0
+    },
+    {
+      "ticker": "HERO",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 27.229999542236328,
+      "score": 5.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 30.0,
+      "comp_wyckoff": 10.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": -5.0
+    },
+    {
+      "ticker": "HOPE",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 13.9399995803833,
+      "score": -35.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": -10.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 5.0
+    },
+    {
+      "ticker": "ICON",
+      "date": "2026-09-17",
+      "signal": "beli",
+      "entry_price": 1.0800000429153442,
+      "score": 55.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 30.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": 15.0,
+      "comp_support_resistance": -5.0
+    },
+    {
+      "ticker": "INCO",
+      "date": "2026-09-17",
+      "signal": "jual",
+      "entry_price": 59.81999969482422,
+      "score": -45.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": -10.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": -5.0
+    },
+    {
+      "ticker": "INDO",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 2.890000104904175,
+      "score": 10.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 30.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 10.0
+    },
+    {
+      "ticker": "INDY",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 42.13999938964844,
+      "score": 10.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 10.0
+    },
+    {
+      "ticker": "INOV",
+      "date": "2026-09-17",
+      "signal": "pantau",
+      "entry_price": 37.52299880981445,
+      "score": -15.0,
+      "returns": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": -10.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": -5.0
+    }
+  ],
+  "ic": {
+    "horizons": [
+      5,
+      10,
+      20
+    ],
+    "composite": {
+      "5": null,
+      "10": null,
+      "20": null
+    },
+    "components": {
+      "trend": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "wyckoff": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "vwap": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "comparative_strength": {
+        "5": null,
+        "10": null,
+        "20": null
+      },
+      "support_resistance": {
+        "5": null,
+        "10": null,
+        "20": null
+      }
+    },
+    "winrate": {
+      "5": null,
+      "10": null,
+      "20": null
+    },
+    "expectancy": {
+      "5": null,
+      "10": null,
+      "20": null
+    }
+  }
 }
