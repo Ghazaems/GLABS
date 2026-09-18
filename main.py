@@ -1,4 +1,3 @@
-
 """
 Pipeline screening harian — SELURUH 962 TICKER IDX.
 Jalankan manual: python main.py
@@ -8,7 +7,7 @@ import json
 from datetime import datetime
 import pandas as pd
 from data.yfinance_fetcher import fetch_batch, fetch_daily
-from data.jarvis_fetcher import get_market_regime, get_stock_signals_batch
+from data.jarvis_fetcher import get_market_regime
 from screener.trend import trend_structure, support_resistance_levels, find_swing_points
 from screener.wyckoff import analyze_latest_trading_range, comparative_strength
 from screener.vwap import price_vs_vwap, rolling_vwap
@@ -35,12 +34,15 @@ def run_screening():
     print("Mengambil data LQ45 untuk comparative strength (pembanding kedua)...")
     lq45 = fetch_daily("^JKLQ45", period="1y")
 
-    print("Mengambil market regime & sinyal dari Jarvis API (kalau token tersedia)...")
+    print("Mengambil market regime dari Jarvis API (kalau token tersedia)...")
     jarvis_regime = get_market_regime()
-    jarvis_signals = get_stock_signals_batch(tickers)
     if jarvis_regime:
         print(f"  Jarvis regime: {jarvis_regime}")
-    print(f"  Jarvis signal ditemukan untuk {len(jarvis_signals)}/{len(tickers)} ticker")
+    # Catatan: get_stock_signals_batch() (sinyal per-ticker) sengaja DIHAPUS -
+    # itu manggil API 962x dengan jeda 1.1 detik/request (patuh rate limit
+    # Jarvis), total ~17.6 menit cuma buat data yang sudah tidak dipakai.
+    # Kalau nanti mau dipakai lagi, cache hasilnya (jangan fetch ulang tiap
+    # run) atau cuma query ticker yang masuk weekly-picks Jarvis sendiri.
 
     # ============================================================
     # BATCH VOLATILITY (GARCH paralel) — di luar loop, sekali jalan
@@ -137,11 +139,6 @@ def run_screening():
         print(f"  vs IHSG         : {cs.get('relative_strength_trend', '-')}")
         print(f"  vs LQ45         : {cs_lq45.get('relative_strength_trend', '-')}")
 
-        # 7. Sinyal Jarvis
-        jarvis_signal = jarvis_signals.get(ticker)
-        if jarvis_signal:
-            print(f"  Jarvis signal   : {jarvis_signal}")
-
         results.append({
             "ticker": ticker,
             "last_close": round(float(df["Close"].iloc[-1]), 2),
@@ -166,7 +163,6 @@ def run_screening():
             "comparative_strength_swing": cs_swing,
             "comparative_strength_lq45_swing": cs_lq45_swing,
             "price_history": price_history,
-            "jarvis_signal": jarvis_signal,
         })
 
     export_dashboard_json(results, jarvis_regime)
