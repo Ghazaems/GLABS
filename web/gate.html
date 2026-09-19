@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -609,6 +610,7 @@ body.is-unlocked .unlocked { opacity: 1; visibility: visible; transition: opacit
     });
   }
   function verdictOk() {
+    try { sessionStorage.setItem('gk_ok', '1'); } catch (e) {} // tanda "tab ini sudah buka"
     orbit.classList.add('is-ok');
     setTimeout(function () { body.classList.add('is-unlocked'); }, 650);
     setTimeout(function () { location.replace('/'); }, 1250);
