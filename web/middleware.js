@@ -44,7 +44,8 @@ export default async function middleware(request) {
   const path = url.pathname;
 
   if (await hasSession(request)) {
-    if (path === "/gate.html" || path === "/gate") {
+    // ?relock=1 = tab baru diminta memasukkan kode lagi (cookie tetap, tab lain tidak terganggu)
+    if ((path === "/gate.html" || path === "/gate") && !url.searchParams.has("relock")) {
       return new Response(null, { status: 307, headers: { location: "/", ...NO_STORE } });
     }
     return new Response(null, { headers: { "x-middleware-next": "1" } }); // lanjut
