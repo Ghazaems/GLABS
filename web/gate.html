@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Morning Mate — GLABS</title>
+<meta name="theme-color" content="#000000">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='white'/%3E%3Ctext x='12' y='16.4' font-family='Arial,sans-serif' font-weight='700' font-size='12' text-anchor='middle' fill='black'%3EM%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900&family=Instrument+Serif:ital@1&display=swap">
+<style>
+html, body { background: #000000 !important; color: #ffffff; }
+
+:root {
+  --bg: #000000;
+  --text: #ffffff;
+  --muted: #9a9a9a;
+  --stat: #d8d8d8;
+  --border: rgba(255, 255, 255, 0.16);
+
+  /* light = attention, colour = verdict */
+  --ice: #dceaff;
+  --ok: #2ee6a8;
+  --bad: #ff4d6a;
+
+  --logo: 15.5px;
+  --brand: 15px;
+  --btn: 13.5px;
+  --btn-h: 40px;
+  --btn-pad: 16px;
+  --hero-btn-h: 42px;
+  --hero-btn-pad: 18px;
+  --otp-title: 32px;
+  --otp-desc: 15px;
+  --panel-w: 460px;
+  --panel-pad: 44px 36px 34px;
+  --slot: 76px;
+  --R: 88px;
+  --card-font: 28px;
+  --row-mt: 26px;
+  --stat-size: 13.5px;
+  --header-y: 22px;
+  --header-x: 40px;
+  --stats-x: 72px;
+  --stats-y: 36px;
+  --icon: 20px;
+  --wide-w: 38px;
+  --wide-h: 21px;
+  --ui: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --serif: "Instrument Serif", "Times New Roman", Times, serif;
+}
+
+html, body {
+  background: #000000;
+  background: var(--bg, #000000);
+  color: #ffffff;
+  color: var(--text, #ffffff);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--ui);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  position: relative;
+}
+a { color: inherit; text-decoration: none; }
+button, input { font-family: inherit; }
+
+/* ---------- Layers ---------- */
+.grain {
+  position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.hero-photo { position: fixed; inset: 0; z-index: 0; background: #000; overflow: hidden; }
+.hero-video {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; opacity: 1; pointer-events: none;
+}
+.hero-photo::after { content: ""; position: absolute; inset: 0; background: transparent; pointer-events: none; }
+
+.page {
+  position: relative; z-index: 1;
+  display: grid; grid-template-rows: auto 1fr auto;
+  min-height: 100vh; min-height: 100dvh;
+}
+
+/* ---------- Header ---------- */
+.header {
+  position: relative; z-index: 50;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  padding: var(--header-y) var(--header-x) 10px;
+}
+.logo {
+  display: inline-flex; align-items: center; justify-self: start;
+  font-size: var(--logo); font-weight: 600; letter-spacing: -0.03em; color: #fff;
+}
+.logo-suffix { font-weight: 400; }
+.brand-center {
+  justify-self: center;
+  font-size: var(--brand); font-weight: 600; letter-spacing: 0.02em; color: #f3f3f3;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  position: relative; isolation: isolate; overflow: hidden;
+  display: inline-flex; align-items: center; justify-content: center;
+  height: var(--btn-h); padding: 0 var(--btn-pad); border-radius: 6px;
+  font-size: var(--btn); font-weight: 500; letter-spacing: -0.02em; line-height: 1;
+  white-space: nowrap; cursor: pointer;
+  transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, color 0.35s ease, filter 0.35s ease;
+}
+.btn::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(115deg, transparent 20%, rgba(255,255,255,0.45) 48%, transparent 76%);
+  transform: translateX(-130%); transition: transform 0.65s ease;
+}
+.btn:hover::after { transform: translateX(130%); }
+.btn-ghost {
+  background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(0,0,0,0.5) 46%, rgba(150,170,200,0.1));
+  color: #fff; border: 1px solid rgba(198, 198, 198, 0.55);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+}
+.btn-ghost:hover {
+  background: linear-gradient(135deg, rgba(210,225,255,0.18), rgba(0,0,0,0.35) 48%, rgba(180,195,220,0.16));
+  border-color: rgba(220, 230, 255, 0.8);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 0 24px rgba(170,200,255,0.28);
+}
+.hero-btn { height: var(--hero-btn-h); padding: 0 var(--hero-btn-pad); }
+
+/* ---------- Hero: orbit access code, centered ---------- */
+.hero {
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px 24px; min-height: 0;
+}
+.hero-copy {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  width: 100%;
+}
+.otp {
+  position: relative;
+  width: 100%; max-width: var(--panel-w); padding: var(--panel-pad);
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg, rgba(22,22,22,0.62), rgba(6,6,6,0.74));
+  -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 30px 80px rgba(0,0,0,0.5);
+}
+.otp::before {
+  content: ""; position: absolute; top: 13px; left: calc(50% - 21px);
+  width: 42px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.18);
+}
+.otp-title {
+  font-size: var(--otp-title); font-weight: 500; letter-spacing: -0.045em; line-height: 1.12; color: #fff;
+}
+.otp-title em {
+  font-family: var(--serif); font-style: italic; font-weight: 400;
+  font-size: 1.08em; letter-spacing: -0.03em; color: #9a9a9a;
+  animation: in-em 1.2s 0.72s both;
+}
+.otp-desc {
+  max-width: 340px; margin-top: 12px;
+  color: #9a9a9a; font-size: var(--otp-desc); line-height: 1.55; letter-spacing: -0.015em;
+}
+
+/* the orbit: four slots on a dotted ring around a hub */
+.orbit {
+  position: relative; flex: none;
+  width: calc(var(--R) * 2 + var(--slot)); height: calc(var(--R) * 2 + var(--slot));
+  max-width: 100%;
+  margin-top: var(--row-mt);
+}
+.orbit__ring {
+  position: absolute; left: calc(50% - var(--R)); top: calc(50% - var(--R));
+  width: calc(var(--R) * 2); height: calc(var(--R) * 2); overflow: visible; pointer-events: none;
+}
+/* dotted on purpose: a solid ring at this size reads as a loading spinner */
+.orbit__path {
+  fill: none; stroke: rgba(198, 198, 198, 0.5);
+  stroke-dasharray: 2 8; stroke-width: 1.5; stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  transition: stroke 0.3s ease;
+}
+.orbit__hub {
+  position: absolute; left: 50%; top: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%; background: rgba(255,255,255,0.85);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.orbit.is-checking .orbit__hub { animation: hub 0.8s ease-in-out; }
+@keyframes hub { 50% { transform: scale(2.4); box-shadow: 0 0 14px rgba(220,234,255,0.8); } }
+
+.slot {
+  position: absolute; display: block;
+  width: var(--slot); height: var(--slot);
+  left: calc(50% + var(--dx) - var(--slot) / 2);
+  top: calc(50% + var(--dy) - var(--slot) / 2);
+  animation: unfold 0.95s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0.7s) backwards;
+}
+.slot--0 { --dx: 0px; --dy: calc(var(--R) * -1); }
+.slot--1 { --dx: var(--R); --dy: 0px; }
+.slot--2 { --dx: 0px; --dy: var(--R); }
+.slot--3 { --dx: calc(var(--R) * -1); --dy: 0px; }
+@keyframes unfold {
+  from { opacity: 0; transform: translate(calc(var(--dx) * -1), calc(var(--dy) * -1)) scale(0.35); }
+  to   { opacity: 1; transform: none; }
+}
+
+.otp-card {
+  display: block; width: 100%; height: 100%; padding: 0;
+  border-radius: 20px; outline: none; text-align: center;
+  background-color: #0d0d0e; /* solid base: hides the dotted ring behind each card */
+  background-image: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(0,0,0,0.5) 46%, rgba(150,170,200,0.1));
+  border: 1px solid rgba(198, 198, 198, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+  color: #fff; font-size: var(--card-font); font-weight: 500; letter-spacing: 0;
+  caret-color: var(--ice);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease, scale 0.2s ease;
+}
+.otp-card:disabled { opacity: 1; cursor: default; -webkit-text-fill-color: currentColor; }
+.otp-card.filled { border-color: rgba(220, 234, 255, 0.6); }
+.otp-card:focus {
+  border-color: var(--ice);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 0 22px rgba(220,234,255,0.34);
+  scale: 1.06;
+}
+.orbit.is-checking .otp-card { border-color: rgba(220, 234, 255, 0.85); }
+
+/* verdicts are the only place colour appears */
+.orbit.is-ok .otp-card {
+  border-color: var(--ok); color: var(--ok);
+  background-image: linear-gradient(135deg, rgba(46,230,168,0.2), rgba(0,0,0,0.45) 55%, rgba(46,230,168,0.08));
+  box-shadow: inset 0 1px 0 rgba(46,230,168,0.35), 0 0 28px rgba(46,230,168,0.4);
+}
+.orbit.is-ok .orbit__path { stroke: var(--ok); }
+.orbit.is-ok .orbit__hub { background: var(--ok); box-shadow: 0 0 12px var(--ok); }
+.orbit.is-bad .otp-card {
+  border-color: var(--bad); color: var(--bad);
+  background-image: linear-gradient(135deg, rgba(255,77,106,0.2), rgba(0,0,0,0.45) 55%, rgba(255,77,106,0.08));
+  box-shadow: inset 0 1px 0 rgba(255,77,106,0.3), 0 0 26px rgba(255,77,106,0.35);
+}
+.orbit.is-bad .orbit__path { stroke: var(--bad); }
+.orbit.is-bad .orbit__hub { background: var(--bad); box-shadow: 0 0 12px var(--bad); }
+.orbit.shake { animation: shake 0.42s ease; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(7px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(3px); }
+}
+.gate-msg {
+  min-height: 20px; margin-top: 18px;
+  color: var(--bad); font-size: 13px; letter-spacing: -0.01em;
+  opacity: 0; transition: opacity 0.25s ease;
+}
+.gate-msg.show { opacity: 1; }
+.otp-foot { margin-top: 18px; color: #9a9a9a; font-size: 13px; letter-spacing: -0.01em; }
+
+/* ---------- Stats ---------- */
+.stats {
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  padding: 0 var(--stats-x) var(--stats-y);
+  padding-bottom: max(var(--stats-y), env(safe-area-inset-bottom));
+  color: #d8d8d8;
+}
+.stat {
+  display: inline-flex; align-items: center; gap: 14px;
+  font-size: var(--stat-size); letter-spacing: -0.015em; white-space: nowrap;
+}
+.stat-icon { width: var(--icon); height: var(--icon); flex: none; color: #e8e8e8; }
+.stat-icon-wide { width: var(--wide-w); height: var(--wide-h); flex: none; }
+
+/* ---------- Unlocked panel (placeholder for the real dashboard) ---------- */
+.unlocked {
+  position: fixed; inset: 0; z-index: 2;
+  display: grid; place-items: center; text-align: center; padding: 24px;
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.7s ease 0.15s, visibility 0s 0.85s;
+}
+.unlocked-inner { display: flex; flex-direction: column; align-items: center; gap: 14px; max-width: 420px; }
+.unlocked svg { width: 40px; height: 40px; }
+.unlocked h2 { font-size: 26px; font-weight: 500; letter-spacing: -0.04em; }
+.unlocked p { color: #9a9a9a; font-size: 15px; line-height: 1.55; letter-spacing: -0.015em; margin-bottom: 8px; }
+body.is-unlocked .hero-photo { opacity: 0; transition: opacity 0.6s ease; }
+body.is-unlocked .page { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.6s ease, visibility 0s 0.6s; }
+body.is-unlocked .unlocked { opacity: 1; visibility: visible; transition: opacity 0.7s ease 0.15s, visibility 0s; }
+
+/* ---------- Entrance motion ---------- */
+.appear {
+  animation-duration: 1.05s;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-delay: var(--d, 0.08s);
+}
+.appear--scale { animation-name: in-scale; }
+.appear--soft  { animation-name: in-soft; }
+.appear--pop   { animation-name: in-pop; }
+.appear--stat  { animation-name: in-stat; }
+.appear.is-in, .hero-photo.is-in {
+  animation: none; opacity: 1; transform: none; clip-path: none; filter: none;
+}
+@keyframes in-scale { from { opacity: 0; transform: scale(0.84); } to { opacity: 1; transform: scale(1); } }
+@keyframes in-soft  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes in-pop   { 0% { opacity: 0; transform: scale(0.9); } 70% { opacity: 1; transform: scale(1.03); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes in-stat  { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+@keyframes in-em    { from { opacity: 0.35; filter: blur(4px); } to { opacity: 1; filter: blur(0); } }
+
+/* ---------- Responsive ---------- */
+@media (min-width: 1280px) and (max-width: 1599px) {
+  :root { --header-x: 48px; --stats-x: 80px; }
+}
+@media (min-width: 1600px) {
+  :root {
+    --logo: 17px; --brand: 16px; --btn: 15px; --btn-h: 44px; --hero-btn-h: 48px;
+    --otp-title: 38px; --otp-desc: 16px; --panel-w: 520px; --slot: 88px; --R: 102px; --card-font: 32px;
+    --stat-size: 15px; --header-y: 28px; --header-x: 64px; --stats-x: 96px; --stats-y: 44px;
+    --icon: 22px; --wide-w: 45px; --wide-h: 24px;
+  }
+}
+@media (min-width: 1920px) {
+  :root {
+    --logo: 18px; --brand: 17px; --btn: 16px; --btn-h: 48px; --btn-pad: 22px; --hero-btn-h: 52px; --hero-btn-pad: 22px;
+    --otp-title: 44px; --otp-desc: 18px; --panel-w: 580px; --slot: 100px; --R: 116px; --card-font: 36px;
+    --stat-size: 16px; --header-y: 32px; --header-x: 80px; --stats-x: 120px; --stats-y: 52px;
+    --wide-w: 48px; --wide-h: 26px;
+  }
+}
+@media (min-width: 2560px) {
+  :root { --otp-title: 52px; --panel-w: 680px; --slot: 124px; --R: 140px; --card-font: 44px; --header-x: 120px; --stats-x: 160px; }
+}
+@media (min-width: 901px) and (max-width: 1279px) {
+  :root {
+    --logo: 15px; --brand: 14px; --btn: 13px; --btn-h: 38px; --hero-btn-h: 40px;
+    --otp-title: 30px; --slot: 68px; --R: 78px; --card-font: 25px;
+    --stat-size: 12.5px; --header-y: 16px; --header-x: 28px; --stats-x: 36px; --stats-y: 28px;
+  }
+}
+@media (min-width: 901px) and (max-height: 850px) {
+  :root { --header-y: 14px; --stats-y: 24px; --panel-pad: 38px 32px 26px; --row-mt: 20px; --slot: 62px; --R: 72px; --card-font: 24px; --otp-title: 28px; }
+}
+@media (min-width: 901px) and (max-height: 720px) {
+  :root { --stats-y: 18px; --panel-pad: 30px 28px 20px; --row-mt: 14px; --slot: 52px; --R: 60px; --card-font: 20px; --otp-title: 24px; --otp-desc: 14px; --btn-h: 34px; --hero-btn-h: 36px; }
+}
+@media (min-width: 901px) {
+  html, body { height: 100%; overflow: hidden; }
+  .page { height: 100vh; height: 100dvh; overflow: hidden; }
+}
+
+@media (max-width: 900px) {
+  :root {
+    --logo: 16px; --brand: 14px; --btn: 15px; --btn-h: 46px; --hero-btn-h: 48px;
+    --otp-title: 28px; --slot: 64px; --R: 74px; --card-font: 24px;
+    --stat-size: 15px; --header-y: 18px; --header-x: 16px; --stats-x: 20px; --stats-y: 28px;
+    --panel-pad: 40px 20px 28px; --row-mt: 22px;
+  }
+  html, body { height: auto; overflow-y: auto; }
+  .page { height: auto; }
+  .header {
+    padding-top: max(var(--header-y), env(safe-area-inset-top));
+    padding-left: max(var(--header-x), env(safe-area-inset-left));
+    padding-right: max(var(--header-x), env(safe-area-inset-right));
+  }
+  .hero { padding: 24px 20px 40px; }
+  .stats { flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+  .stat { white-space: normal; }
+}
+@media (max-width: 380px) {
+  :root { --slot: 56px; --R: 64px; --card-font: 21px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+  .appear, .hero-photo, .otp-title em {
+    opacity: 1; transform: none; clip-path: none; filter: none;
+  }
+}
+</style>
+</head>
+<body style="background:#000;color:#fff">
+
+<div class="grain" aria-hidden="true"></div>
+<div class="hero-photo" aria-hidden="true">
+  <video class="hero-video" autoplay muted loop playsinline preload="auto" disablepictureinpicture disableremoteplayback aria-hidden="true" tabindex="-1">
+    <source src="hero.mp4" type="video/mp4">
+    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260818_072341_50851634-bbc3-4c33-9acc-7647d4db44aa.mp4" type="video/mp4">
+  </video>
+</div>
+
+<div class="page">
+  <header class="header">
+    <a class="logo appear appear--scale" href="#top" aria-label="Morning Mate" style="--d:0.08s">
+      <span>Morning <span class="logo-suffix">Mate</span></span>
+    </a>
+    <div class="brand-center appear appear--scale" style="--d:0.16s">GLABS</div>
+    <div aria-hidden="true"></div>
+  </header>
+
+  <main class="hero" id="top">
+    <div class="hero-copy">
+      <section class="otp appear appear--pop" id="otp" style="--d:0.22s" aria-labelledby="otp-title">
+        <h1 class="otp-title" id="otp-title">Masukkan <em>kode akses</em></h1>
+        <p class="otp-desc">Ketik 4 karakter kode akses untuk membuka Morning Mate.</p>
+
+        <div class="orbit" id="orbit" role="group" aria-label="Kode akses 4 karakter">
+          <svg class="orbit__ring appear appear--soft" viewBox="0 0 100 100" aria-hidden="true" style="--d:0.5s">
+            <circle class="orbit__path" cx="50" cy="50" r="50"/>
+          </svg>
+          <span class="orbit__hub appear appear--pop" aria-hidden="true" style="--d:0.6s"></span>
+
+          <label class="slot slot--0" style="--d:0.70s"><input class="otp-card" type="password" maxlength="1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Karakter 1 dari 4"></label>
+          <label class="slot slot--1" style="--d:0.80s"><input class="otp-card" type="password" maxlength="1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Karakter 2 dari 4"></label>
+          <label class="slot slot--2" style="--d:0.90s"><input class="otp-card" type="password" maxlength="1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Karakter 3 dari 4"></label>
+          <label class="slot slot--3" style="--d:1.00s"><input class="otp-card" type="password" maxlength="1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Karakter 4 dari 4"></label>
+        </div>
+
+        <p class="gate-msg" id="gate-msg" role="alert" aria-live="polite">Kode salah. Coba lagi.</p>
+      </section>
+      <p class="otp-foot appear appear--soft" style="--d:1.15s">Tidak ada jalan masuk lain. awokawok</p>
+    </div>
+  </main>
+
+  <footer class="stats">
+    <div class="stat appear appear--stat" style="--d:1.12s">
+      <svg class="stat-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <defs>
+          <linearGradient id="gA" x1="3" y1="2" x2="14" y2="22" gradientUnits="userSpaceOnUse">
+            <stop offset="0.38" stop-color="#ffffff"/><stop offset="0.62" stop-color="#3a3a3a"/>
+          </linearGradient>
+          <linearGradient id="gB" x1="3" y1="2" x2="14" y2="22" gradientUnits="userSpaceOnUse">
+            <stop offset="0.38" stop-color="#3a3a3a"/><stop offset="0.62" stop-color="#ffffff"/>
+          </linearGradient>
+        </defs>
+        <rect x="3.4" y="2.6" width="7.2" height="18.8" rx="3.6" fill="url(#gA)"/>
+        <rect x="13.4" y="2.6" width="7.2" height="18.8" rx="3.6" fill="url(#gB)"/>
+        <rect x="9.2" y="10.9" width="5.6" height="2.2" rx="1.1" fill="#4a4a4a"/>
+      </svg>
+      <span>Backtest 3 tahun data historis</span>
+    </div>
+
+    <div class="stat appear appear--stat" style="--d:1.28s">
+      <svg class="stat-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="2.4" y="2.4" width="19.2" height="19.2" rx="6.2" fill="#ffffff"/>
+        <path d="M7 15.2l3.3-3.5 2.6 2.2L17 9.4M13.6 9.4H17v3.4" fill="none" stroke="#111" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Forward test hasil 20 hari bursa</span>
+    </div>
+
+    <div class="stat appear appear--stat" style="--d:1.44s">
+      <svg class="stat-icon-wide" viewBox="0 0 40 22" aria-hidden="true">
+        <circle cx="10.2" cy="11" r="9.2" fill="#2b2b2b" stroke="#000" stroke-width="1"/>
+        <text x="10.2" y="15.1" font-family="Inter, system-ui, sans-serif" font-weight="700" font-size="11.5" text-anchor="middle" fill="#ffffff">T</text>
+        <circle cx="20.2" cy="11" r="9.2" fill="#ffffff" stroke="#000" stroke-width="1"/>
+        <text x="20.2" y="15.1" font-family="Inter, system-ui, sans-serif" font-weight="700" font-size="11.5" text-anchor="middle" fill="#111">W</text>
+        <circle cx="30.2" cy="11" r="9.2" fill="#f26b1d" stroke="#000" stroke-width="1"/>
+        <text x="30.2" y="15.1" font-family="Inter, system-ui, sans-serif" font-weight="700" font-size="11.5" text-anchor="middle" fill="#ffffff">V</text>
+      </svg>
+      <span>3 sinyal: Trend, Wyckoff, VWAP</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var body = document.body;
+  var appear = [].slice.call(document.querySelectorAll('.appear'));
+  var photo = document.querySelector('.hero-photo');
+  var animated = appear.concat(photo ? [photo] : []);
+
+  // Each animated element adds .is-in on its own animationend
+  animated.forEach(function (el) {
+    function done(e) {
+      if (e.target !== el) return;
+      el.classList.add('is-in');
+      el.removeEventListener('animationend', done);
+    }
+    el.addEventListener('animationend', done);
+  });
+
+  // Fallback: if animations are not running after two rAFs, force the resting state
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      var probe = appear[0];
+      var ok = !!(probe && probe.getAnimations && probe.getAnimations().some(function (a) {
+        return a.playState === 'running' || a.playState === 'finished';
+      }));
+      if (!ok) animated.forEach(function (el) { el.classList.add('is-in'); });
+    });
+  });
+
+  // ---------- Background video ----------
+  var vid = document.querySelector('.hero-video');
+  if (vid) {
+    vid.muted = true;
+    vid.defaultMuted = true;
+    var wantsReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var play = function () {
+      var p = vid.play();
+      if (p && p.catch) p.catch(function () {});
+    };
+    if (wantsReduce) {
+      vid.removeAttribute('autoplay');
+      vid.pause();
+    } else {
+      play();
+      // Low Power Mode / strict autoplay policies: start on the first touch, click or key press
+      var kick = function () {
+        if (vid.paused) play();
+        ['pointerdown', 'touchstart', 'keydown'].forEach(function (ev) { document.removeEventListener(ev, kick); });
+      };
+      ['pointerdown', 'touchstart', 'keydown'].forEach(function (ev) {
+        document.addEventListener(ev, kick, { passive: true });
+      });
+    }
+  }
+
+  // ---------- Orbit access code (checked on the server: POST /api/unlock) ----------
+  var WIND_UP_BRAKE = 'cubic-bezier(0.55, -0.35, 0.15, 1)'; // pulls back, whips round, brakes
+  var SPIN_MS = 800;
+
+  var orbit = document.getElementById('orbit');
+  var panel = document.getElementById('otp');
+  var slots = [].slice.call(document.querySelectorAll('.slot'));
+  var cards = [].slice.call(document.querySelectorAll('.otp-card'));
+  var msg = document.getElementById('gate-msg');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var busy = false;
+  var maskTimers = [];
+  var spinAnims = [];
+
+  function value() { return cards.map(function (c) { return c.value; }).join(''); }
+  function full() { return cards.every(function (c) { return c.value; }); }
+  function clearMsg() { orbit.classList.remove('is-bad'); msg.classList.remove('show'); }
+  function focusCard(i) {
+    var c = cards[Math.max(0, Math.min(cards.length - 1, i))];
+    c.focus();
+    c.select();
+  }
+  // show the typed character briefly, then mask it
+  function reveal(i) {
+    var c = cards[i];
+    c.type = 'text';
+    clearTimeout(maskTimers[i]);
+    maskTimers[i] = setTimeout(function () { c.type = 'password'; }, 600);
+  }
+  function reset() {
+    spinAnims.forEach(function (a) { a.cancel(); });
+    spinAnims = [];
+    slots.forEach(function (s) { s.style.transformOrigin = ''; });
+    cards.forEach(function (c, i) {
+      clearTimeout(maskTimers[i]);
+      c.value = '';
+      c.type = 'password';
+      c.disabled = false;
+      c.classList.remove('filled');
+    });
+    orbit.classList.remove('is-ok', 'is-bad', 'is-checking');
+  }
+
+  // Move each slot's origin to the hub: a plain rotate() then draws an exact circle.
+  // The card face counter-rotates so the character stays upright.
+  function spin() {
+    if (reduce || !slots[0].animate) {
+      return new Promise(function (res) { setTimeout(res, 250); });
+    }
+    var hubX = orbit.clientWidth / 2;
+    var hubY = orbit.clientHeight / 2;
+    slots.forEach(function (slot, i) {
+      slot.style.transformOrigin = (hubX - slot.offsetLeft) + 'px ' + (hubY - slot.offsetTop) + 'px';
+      var opts = { duration: SPIN_MS, easing: WIND_UP_BRAKE, fill: 'forwards' };
+      spinAnims.push(
+        slot.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(450deg)' }], opts),
+        cards[i].animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(-450deg)' }], opts)
+      );
+    });
+    return spinAnims[0].finished.catch(function () {});
+  }
+
+  function check() {
+    return fetch('/api/unlock', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ code: value() })
+    }).then(function (r) {
+      if (r.ok) return { ok: true };
+      if (r.status === 401) return { ok: false, text: 'Kode salah. Coba lagi.' };
+      return { ok: false, text: 'Server bermasalah (' + r.status + '). Coba lagi.' };
+    }).catch(function () {
+      return { ok: false, text: 'Tidak bisa terhubung. Coba lagi.' };
+    });
+  }
+  function submit() {
+    if (busy) return;
+    busy = true;
+    cards.forEach(function (c) { c.blur(); c.disabled = true; });
+    orbit.classList.add('is-checking');
+    // the ring spins while the server answers; the verdict lands when both are done
+    Promise.all([spin(), check()]).then(function (r) {
+      orbit.classList.remove('is-checking');
+      if (r[1].ok) verdictOk(); else verdictBad(r[1].text);
+    });
+  }
+  function verdictOk() {
+    orbit.classList.add('is-ok');
+    setTimeout(function () { body.classList.add('is-unlocked'); }, 650);
+    setTimeout(function () { location.replace('/'); }, 1250);
+  }
+  function verdictBad(text) {
+    orbit.classList.add('is-bad');
+    orbit.classList.remove('shake');
+    void orbit.offsetWidth;
+    orbit.classList.add('shake');
+    msg.textContent = text || 'Kode salah. Coba lagi.';
+    msg.classList.add('show');
+    setTimeout(function () {
+      reset();
+      orbit.classList.add('is-bad'); // keep the ring red until the next keystroke
+      busy = false;
+      focusCard(0);
+    }, 900);
+  }
+
+  // spread characters over the cards starting at index "start"
+  function fill(text, start) {
+    var chars = text.replace(/\s/g, '').split('');
+    var i = start;
+    chars.forEach(function (ch) {
+      if (i < cards.length) {
+        cards[i].value = ch;
+        cards[i].classList.add('filled');
+        reveal(i);
+        i++;
+      }
+    });
+    return i;
+  }
+
+  cards.forEach(function (card, idx) {
+    card.addEventListener('focus', function () { card.select(); });
+    card.addEventListener('input', function () {
+      clearMsg();
+      if (!card.value) { card.classList.remove('filled'); return; }
+      if (card.value.length > 1) {
+        var extra = card.value;
+        card.value = '';
+        fill(extra, idx);
+      } else {
+        card.classList.add('filled');
+        reveal(idx);
+      }
+      var next = cards.findIndex(function (c, i) { return i > idx && !c.value; });
+      if (full()) submit();
+      else if (next !== -1) focusCard(next);
+    });
+    card.addEventListener('keydown', function (e) {
+      if (e.key === 'Backspace' && !card.value && idx > 0) {
+        e.preventDefault();
+        cards[idx - 1].value = '';
+        cards[idx - 1].classList.remove('filled');
+        clearMsg();
+        focusCard(idx - 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); focusCard(idx - 1); }
+      else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); focusCard(idx + 1); }
+      else if (e.key === 'Enter' && full()) { e.preventDefault(); submit(); }
+    });
+    card.addEventListener('paste', function (e) {
+      e.preventDefault();
+      var text = (e.clipboardData || window.clipboardData).getData('text');
+      clearMsg();
+      var end = fill(text, idx);
+      if (full()) submit(); else focusCard(end);
+    });
+  });
+
+  // Clicking the panel (not a card) goes to the first empty card
+  panel.addEventListener('click', function (e) {
+    if (busy || e.target.closest('.otp-card')) return;
+    var i = cards.findIndex(function (c) { return !c.value; });
+    focusCard(i === -1 ? 0 : i);
+  });
+
+  // Focus the first slot on desktop once the entrance has played
+  if (window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
+    setTimeout(function () {
+      var typing = cards.some(function (c) { return c.value || c === document.activeElement; });
+      if (!busy && !typing) focusCard(0);
+    }, 1500);
+  }
+})();
+</script>
+</body>
+</html>
