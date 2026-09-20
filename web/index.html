@@ -304,11 +304,9 @@ body {
 .badge.beli { background: var(--success-bg); color: var(--success); }
 .badge.jual { background: var(--danger-bg); color: var(--danger); }
 .badge.pantau { background: var(--warning-bg); color: var(--warning); }
-.badge.vwap-buy { background: rgba(50,215,75,.15); color: #32d74b; }
-.badge.vwap-hold { background: rgba(96,165,250,.15); color: #60a5fa; }
-.badge.vwap-wait { background: var(--warning-bg); color: var(--warning); }
-.badge.vwap-reduce { background: rgba(255,159,10,.15); color: #ff9f0a; }
-.badge.vwap-exit, .badge.vwap-avoid { background: var(--danger-bg); color: var(--danger); }
+.badge.vwap-bullish { background: rgba(50,215,75,.15); color: #32d74b; }
+.badge.vwap-bearish { background: rgba(255,159,10,.15); color: #ff9f0a; }
+.badge.vwap-avoid { background: var(--danger-bg); color: var(--danger); }
 .vwap-horizon-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:14px; }
 .vwap-horizon { padding:9px 10px; border:1px solid var(--border-soft); border-radius:10px; background:rgba(255,255,255,.025); min-width:0; }
 .vwap-horizon small { display:block; color:var(--text-muted); font-size:10px; margin-bottom:4px; }
@@ -744,7 +742,7 @@ html { overflow-x: hidden; }
           <div class="card-head">
             <div class="label">
               <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
-              <span id="vwap-card-title">Keputusan VWAP 5/20/60</span>
+              <span id="vwap-card-title">Full VWAP 5/20/60</span>
             </div>
           </div>
           <div class="card-body">
@@ -1033,15 +1031,21 @@ html { overflow-x: hidden; }
 <script>
 const PHASE_LABEL = { A: "Fase A", B: "Fase B", C: "Fase C", D: "Fase D", E: "Fase E" };
 const TREND_LABEL = { uptrend: "Uptrend", downtrend: "Downtrend", sideways: "Sideways", insufficient_data: "Data kurang" };
-const VWAP_SIGNAL_LABEL = { BUY: "Buy", HOLD: "Hold", WAIT: "Wait", REDUCE: "Reduce", EXIT: "Exit", AVOID: "Avoid" };
+const VWAP_SIGNAL_LABEL = { BULLISH: "Bullish", BEARISH: "Bearish", AVOID: "Avoid" };
 
-function vwapTone(signal) {
-  return "vwap-" + String(signal || "WAIT").toLowerCase();
+function vwapDisplaySignal(rawSignal) {
+  if (rawSignal === "BUY" || rawSignal === "HOLD") return "BULLISH";
+  if (rawSignal === "REDUCE" || rawSignal === "EXIT") return "BEARISH";
+  return "AVOID";
 }
 
-function vwapBadge(signal) {
-  const safeSignal = VWAP_SIGNAL_LABEL[signal] ? signal : "WAIT";
-  return `<span class="badge ${vwapTone(safeSignal)}">${VWAP_SIGNAL_LABEL[safeSignal]}</span>`;
+function vwapTone(signal) {
+  return "vwap-" + String(signal || "AVOID").toLowerCase();
+}
+
+function vwapBadge(rawSignal) {
+  const signal = vwapDisplaySignal(rawSignal);
+  return `<span class="badge ${vwapTone(signal)}">${VWAP_SIGNAL_LABEL[signal]}</span>`;
 }
 
 function vwapHorizonHtml(label, horizon) {
@@ -1613,17 +1617,16 @@ function renderStyleDependent(style) {
 
   // --- Keputusan VWAP multi-horizon; tidak mengikuti toggle skor Weekly/Swing. ---
   const vwapTitleEl = document.getElementById("vwap-card-title");
-  if (vwapTitleEl) vwapTitleEl.textContent = "Keputusan VWAP 5/20/60";
-  const counts = { BUY:0, HOLD:0, WAIT:0, REDUCE:0, EXIT:0, AVOID:0 };
-  wl.forEach(r => { if (r.vwap_signal in counts) counts[r.vwap_signal] += 1; });
-  const buyCandidates = wl.filter(r => r.vwap_signal === "BUY");
-  const representative = [...(buyCandidates.length ? buyCandidates : wl)]
+  if (vwapTitleEl) vwapTitleEl.textContent = "Full VWAP 5/20/60";
+  const counts = { BULLISH:0, BEARISH:0, AVOID:0 };
+  wl.forEach(r => { counts[vwapDisplaySignal(r.vwap_signal)] += 1; });
+  const bullishCandidates = wl.filter(r => vwapDisplaySignal(r.vwap_signal) === "BULLISH");
+  const representative = [...(bullishCandidates.length ? bullishCandidates : wl)]
     .sort((a,b) => (b.score || 0) - (a.score || 0))[0];
   document.getElementById("vwap-text").innerHTML =
-    `<b>${counts.BUY} BUY</b> · ${counts.HOLD} HOLD · ${counts.WAIT} WAIT · ` +
-    `${counts.REDUCE} REDUCE · ${counts.EXIT} EXIT · ${counts.AVOID} AVOID.` +
+    `<b>${counts.BULLISH} ticker BULLISH</b>, ${counts.BEARISH} BEARISH, dan ${counts.AVOID} AVOID berdasarkan konfluensi VWAP penuh.` +
     (representative
-      ? ` Fokus: <b>${representative.ticker}</b> ${vwapBadge(representative.vwap_signal)}.`
+      ? ` Fokus bullish teratas: <b>${representative.ticker}</b> ${vwapBadge(representative.vwap_signal)}.`
       : "");
   const analysis = representative?.vwap_analysis || {};
   document.getElementById("vwap-horizon-grid").innerHTML =
