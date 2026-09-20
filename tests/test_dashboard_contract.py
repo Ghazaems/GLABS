@@ -25,11 +25,12 @@ class DashboardContractTests(unittest.TestCase):
         ):
             self.assertIn(marker, self.index)
 
-    def test_html_groups_internal_states_without_changing_backend_contract(self):
-        for label in ("BULLISH", "BEARISH", "AVOID"):
-            self.assertIn(label, self.index)
-        self.assertIn('rawSignal === "BUY" || rawSignal === "HOLD"', self.index)
-        self.assertIn('rawSignal === "REDUCE" || rawSignal === "EXIT"', self.index)
+    def test_html_preserves_all_six_vwap_signals(self):
+        for signal in ("BUY", "HOLD", "WAIT", "REDUCE", "EXIT", "AVOID"):
+            self.assertIn(signal, self.index)
+        self.assertIn("vwap-signal-list", self.index)
+        self.assertIn("vwap-signal-row", self.index)
+        self.assertNotIn("vwapDisplaySignal", self.index)
 
     def test_cockpit_has_three_vwap_lines_and_risk_context(self):
         for marker in (
