@@ -55,6 +55,20 @@ class DashboardContractTests(unittest.TestCase):
         self.assertNotIn("scoredist-bars", self.index)
         self.assertNotIn("sort(compareVwapCandidates).slice(0,5)", self.index)
 
+    def test_signal_breakdown_is_fitted_bar_chart(self):
+        for marker in (
+            'id="signal-bar-chart"',
+            "signal-bar-value",
+            "signal-bar-fill",
+            "maximumSignalCount",
+            "* 68",
+            "gap:clamp(10px,1.4vw,20px)",
+        ):
+            self.assertIn(marker, self.index)
+        self.assertNotIn("sig-rows", self.index)
+        self.assertNotIn('id="sig-track"', self.index)
+        self.assertNotIn('id="count-beli"', self.index)
+
     def test_cockpit_has_three_vwap_lines_and_risk_context(self):
         for marker in (
             "VWAP 5D",
