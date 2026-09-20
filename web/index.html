@@ -304,9 +304,17 @@ body {
 .badge.beli { background: var(--success-bg); color: var(--success); }
 .badge.jual { background: var(--danger-bg); color: var(--danger); }
 .badge.pantau { background: var(--warning-bg); color: var(--warning); }
-.badge.vwap-bullish { background: rgba(50,215,75,.15); color: #32d74b; }
-.badge.vwap-bearish { background: rgba(255,159,10,.15); color: #ff9f0a; }
-.badge.vwap-avoid { background: var(--danger-bg); color: var(--danger); }
+.badge.vwap-buy { background: rgba(50,215,75,.15); color: #32d74b; }
+.badge.vwap-hold { background: rgba(96,165,250,.15); color: #60a5fa; }
+.badge.vwap-wait { background: var(--warning-bg); color: var(--warning); }
+.badge.vwap-reduce { background: rgba(255,159,10,.15); color: #ff9f0a; }
+.badge.vwap-exit, .badge.vwap-avoid { background: var(--danger-bg); color: var(--danger); }
+.vwap-signal-list { display:flex; flex-direction:column; margin-top:12px; }
+.vwap-signal-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-top:1px solid var(--border-soft); cursor:pointer; }
+.vwap-signal-row:first-child { border-top:0; }
+.vwap-signal-row:hover .vwap-row-ticker { color:var(--text-primary); }
+.vwap-row-ticker { min-width:54px; font-weight:650; color:var(--text-primary); }
+.vwap-row-price { flex:1; color:var(--text-muted); font-variant-numeric:tabular-nums; }
 .vwap-horizon-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:14px; }
 .vwap-horizon { padding:9px 10px; border:1px solid var(--border-soft); border-radius:10px; background:rgba(255,255,255,.025); min-width:0; }
 .vwap-horizon small { display:block; color:var(--text-muted); font-size:10px; margin-bottom:4px; }
@@ -747,8 +755,8 @@ html { overflow-x: hidden; }
           </div>
           <div class="card-body">
             <p id="vwap-text">Memuat keputusan VWAP...</p>
-            <div class="vwap-horizon-grid" id="vwap-horizon-grid"></div>
-            <div class="vwap-meta" id="vwap-meta"></div>
+            <div class="vwap-signal-list" id="vwap-signal-list"></div>
+            <div class="vwap-meta" id="vwap-meta">Klik ticker untuk membuka detail Full VWAP 5/20/60.</div>
           </div>
           <div class="card-foot"><span></span><span class="link">Lihat semua VWAP</span></div>
         </div>
@@ -1031,21 +1039,23 @@ html { overflow-x: hidden; }
 <script>
 const PHASE_LABEL = { A: "Fase A", B: "Fase B", C: "Fase C", D: "Fase D", E: "Fase E" };
 const TREND_LABEL = { uptrend: "Uptrend", downtrend: "Downtrend", sideways: "Sideways", insufficient_data: "Data kurang" };
-const VWAP_SIGNAL_LABEL = { BULLISH: "Bullish", BEARISH: "Bearish", AVOID: "Avoid" };
-
-function vwapDisplaySignal(rawSignal) {
-  if (rawSignal === "BUY" || rawSignal === "HOLD") return "BULLISH";
-  if (rawSignal === "REDUCE" || rawSignal === "EXIT") return "BEARISH";
-  return "AVOID";
-}
+const VWAP_SIGNAL_LABEL = { BUY: "BUY", HOLD: "HOLD", WAIT: "WAIT", REDUCE: "REDUCE", EXIT: "EXIT", AVOID: "AVOID" };
+const VWAP_SIGNAL_DESCRIPTION = {
+  BUY: "Momentum bullish dan baru muncul trigger entry.",
+  HOLD: "Posisi masih sehat, tetapi bukan titik entry baru.",
+  WAIT: "Setup menarik tetapi konfirmasi belum lengkap.",
+  REDUCE: "Bullish melemah.",
+  EXIT: "Struktur bullish rusak.",
+  AVOID: "Kondisi bearish; bukan berarti short sell."
+};
 
 function vwapTone(signal) {
-  return "vwap-" + String(signal || "AVOID").toLowerCase();
+  return "vwap-" + String(signal || "WAIT").toLowerCase();
 }
 
 function vwapBadge(rawSignal) {
-  const signal = vwapDisplaySignal(rawSignal);
-  return `<span class="badge ${vwapTone(signal)}">${VWAP_SIGNAL_LABEL[signal]}</span>`;
+  const signal = VWAP_SIGNAL_LABEL[rawSignal] ? rawSignal : "WAIT";
+  return `<span class="badge ${vwapTone(signal)}" title="${VWAP_SIGNAL_DESCRIPTION[signal]}">${VWAP_SIGNAL_LABEL[signal]}</span>`;
 }
 
 function vwapHorizonHtml(label, horizon) {
@@ -1618,26 +1628,23 @@ function renderStyleDependent(style) {
   // --- Keputusan VWAP multi-horizon; tidak mengikuti toggle skor Weekly/Swing. ---
   const vwapTitleEl = document.getElementById("vwap-card-title");
   if (vwapTitleEl) vwapTitleEl.textContent = "Full VWAP 5/20/60";
-  const counts = { BULLISH:0, BEARISH:0, AVOID:0 };
-  wl.forEach(r => { counts[vwapDisplaySignal(r.vwap_signal)] += 1; });
-  const bullishCandidates = wl.filter(r => vwapDisplaySignal(r.vwap_signal) === "BULLISH");
-  const representative = [...(bullishCandidates.length ? bullishCandidates : wl)]
-    .sort((a,b) => (b.score || 0) - (a.score || 0))[0];
+  const counts = { BUY:0, HOLD:0, WAIT:0, REDUCE:0, EXIT:0, AVOID:0 };
+  wl.forEach(r => { if (r.vwap_signal in counts) counts[r.vwap_signal] += 1; });
   document.getElementById("vwap-text").innerHTML =
-    `<b>${counts.BULLISH} ticker BULLISH</b>, ${counts.BEARISH} BEARISH, dan ${counts.AVOID} AVOID berdasarkan konfluensi VWAP penuh.` +
-    (representative
-      ? ` Fokus bullish teratas: <b>${representative.ticker}</b> ${vwapBadge(representative.vwap_signal)}.`
-      : "");
-  const analysis = representative?.vwap_analysis || {};
-  document.getElementById("vwap-horizon-grid").innerHTML =
-    vwapHorizonHtml("Daily", analysis.vwap_fast) +
-    vwapHorizonHtml("Weekly", analysis.vwap_medium) +
-    vwapHorizonHtml("Swing", analysis.vwap_swing);
-  const firstReason = (analysis.reasons || [])[0];
-  document.getElementById("vwap-meta").textContent = representative
-    ? `${representative.ticker}: ${firstReason || "menunggu data/konfirmasi lengkap"}` +
-      (analysis.protective_stop ? ` · protective stop ${fmtNum(analysis.protective_stop)}` : "")
-    : "Belum ada data VWAP yang valid.";
+    `<b>${counts.BUY} BUY</b> · ${counts.HOLD} HOLD · ${counts.WAIT} WAIT · ` +
+    `${counts.REDUCE} REDUCE · ${counts.EXIT} EXIT · ${counts.AVOID} AVOID.`;
+  const signalPriority = { BUY:0, HOLD:1, WAIT:2, REDUCE:3, EXIT:4, AVOID:5 };
+  const vwapRows = [...wl].sort((a,b) => {
+    const priorityDiff = (signalPriority[a.vwap_signal] ?? 9) - (signalPriority[b.vwap_signal] ?? 9);
+    return priorityDiff || ((b.score || 0) - (a.score || 0));
+  }).slice(0,5);
+  document.getElementById("vwap-signal-list").innerHTML = vwapRows.map(r => `
+    <div class="vwap-signal-row" onclick="openTickerAnalysis('${r.ticker}')"
+         title="${escapeHtml((r.vwap_analysis?.reasons || []).join(" "))}">
+      <span class="vwap-row-ticker">${r.ticker}</span>
+      <span class="vwap-row-price">${fmtNum(r.last_close)}</span>
+      ${vwapBadge(r.vwap_signal)}
+    </div>`).join("");
 
   // --- Distribusi skor ---
   const scores = wl.map(r => r[scoreKey]).filter(v => v !== undefined && v !== null);
