@@ -41,6 +41,20 @@ class DashboardContractTests(unittest.TestCase):
             self.assertIn(marker, self.index)
         self.assertNotIn("return priorityDiff || ((b.score", self.index)
 
+    def test_overview_uses_three_cards_and_hover_scrolling(self):
+        for marker in (
+            "overview-analysis-grid",
+            "minmax(0,1.35fr)",
+            "enableVwapCardWheel",
+            'card.matches(":hover")',
+            "event.preventDefault()",
+        ):
+            self.assertIn(marker, self.index)
+        self.assertNotIn("Distribusi skor", self.index)
+        self.assertNotIn("scoredist-text", self.index)
+        self.assertNotIn("scoredist-bars", self.index)
+        self.assertNotIn("sort(compareVwapCandidates).slice(0,5)", self.index)
+
     def test_cockpit_has_three_vwap_lines_and_risk_context(self):
         for marker in (
             "VWAP 5D",

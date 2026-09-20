@@ -309,7 +309,31 @@ body {
 .badge.vwap-wait { background: var(--warning-bg); color: var(--warning); }
 .badge.vwap-reduce { background: rgba(255,159,10,.15); color: #ff9f0a; }
 .badge.vwap-exit, .badge.vwap-avoid { background: var(--danger-bg); color: var(--danger); }
-.vwap-signal-list { display:flex; flex-direction:column; margin-top:12px; }
+.overview-analysis-grid {
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,1.35fr);
+  align-items: stretch;
+}
+.vwap-card .card-body { min-height:0; display:flex; flex-direction:column; }
+.vwap-card .vwap-signal-list {
+  display:flex; flex-direction:column; margin-top:12px;
+  max-height:310px; min-height:0; overflow-y:hidden;
+  overscroll-behavior:contain; scrollbar-width:thin;
+  scrollbar-color:rgba(255,255,255,.22) transparent;
+}
+.vwap-card:hover .vwap-signal-list { overflow-y:auto; }
+.vwap-card .vwap-signal-list::-webkit-scrollbar { width:6px; }
+.vwap-card .vwap-signal-list::-webkit-scrollbar-track { background:transparent; }
+.vwap-card .vwap-signal-list::-webkit-scrollbar-thumb {
+  background:rgba(255,255,255,.18); border-radius:999px;
+}
+@media (max-width:900px) {
+  .overview-analysis-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .overview-analysis-grid .vwap-card { grid-column:span 2; }
+}
+@media (max-width:600px) {
+  .overview-analysis-grid { grid-template-columns:1fr; }
+  .overview-analysis-grid .vwap-card { grid-column:span 1; }
+}
 .vwap-signal-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-top:1px solid var(--border-soft); cursor:pointer; }
 .vwap-signal-row:first-child { border-top:0; }
 .vwap-signal-row:hover .vwap-row-ticker { color:var(--text-primary); }
@@ -651,8 +675,8 @@ html { overflow-x: hidden; }
         </div>
       </div>
       <p class="loading-msg" style="margin-top:-18px; margin-bottom:22px">
-        Toggle ini ganti <b>Top pick, Sinyal breakdown, Watchlist, Trend structure, VWAP,
-        Distribusi skor,</b> dan <b>Comparative strength</b> - "Swing" pakai window/lookback
+        Toggle ini ganti <b>Top pick, Sinyal breakdown, Watchlist, Trend structure, VWAP,</b>
+        dan <b>Comparative strength</b> - "Swing" pakai window/lookback
         lebih panjang (~3-4 bulan). <b>Wyckoff snapshot</b> dan <b>Ringkasan mingguan</b>
         sengaja tetap statis karena datanya sama buat kedua gaya.
       </p>
@@ -718,7 +742,7 @@ html { overflow-x: hidden; }
       </div>
 
       <!-- ROW 2 -->
-      <div class="grid">
+      <div class="grid overview-analysis-grid">
         <div class="card">
           <div class="card-head">
             <div class="label">
@@ -746,7 +770,7 @@ html { overflow-x: hidden; }
           <div class="card-foot"><span id="wyckoff-footer"></span><span class="link">Lihat detail</span></div>
         </div>
 
-        <div class="card">
+        <div class="card vwap-card" id="vwap-card" tabindex="0" aria-label="Daftar analisis Full VWAP; arahkan pointer lalu gulir untuk melihat saham lain">
           <div class="card-head">
             <div class="label">
               <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
@@ -761,19 +785,6 @@ html { overflow-x: hidden; }
           <div class="card-foot"><span></span><span class="link">Lihat semua VWAP</span></div>
         </div>
 
-        <div class="card">
-          <div class="card-head">
-            <div class="label">
-              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
-              Distribusi skor
-            </div>
-          </div>
-          <div class="card-body">
-            <p id="scoredist-text">Memuat...</p>
-          </div>
-          <div class="bars" id="scoredist-bars"></div>
-          <div class="card-foot"><span></span><span class="link">Lihat distribusi</span></div>
-        </div>
       </div>
 
       <!-- ROW 3 -->
@@ -1301,7 +1312,7 @@ function renderWatchlistCards(rows) {
     const vwapSig = r.vwap_signal || "WAIT";
     const vwapReason = (r.vwap_analysis?.reasons || []).join(" ");
     return `
-      <div class="card" style="cursor:pointer" onclick="openTickerAnalysis('${r.ticker}')">
+      <div class="card" style="cursor:pointer" onclick="event.stopPropagation(); openTickerAnalysis('${r.ticker}')">
         <div class="wl-card-head">
           <span class="wl-ticker">${r.ticker}</span>
           <span class="wl-price">${fmtNum(r.last_close)} &middot; skor ${r.score}</span>
@@ -1560,7 +1571,7 @@ async function loadDashboard() {
   }
 
   // Top pick, Sinyal breakdown, Watchlist, Trend structure, VWAP,
-  // Distribusi skor, Comparative strength - semua ikut toggle Weekly/Swing,
+  // Comparative strength - semua ikut toggle Weekly/Swing,
   // dipindah ke renderStyleDependent() di bawah.
   renderStyleDependent(currentStyle);
 
@@ -1665,30 +1676,16 @@ function renderStyleDependent(style) {
     ? `<b>${counts.BUY} BUY</b> · ${counts.HOLD} HOLD · ${counts.WAIT} WAIT · ` +
       `${counts.REDUCE} REDUCE · ${counts.EXIT} EXIT · ${counts.AVOID} AVOID.`
     : "Belum ada hasil Full VWAP yang valid. Menunggu screening berikutnya.";
-  const vwapRows = [...validVwapRows].sort(compareVwapCandidates).slice(0,5);
+  const vwapRows = [...validVwapRows].sort(compareVwapCandidates);
   document.getElementById("vwap-signal-list").innerHTML = vwapRows.length
     ? vwapRows.map(r => `
-      <div class="vwap-signal-row" onclick="openTickerAnalysis('${r.ticker}')"
+      <div class="vwap-signal-row" onclick="event.stopPropagation(); openTickerAnalysis('${r.ticker}')"
            title="${escapeHtml((r.vwap_analysis?.reasons || []).join(" "))}">
         <span class="vwap-row-ticker">${r.ticker}</span>
         <span class="vwap-row-price">${fmtNum(r.last_close)}</span>
         ${vwapBadge(r.vwap_signal)}
       </div>`).join("")
     : `<div class="vwap-meta">Ticker lama tidak dipaksakan menjadi WAIT. Kartu akan terisi otomatis setelah data Full VWAP tersedia.</div>`;
-
-  // --- Distribusi skor ---
-  const scores = wl.map(r => r[scoreKey]).filter(v => v !== undefined && v !== null);
-  const scoreMin = scores.length ? Math.min(...scores) : null;
-  const scoreMax = scores.length ? Math.max(...scores) : null;
-  const scoreAvg = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length) : null;
-  document.getElementById("scoredist-text").innerHTML =
-    `Rentang skor screener (${label}): <b>${scoreMin?.toFixed(1) ?? "-"}</b> sampai <b>${scoreMax?.toFixed(1) ?? "-"}</b>, rata-rata <b>${scoreAvg?.toFixed(1) ?? "-"}</b>.`;
-  const sortedScores = [...scores].sort((a,b)=>b-a);
-  const distMax = Math.max(...sortedScores.map(Math.abs), 1);
-  document.getElementById("scoredist-bars").innerHTML = sortedScores.slice(0,4).map(v => {
-    const h = Math.max(10, Math.round(Math.abs(v)/distMax*100));
-    return `<div class="bar" style="height:${h}%" title="${v}"></div>`;
-  }).join("");
 
   // --- Comparative strength vs IHSG ---
   const outperform = wl.filter(r => r[csKey]?.relative_strength_trend === "outperforming");
@@ -1698,6 +1695,24 @@ function renderStyleDependent(style) {
     (outperform[0] ? `${outperform[0].ticker} outperform paling jelas.` : "");
   document.getElementById("cs-footer").textContent = `${outperform.length} outperform · ${underperform.length} underperform`;
 }
+
+function enableVwapCardWheel() {
+  const card = document.getElementById("vwap-card");
+  const list = document.getElementById("vwap-signal-list");
+  if (!card || !list || card.dataset.wheelReady === "true") return;
+  card.dataset.wheelReady = "true";
+  card.addEventListener("wheel", event => {
+    if (!card.matches(":hover") || list.scrollHeight <= list.clientHeight) return;
+    const atTop = list.scrollTop <= 0;
+    const atBottom = Math.ceil(list.scrollTop + list.clientHeight) >= list.scrollHeight;
+    const canScroll = (event.deltaY < 0 && !atTop) || (event.deltaY > 0 && !atBottom);
+    if (!canScroll) return;
+    list.scrollTop += event.deltaY;
+    event.preventDefault();
+  }, { passive:false });
+}
+
+enableVwapCardWheel();
 
 function setStyle(style) {
   currentStyle = style;
