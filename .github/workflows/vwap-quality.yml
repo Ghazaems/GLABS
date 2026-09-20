@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - "**.py"
+      - "web/**.html"
+      - "web/**.js"
+      - "web/**.css"
       - ".github/workflows/**"
   push:
     branches:
@@ -26,5 +29,7 @@ jobs:
         run: pip install -r requirements.txt
       - name: Compile Python
         run: python -m compileall -q main.py backtest.py forward_test.py evaluate_ic.py screener data storage tests
+      - name: Validate dashboard JavaScript
+        run: node --check web/cockpit.js
       - name: Unit tests
         run: python -m unittest discover -s tests -v
