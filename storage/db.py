@@ -100,6 +100,16 @@ def save_signal(ticker: str, date: str, signal_type: str, direction: str,
     """
     breakdown = breakdown or {}
     with get_conn() as conn:
+        # Satu hasil per ticker, tanggal, dan tipe sinyal. Rerun workflow
+        # memperbarui hasil, bukan menggandakan sampel forward-test.
+        conn.execute(
+            """
+            DELETE FROM signals
+            WHERE ticker = ? AND date = ? AND signal_type = ?
+            """,
+            (ticker, date, signal_type),
+        )
+
         conn.execute("""
             INSERT INTO signals (
                 ticker, date, signal_type, direction, note, score,
