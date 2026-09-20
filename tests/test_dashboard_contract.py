@@ -31,6 +31,16 @@ class DashboardContractTests(unittest.TestCase):
         self.assertIn("vwap-signal-row", self.index)
         self.assertNotIn("vwapDisplaySignal", self.index)
 
+    def test_vwap_card_uses_only_valid_vwap_ranking(self):
+        for marker in (
+            'r.vwap_analysis?.status === "ok"',
+            "compareVwapCandidates",
+            "VWAP_SIGNAL_PRIORITY",
+            "vwapRankMetrics",
+        ):
+            self.assertIn(marker, self.index)
+        self.assertNotIn("return priorityDiff || ((b.score", self.index)
+
     def test_cockpit_has_three_vwap_lines_and_risk_context(self):
         for marker in (
             "VWAP 5D",

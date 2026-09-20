@@ -1058,6 +1058,33 @@ function vwapBadge(rawSignal) {
   return `<span class="badge ${vwapTone(signal)}" title="${VWAP_SIGNAL_DESCRIPTION[signal]}">${VWAP_SIGNAL_LABEL[signal]}</span>`;
 }
 
+const VWAP_SIGNAL_PRIORITY = { BUY:0, HOLD:1, WAIT:2, REDUCE:3, EXIT:4, AVOID:5 };
+
+function vwapRankMetrics(row) {
+  const analysis = row.vwap_analysis || {};
+  const horizons = [analysis.vwap_fast, analysis.vwap_medium, analysis.vwap_swing].filter(Boolean);
+  return {
+    above: horizons.filter(item => item.position === "above").length,
+    positiveSlope: horizons.filter(item => Number(item.slope_pct) > 0).length,
+    rvol: Number.isFinite(Number(analysis.rvol)) ? Number(analysis.rvol) : -Infinity,
+  };
+}
+
+function compareVwapCandidates(a, b) {
+  const priority = (VWAP_SIGNAL_PRIORITY[a.vwap_signal] ?? 99) -
+    (VWAP_SIGNAL_PRIORITY[b.vwap_signal] ?? 99);
+  if (priority) return priority;
+
+  const aMetrics = vwapRankMetrics(a);
+  const bMetrics = vwapRankMetrics(b);
+  if (aMetrics.above !== bMetrics.above) return bMetrics.above - aMetrics.above;
+  if (aMetrics.positiveSlope !== bMetrics.positiveSlope) {
+    return bMetrics.positiveSlope - aMetrics.positiveSlope;
+  }
+  if (aMetrics.rvol !== bMetrics.rvol) return bMetrics.rvol - aMetrics.rvol;
+  return String(a.ticker).localeCompare(String(b.ticker));
+}
+
 function vwapHorizonHtml(label, horizon) {
   if (!horizon || horizon.value === null || horizon.value === undefined) {
     return `<div class="vwap-horizon"><small>${label}</small><b>Data belum cukup</b></div>`;
@@ -1629,22 +1656,25 @@ function renderStyleDependent(style) {
   const vwapTitleEl = document.getElementById("vwap-card-title");
   if (vwapTitleEl) vwapTitleEl.textContent = "Full VWAP 5/20/60";
   const counts = { BUY:0, HOLD:0, WAIT:0, REDUCE:0, EXIT:0, AVOID:0 };
-  wl.forEach(r => { if (r.vwap_signal in counts) counts[r.vwap_signal] += 1; });
-  document.getElementById("vwap-text").innerHTML =
-    `<b>${counts.BUY} BUY</b> · ${counts.HOLD} HOLD · ${counts.WAIT} WAIT · ` +
-    `${counts.REDUCE} REDUCE · ${counts.EXIT} EXIT · ${counts.AVOID} AVOID.`;
-  const signalPriority = { BUY:0, HOLD:1, WAIT:2, REDUCE:3, EXIT:4, AVOID:5 };
-  const vwapRows = [...wl].sort((a,b) => {
-    const priorityDiff = (signalPriority[a.vwap_signal] ?? 9) - (signalPriority[b.vwap_signal] ?? 9);
-    return priorityDiff || ((b.score || 0) - (a.score || 0));
-  }).slice(0,5);
-  document.getElementById("vwap-signal-list").innerHTML = vwapRows.map(r => `
-    <div class="vwap-signal-row" onclick="openTickerAnalysis('${r.ticker}')"
-         title="${escapeHtml((r.vwap_analysis?.reasons || []).join(" "))}">
-      <span class="vwap-row-ticker">${r.ticker}</span>
-      <span class="vwap-row-price">${fmtNum(r.last_close)}</span>
-      ${vwapBadge(r.vwap_signal)}
-    </div>`).join("");
+  const validVwapRows = wl.filter(r =>
+    r.vwap_analysis?.status === "ok" &&
+    Object.prototype.hasOwnProperty.call(VWAP_SIGNAL_PRIORITY, r.vwap_signal)
+  );
+  validVwapRows.forEach(r => { counts[r.vwap_signal] += 1; });
+  document.getElementById("vwap-text").innerHTML = validVwapRows.length
+    ? `<b>${counts.BUY} BUY</b> · ${counts.HOLD} HOLD · ${counts.WAIT} WAIT · ` +
+      `${counts.REDUCE} REDUCE · ${counts.EXIT} EXIT · ${counts.AVOID} AVOID.`
+    : "Belum ada hasil Full VWAP yang valid. Menunggu screening berikutnya.";
+  const vwapRows = [...validVwapRows].sort(compareVwapCandidates).slice(0,5);
+  document.getElementById("vwap-signal-list").innerHTML = vwapRows.length
+    ? vwapRows.map(r => `
+      <div class="vwap-signal-row" onclick="openTickerAnalysis('${r.ticker}')"
+           title="${escapeHtml((r.vwap_analysis?.reasons || []).join(" "))}">
+        <span class="vwap-row-ticker">${r.ticker}</span>
+        <span class="vwap-row-price">${fmtNum(r.last_close)}</span>
+        ${vwapBadge(r.vwap_signal)}
+      </div>`).join("")
+    : `<div class="vwap-meta">Ticker lama tidak dipaksakan menjadi WAIT. Kartu akan terisi otomatis setelah data Full VWAP tersedia.</div>`;
 
   // --- Distribusi skor ---
   const scores = wl.map(r => r[scoreKey]).filter(v => v !== undefined && v !== null);
