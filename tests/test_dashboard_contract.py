@@ -107,6 +107,20 @@ class DashboardContractTests(unittest.TestCase):
             self.assertIn(marker, self.main)
         self.assertIn("wyckoff_daily", self.main)
 
+
+    def test_ic_web_shows_conclusions_not_raw_calculations(self):
+        for marker in (
+            "Validasi VWAP",
+            "Daily / Weekly / Swing",
+            "renderVWAPICSummary",
+            "horizon_results",
+            "Web hanya menampilkan",
+            "Laporan lama belum sesuai metode terbaru",
+        ):
+            self.assertIn(marker, self.index)
+        self.assertNotIn("Lihat detail teknis (IC, p-value)", self.index)
+        self.assertNotIn("<th class=\"num\">IC</th>", self.index)
+
     def test_cockpit_has_three_vwap_lines_and_risk_context(self):
         for marker in (
             "VWAP 5D",
