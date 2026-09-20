@@ -38,7 +38,7 @@ from screener.wyckoff import (
 
 PERIOD = "3y"
 WARMUP_BARS = 120
-HORIZONS = [5, 10, 20]
+HORIZONS = [5, 20, 60]
 STRIDE = 5
 
 ROUND_TRIP_COST_PCT = float(
@@ -51,6 +51,20 @@ TOTAL_FRICTION_PCT = (
     ROUND_TRIP_COST_PCT
     + ROUND_TRIP_SLIPPAGE_PCT
 )
+
+# Ranking IC memakai sinyal VWAP horizon terkait tanpa bobot buatan.
+# Spearman menangani ties ketika beberapa saham sama-sama above/below.
+VWAP_POSITION_RANK = {
+    "below": -1.0,
+    "at_vwap": 0.0,
+    "above": 1.0,
+}
+
+
+def _vwap_rank_signal(result: dict) -> float | None:
+    if result.get("status") != "ok":
+        return None
+    return VWAP_POSITION_RANK.get(result.get("position"))
 
 
 def _aligned_benchmark(
@@ -187,10 +201,14 @@ def run_backtest() -> pd.DataFrame:
             wyckoff = (
                 analyze_latest_trading_range(history)
             )
-            vwap_medium = price_vs_vwap(
-                history,
-                window=20,
-            )
+            vwap_by_horizon = {
+                horizon: price_vs_vwap(
+                    history,
+                    window=horizon,
+                )
+                for horizon in HORIZONS
+            }
+            vwap_medium = vwap_by_horizon[20]
             vwap_analysis = analyze_vwap_signals(
                 history
             )
@@ -243,6 +261,15 @@ def run_backtest() -> pd.DataFrame:
                     "rvol"
                 ),
             }
+
+            for horizon, horizon_vwap in (
+                vwap_by_horizon.items()
+            ):
+                row[f"vwap_rank_{horizon}d"] = (
+                    _vwap_rank_signal(
+                        horizon_vwap
+                    )
+                )
 
             for name, component_score in (
                 scored["breakdown"].items()
