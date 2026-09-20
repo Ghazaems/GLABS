@@ -6,6 +6,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "web" / "index.html"
 COCKPIT = ROOT / "web" / "cockpit.js"
+MAIN = ROOT / "main.py"
 
 
 class DashboardContractTests(unittest.TestCase):
@@ -13,6 +14,7 @@ class DashboardContractTests(unittest.TestCase):
     def setUpClass(cls):
         cls.index = INDEX.read_text(encoding="utf-8")
         cls.cockpit = COCKPIT.read_text(encoding="utf-8")
+        cls.main = MAIN.read_text(encoding="utf-8")
 
     def test_dashboard_exposes_multi_horizon_decision(self):
         for marker in (
@@ -68,6 +70,42 @@ class DashboardContractTests(unittest.TestCase):
         self.assertNotIn("sig-rows", self.index)
         self.assertNotIn('id="sig-track"', self.index)
         self.assertNotIn('id="count-beli"', self.index)
+
+
+    def test_toggle_has_isolated_daily_weekly_swing_data(self):
+        for marker in (
+            'id="style-daily"',
+            'id="style-weekly"',
+            'id="style-swing"',
+            'let currentStyle = "daily"',
+            '"score_daily"',
+            '"signal_daily"',
+            '"score_swing"',
+            '"signal_swing"',
+            "styleRows = wl.filter",
+            "Menunggu screening otomatis berikutnya",
+            "calc(33.333% - 2px)",
+            "weekly: 100",
+            "swing: 200",
+        ):
+            self.assertIn(marker, self.index)
+
+    def test_backend_computes_daily_without_copying_weekly(self):
+        for marker in (
+            "trend_daily = trend_structure",
+            "window=2",
+            "support_resistance_daily",
+            "lookback=20",
+            "cs_ihsg_daily",
+            "window=5",
+            "scored_daily = compute_score",
+            '"status": "not_adjusted_for_daily"',
+            '"score_daily": scored_daily["score"]',
+            '"signal_daily": signal_daily',
+            '"composite_daily"',
+        ):
+            self.assertIn(marker, self.main)
+        self.assertIn("wyckoff_daily", self.main)
 
     def test_cockpit_has_three_vwap_lines_and_risk_context(self):
         for marker in (

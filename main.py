@@ -175,6 +175,13 @@ def process_ticker(
         -1
     ].strftime("%Y-%m-%d")
 
+    # Daily memakai struktur harga 2 hari dan VWAP 5D. Ini dihitung
+    # terpisah agar toggle Daily tidak pernah memakai ulang hasil Weekly.
+    trend_daily = trend_structure(
+        dataframe,
+        window=2,
+    )
+
     trend = trend_structure(
         dataframe,
         window=5,
@@ -183,6 +190,14 @@ def process_ticker(
     trend_swing = trend_structure(
         dataframe,
         window=20,
+    )
+
+    support_resistance_daily = (
+        support_resistance_levels(
+            dataframe,
+            window=2,
+            lookback=20,
+        )
     )
 
     support_resistance = (
@@ -220,6 +235,21 @@ def process_ticker(
     wyckoff = analyze_latest_trading_range(
         dataframe
     )
+    # Wyckoff saat ini belum dikalibrasi untuk horizon Daily. Komponen
+    # ini sengaja netral, bukan menyalin analisis Weekly.
+    wyckoff_daily = {
+        "status": "not_adjusted_for_daily",
+        "bias": "unclear",
+        "phase": None,
+        "events": [],
+    }
+
+    cs_ihsg_daily = safe_comparative_strength(
+        dataframe,
+        ihsg,
+        window=5,
+        missing_status="no_ihsg_data",
+    )
 
     cs_ihsg = safe_comparative_strength(
         dataframe,
@@ -234,6 +264,13 @@ def process_ticker(
         missing_status="no_ihsg_data",
     )
 
+    cs_lq45_daily = safe_comparative_strength(
+        dataframe,
+        lq45,
+        window=5,
+        missing_status="no_lq45_data",
+    )
+
     cs_lq45 = safe_comparative_strength(
         dataframe,
         lq45,
@@ -245,6 +282,14 @@ def process_ticker(
         lq45,
         window=60,
         missing_status="no_lq45_data",
+    )
+
+    scored_daily = compute_score(
+        trend_daily,
+        wyckoff_daily,
+        vwap_fast,
+        cs_ihsg_daily,
+        support_resistance_daily,
     )
 
     scored = compute_score(
@@ -263,6 +308,9 @@ def process_ticker(
         support_resistance_swing,
     )
 
+    signal_daily = classify_signal(
+        scored_daily
+    )
     signal = classify_signal(scored)
     signal_swing = classify_signal(
         scored_swing
@@ -297,6 +345,16 @@ def process_ticker(
                 f"events={events}"
             ),
         )
+
+    save_signal(
+        ticker,
+        date_string,
+        "composite_daily",
+        signal_daily,
+        note=f"score={scored_daily['score']}",
+        score=scored_daily["score"],
+        breakdown=scored_daily["breakdown"],
+    )
 
     save_signal(
         ticker,
@@ -340,6 +398,29 @@ def process_ticker(
         "last_close": clean_number(
             dataframe["Close"].iloc[-1]
         ),
+        "trend_daily": trend_daily,
+        "support_daily": (
+            support_resistance_daily.get(
+                "nearest_support"
+            )
+        ),
+        "resistance_daily": (
+            support_resistance_daily.get(
+                "nearest_resistance"
+            )
+        ),
+        "wyckoff_daily": wyckoff_daily,
+        "comparative_strength_daily": (
+            cs_ihsg_daily
+        ),
+        "comparative_strength_lq45_daily": (
+            cs_lq45_daily
+        ),
+        "score_daily": scored_daily["score"],
+        "score_breakdown_daily": (
+            scored_daily["breakdown"]
+        ),
+        "signal_daily": signal_daily,
         "trend": trend,
         "support": support_resistance.get(
             "nearest_support"
