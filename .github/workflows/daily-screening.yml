@@ -2,15 +2,9 @@ name: Daily Stock Screening (500 Emiten IDX)
 
 on:
   schedule:
-    # GitHub Actions menggunakan zona waktu UTC.
-    # 09:15 UTC sama dengan 16:15 WIB.
-    #
-    # Workflow dijalankan Senin-Jumat setelah perdagangan
-    # reguler Bursa Efek Indonesia berakhir.
+    # 09:15 UTC = 16:15 WIB, Senin-Jumat.
+    # Tidak ada workflow_dispatch: pipeline tidak perlu dijalankan manual.
     - cron: "15 9 * * 1-5"
-
-  # Memungkinkan workflow dijalankan manual dari tab Actions.
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -23,7 +17,7 @@ jobs:
   run-screening:
     name: Screen 500 IDX issuers
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     env:
       PYTHONUNBUFFERED: "1"
@@ -40,27 +34,89 @@ jobs:
           cache: "pip"
           cache-dependency-path: requirements.txt
 
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
-
       - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Validate 500 ticker universe
         run: |
-          python -c "from idx_tickers_500 import IDX_TICKERS_500; assert len(IDX_TICKERS_500) == 500, f'Universe berisi {len(IDX_TICKERS_500)}, bukan 500'; assert len(set(IDX_TICKERS_500)) == 500, 'Universe mengandung ticker duplikat'; print('Valid: 500 ticker unik')"
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Run daily screening
+      - name: Run unit tests
+        run: |
+          python -m unittest discover -s tests -p "test_*.py" -v
+
+      - name: Validate ticker universe
+        run: |
+          python - <<'PY'
+          from idx_tickers_500 import IDX_TICKERS_500
+
+          assert len(IDX_TICKERS_500) == 500
+          assert len(set(IDX_TICKERS_500)) == 500
+          print("Valid: 500 ticker unik")
+          PY
+
+      - name: Run screening
         run: python main.py
 
-      - name: Validate dashboard output
-        run: |
-          python -c "import json; data = json.load(open('web/dashboard_data.json', encoding='utf-8')); requested = data.get('summary', {}).get('data_coverage', {}).get('requested'); results = len(data.get('watchlist', [])); volatility_ok = data.get('summary', {}).get('data_coverage', {}).get('volatility_success', 0); print(f'Requested: {requested}'); print(f'Results: {results}'); print(f'Volatility success: {volatility_ok}'); assert requested == 500, f'Requested harus 500, ditemukan {requested}'; assert results > 0, 'Dashboard tidak memiliki hasil'; assert volatility_ok > 0, 'Tidak ada forecast volatilitas yang berhasil'"
+      - name: Update forward test
+        run: python forward_test.py
 
-      - name: Commit updated dashboard data
+      - name: Validate generated signals
+        run: |
+          python - <<'PY'
+          import json
+
+          with open(
+              "web/dashboard_data.json",
+              encoding="utf-8",
+          ) as source:
+              data = json.load(source)
+
+          watchlist = data.get("watchlist", [])
+          coverage = data.get(
+              "summary",
+              {},
+          ).get("data_coverage", {})
+
+          valid = [
+              item
+              for item in watchlist
+              if item.get(
+                  "vwap_analysis",
+                  {},
+              ).get("status") == "ok"
+          ]
+
+          allowed = {
+              "BUY",
+              "HOLD",
+              "WAIT",
+              "REDUCE",
+              "EXIT",
+              "AVOID",
+          }
+
+          invalid = [
+              item.get("ticker")
+              for item in valid
+              if item.get("vwap_signal")
+              not in allowed
+          ]
+
+          print(
+              f"Coverage: {len(watchlist)}/"
+              f"{coverage.get('requested')}"
+          )
+          print(f"VWAP valid: {len(valid)}")
+
+          assert coverage.get("requested") == 500
+          assert watchlist
+          assert valid
+          assert not invalid, invalid[:20]
+          PY
+
+      - name: Commit generated data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add web/dashboard_data.json storage/screener.db
+          git add web/dashboard_data.json web/forward_test_data.json storage/screener.db
           git diff --staged --quiet || git commit -m "chore: update screening data $(date -u +%Y-%m-%d)"
           git push

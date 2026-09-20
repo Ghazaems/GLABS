@@ -304,6 +304,23 @@ body {
 .badge.beli { background: var(--success-bg); color: var(--success); }
 .badge.jual { background: var(--danger-bg); color: var(--danger); }
 .badge.pantau { background: var(--warning-bg); color: var(--warning); }
+.badge.vwap-buy { background: rgba(50,215,75,.15); color: #32d74b; }
+.badge.vwap-hold { background: rgba(96,165,250,.15); color: #60a5fa; }
+.badge.vwap-wait { background: var(--warning-bg); color: var(--warning); }
+.badge.vwap-reduce { background: rgba(255,159,10,.15); color: #ff9f0a; }
+.badge.vwap-exit, .badge.vwap-avoid { background: var(--danger-bg); color: var(--danger); }
+.vwap-signal-list { display:flex; flex-direction:column; margin-top:12px; }
+.vwap-signal-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-top:1px solid var(--border-soft); cursor:pointer; }
+.vwap-signal-row:first-child { border-top:0; }
+.vwap-signal-row:hover .vwap-row-ticker { color:var(--text-primary); }
+.vwap-row-ticker { min-width:54px; font-weight:650; color:var(--text-primary); }
+.vwap-row-price { flex:1; color:var(--text-muted); font-variant-numeric:tabular-nums; }
+.vwap-horizon-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:14px; }
+.vwap-horizon { padding:9px 10px; border:1px solid var(--border-soft); border-radius:10px; background:rgba(255,255,255,.025); min-width:0; }
+.vwap-horizon small { display:block; color:var(--text-muted); font-size:10px; margin-bottom:4px; }
+.vwap-horizon b { display:block; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.vwap-meta { margin-top:7px; color:var(--text-muted); font-size:11px; line-height:1.45; }
+@media (max-width: 680px) { .vwap-horizon-grid { grid-template-columns:1fr; } }
 
 /* trend line svg */
 .trendline { margin-top: auto; }
@@ -733,16 +750,13 @@ html { overflow-x: hidden; }
           <div class="card-head">
             <div class="label">
               <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
-              <span id="vwap-card-title">VWAP mingguan</span>
+              <span id="vwap-card-title">Full VWAP 5/20/60</span>
             </div>
           </div>
           <div class="card-body">
-            <p id="vwap-text">Memuat...</p>
-          </div>
-          <div class="trendline">
-            <svg viewBox="0 0 220 46" preserveAspectRatio="none">
-              <polyline points="0,30 30,26 60,32 90,14 120,20 150,8 180,16 220,10" fill="none" stroke="var(--text-primary)" stroke-width="1.6"/>
-            </svg>
+            <p id="vwap-text">Memuat keputusan VWAP...</p>
+            <div class="vwap-signal-list" id="vwap-signal-list"></div>
+            <div class="vwap-meta" id="vwap-meta">Klik ticker untuk membuka detail Full VWAP 5/20/60.</div>
           </div>
           <div class="card-foot"><span></span><span class="link">Lihat semua VWAP</span></div>
         </div>
@@ -955,7 +969,7 @@ html { overflow-x: hidden; }
                 <th class="num" style="cursor:pointer" onclick="sortScreener('last_close')">Harga</th>
                 <th style="cursor:pointer" onclick="sortScreener('trend')">Trend</th>
                 <th>Wyckoff</th>
-                <th>vs VWAP</th>
+                <th style="cursor:pointer" onclick="sortScreener('vwap_signal')">VWAP 5/20/60</th>
                 <th>vs IHSG</th>
                 <th class="num" style="cursor:pointer" onclick="sortScreener('score')">Skor</th>
                 <th>Sinyal</th>
@@ -1025,6 +1039,35 @@ html { overflow-x: hidden; }
 <script>
 const PHASE_LABEL = { A: "Fase A", B: "Fase B", C: "Fase C", D: "Fase D", E: "Fase E" };
 const TREND_LABEL = { uptrend: "Uptrend", downtrend: "Downtrend", sideways: "Sideways", insufficient_data: "Data kurang" };
+const VWAP_SIGNAL_LABEL = { BUY: "BUY", HOLD: "HOLD", WAIT: "WAIT", REDUCE: "REDUCE", EXIT: "EXIT", AVOID: "AVOID" };
+const VWAP_SIGNAL_DESCRIPTION = {
+  BUY: "Momentum bullish dan baru muncul trigger entry.",
+  HOLD: "Posisi masih sehat, tetapi bukan titik entry baru.",
+  WAIT: "Setup menarik tetapi konfirmasi belum lengkap.",
+  REDUCE: "Bullish melemah.",
+  EXIT: "Struktur bullish rusak.",
+  AVOID: "Kondisi bearish; bukan berarti short sell."
+};
+
+function vwapTone(signal) {
+  return "vwap-" + String(signal || "WAIT").toLowerCase();
+}
+
+function vwapBadge(rawSignal) {
+  const signal = VWAP_SIGNAL_LABEL[rawSignal] ? rawSignal : "WAIT";
+  return `<span class="badge ${vwapTone(signal)}" title="${VWAP_SIGNAL_DESCRIPTION[signal]}">${VWAP_SIGNAL_LABEL[signal]}</span>`;
+}
+
+function vwapHorizonHtml(label, horizon) {
+  if (!horizon || horizon.value === null || horizon.value === undefined) {
+    return `<div class="vwap-horizon"><small>${label}</small><b>Data belum cukup</b></div>`;
+  }
+  const position = horizon.position === "above" ? "harga di atas" : horizon.position === "below" ? "harga di bawah" : "harga setara";
+  const slope = horizon.slope_pct === null || horizon.slope_pct === undefined
+    ? "-"
+    : `${horizon.slope_pct > 0 ? "+" : ""}${Number(horizon.slope_pct).toFixed(2)}%`;
+  return `<div class="vwap-horizon"><small>${label} · ${horizon.window}D</small><b>${fmtNum(horizon.value)}</b><span class="vwap-meta">${position} · slope ${slope}</span></div>`;
+}
 
 function fmtNum(n) {
   if (n === null || n === undefined) return "-";
@@ -1053,6 +1096,21 @@ function buildWatchlistContext() {
     wyckoff_events: (r.wyckoff?.events || []).map((e) => e.type),
     vwap: r.vwap?.vwap,
     vwap_position: r.vwap?.position,
+    vwap_signal: r.vwap_signal,
+    vwap_analysis: r.vwap_analysis ? {
+      status: r.vwap_analysis.status,
+      signal: r.vwap_analysis.signal,
+      regime: r.vwap_analysis.regime,
+      execution: r.vwap_analysis.execution,
+      vwap_fast: r.vwap_analysis.vwap_fast,
+      vwap_medium: r.vwap_analysis.vwap_medium,
+      vwap_swing: r.vwap_analysis.vwap_swing,
+      rvol: r.vwap_analysis.rvol,
+      atr: r.vwap_analysis.atr,
+      protective_stop: r.vwap_analysis.protective_stop,
+      reasons: r.vwap_analysis.reasons,
+      confidence_status: r.vwap_analysis.confidence_status,
+    } : null,
     comparative_strength: r.comparative_strength?.relative_strength_trend,
     score: r.score,
     score_breakdown: r.score_breakdown,
@@ -1213,7 +1271,8 @@ function renderWatchlistCards(rows) {
     const bd = r.score_breakdown || {};
     const trendSig = componentSignal(bd.trend);
     const wyckoffSig = componentSignal(bd.wyckoff);
-    const vwapSig = componentSignal(bd.vwap);
+    const vwapSig = r.vwap_signal || "WAIT";
+    const vwapReason = (r.vwap_analysis?.reasons || []).join(" ");
     return `
       <div class="card" style="cursor:pointer" onclick="openTickerAnalysis('${r.ticker}')">
         <div class="wl-card-head">
@@ -1229,8 +1288,8 @@ function renderWatchlistCards(rows) {
           <span class="badge ${wyckoffSig}">${SIGNAL_LABEL[wyckoffSig]}</span>
         </div>
         <div class="wl-comp-row">
-          <span class="wl-comp-name">VWAP</span>
-          <span class="badge ${vwapSig}">${SIGNAL_LABEL[vwapSig]}</span>
+          <span class="wl-comp-name">VWAP 5/20/60</span>
+          <span title="${escapeHtml(vwapReason)}">${vwapBadge(vwapSig)}</span>
         </div>
       </div>`;
   }).join("");
@@ -1255,7 +1314,7 @@ function renderScreenerTable(rows) {
         <td class="num">${fmtNum(r.last_close)}</td>
         <td>${TREND_LABEL[r.trend] || r.trend}</td>
         <td style="color:var(--text-secondary);">${wyBias}${wyPhase ? " &middot; " + wyPhase : ""}</td>
-        <td>${r.vwap?.position === "above" ? "Di atas" : r.vwap?.position === "below" ? "Di bawah" : "-"}</td>
+        <td title="${escapeHtml((r.vwap_analysis?.reasons || []).join(" "))}">${vwapBadge(r.vwap_signal)}</td>
         <td>${r.comparative_strength?.relative_strength_trend === "outperforming" ? "Outperform" : r.comparative_strength?.relative_strength_trend === "underperforming" ? "Underperform" : "-"}</td>
         <td class="num" style="font-weight:600;">${r.score}</td>
         <td><span class="badge ${r.signal}">${r.signal.charAt(0).toUpperCase()+r.signal.slice(1)}</span></td>
@@ -1566,15 +1625,26 @@ function renderStyleDependent(style) {
     (unhealthy.length ? `${unhealthy.join(", ")} tembus ke downtrend.` : "Tidak ada yang downtrend.");
   document.getElementById("trend-stat").innerHTML = `${healthy}<span class="unit">/ ${wl.length} sehat</span>`;
 
-  // --- VWAP (judul & isi ikut ganti) ---
+  // --- Keputusan VWAP multi-horizon; tidak mengikuti toggle skor Weekly/Swing. ---
   const vwapTitleEl = document.getElementById("vwap-card-title");
-  if (vwapTitleEl) vwapTitleEl.textContent = isSwing ? "VWAP Swing" : "VWAP mingguan";
-  const aboveVwap = wl.filter(r => r[vwapKey]?.position === "above").length;
-  const belowList = wl.filter(r => r[vwapKey]?.position === "below");
-  const worstBelow = belowList.sort((a,b) => (a[vwapKey].vwap - a.last_close) - (b[vwapKey].vwap - b.last_close)).pop();
+  if (vwapTitleEl) vwapTitleEl.textContent = "Full VWAP 5/20/60";
+  const counts = { BUY:0, HOLD:0, WAIT:0, REDUCE:0, EXIT:0, AVOID:0 };
+  wl.forEach(r => { if (r.vwap_signal in counts) counts[r.vwap_signal] += 1; });
   document.getElementById("vwap-text").innerHTML =
-    `${aboveVwap} ticker diperdagangkan di atas VWAP ${isSwing ? "Swing" : "mingguan"}` +
-    (worstBelow ? `, <b>${worstBelow.ticker}</b> tertinggal ${fmtNum(worstBelow[vwapKey].vwap - worstBelow.last_close)} poin di bawahnya.` : ".");
+    `<b>${counts.BUY} BUY</b> · ${counts.HOLD} HOLD · ${counts.WAIT} WAIT · ` +
+    `${counts.REDUCE} REDUCE · ${counts.EXIT} EXIT · ${counts.AVOID} AVOID.`;
+  const signalPriority = { BUY:0, HOLD:1, WAIT:2, REDUCE:3, EXIT:4, AVOID:5 };
+  const vwapRows = [...wl].sort((a,b) => {
+    const priorityDiff = (signalPriority[a.vwap_signal] ?? 9) - (signalPriority[b.vwap_signal] ?? 9);
+    return priorityDiff || ((b.score || 0) - (a.score || 0));
+  }).slice(0,5);
+  document.getElementById("vwap-signal-list").innerHTML = vwapRows.map(r => `
+    <div class="vwap-signal-row" onclick="openTickerAnalysis('${r.ticker}')"
+         title="${escapeHtml((r.vwap_analysis?.reasons || []).join(" "))}">
+      <span class="vwap-row-ticker">${r.ticker}</span>
+      <span class="vwap-row-price">${fmtNum(r.last_close)}</span>
+      ${vwapBadge(r.vwap_signal)}
+    </div>`).join("");
 
   // --- Distribusi skor ---
   const scores = wl.map(r => r[scoreKey]).filter(v => v !== undefined && v !== null);

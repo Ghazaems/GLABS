@@ -70,9 +70,10 @@ def clean_price_frame(
     dataframe: pd.DataFrame | None,
 ) -> pd.DataFrame | None:
     """
-    Bersihkan satu dataframe OHLCV.
+    Bersihkan satu dataframe OHLCV adjusted.
 
-    Return None apabila data kosong, tidak memiliki kolom Close,
+    Harga adjusted mencegah stock split/dividen menghasilkan return palsu.
+    Return None apabila data kosong, tidak memiliki OHLCV lengkap,
     atau jumlah data historis terlalu sedikit.
     """
     if dataframe is None:
@@ -94,18 +95,36 @@ def clean_price_frame(
         if column in cleaned.columns
     ]
 
-    if "Close" not in available_columns:
+    if any(
+        column not in available_columns
+        for column in REQUIRED_COLUMNS
+    ):
         return None
 
-    cleaned = cleaned[available_columns]
+    cleaned = cleaned[list(REQUIRED_COLUMNS)]
+
+    cleaned[list(REQUIRED_COLUMNS)] = cleaned[
+        list(REQUIRED_COLUMNS)
+    ].apply(
+        pd.to_numeric,
+        errors="coerce",
+    )
 
     cleaned = cleaned.dropna(
-        subset=["Close"]
+        subset=list(REQUIRED_COLUMNS)
     )
 
     cleaned = cleaned[
-        cleaned["Close"] > 0
+        (cleaned["Open"] > 0)
+        & (cleaned["High"] > 0)
+        & (cleaned["Low"] > 0)
+        & (cleaned["Close"] > 0)
+        & (cleaned["Volume"] > 0)
     ]
+
+    cleaned = cleaned[
+        ~cleaned.index.duplicated(keep="last")
+    ].sort_index()
 
     if len(cleaned) <= MINIMUM_PRICE_ROWS:
         return None
@@ -184,7 +203,7 @@ def download_from_yahoo(
             period=period,
             interval="1d",
             group_by="ticker",
-            auto_adjust=False,
+            auto_adjust=True,
             threads=False,
             progress=False,
             timeout=30,

@@ -1,271 +1,183 @@
-"""
-Forward-test: mengukur hasil NYATA (bukan simulasi) dari sinyal komposit
-(beli/pantau/jual) yang pernah muncul, dibandingkan harga N hari bursa
-kemudian - menggunakan data yang benar-benar terkumpul harian dari cron job.
+"""Forward-test evaluator with next-session execution and explicit trading friction."""
+from __future__ import annotations
 
-BEDA dengan backtest historis:
-- Backtest: bisa langsung dihitung hari ini pakai data 3 tahun lalu (instan)
-- Forward-test: HARUS menunggu waktu nyata berjalan - sinyal yang muncul
-  kemarin baru bisa diukur horizon 5 harinya, 5 hari bursa dari sekarang
-
-Selain ringkasan performa per label sinyal (seperti sebelumnya), sekarang
-forward test ini JUGA menghitung uji signifikansi statistik yang sama
-seperti evaluate_ic.py untuk backtest: Information Coefficient (IC) per
-komponen skor, winrate confidence interval, dan expectancy - tapi dari
-data NYATA, bukan simulasi.
-
-CATATAN SOAL DATA LAMA:
-Skor komposit numerik (dan breakdown per komponen) baru mulai disimpan
-sebagai angka sejak storage/db.py & main.py diperbarui. Sinyal yang
-tercatat SEBELUM pembaruan ini cuma punya skor komposit di teks catatan
-(note="score=82"), yang tetap coba diselamatkan di sini lewat pencarian
-teks - tapi breakdown per komponennya (trend/wyckoff/vwap/dst) TIDAK bisa
-diselamatkan untuk data lama, karena memang belum pernah dicatat. Jadi
-uji IC per komponen baru akan punya sampel yang berarti setelah cron
-harian berjalan beberapa waktu SEJAK pembaruan ini di-deploy.
-
-Jalankan: python forward_test.py
-Butuh minimal beberapa minggu data terkumpul dulu supaya horizon 20 hari
-punya cukup sampel (kalau belum, laporan tetap jalan tapi sampelnya sedikit/kosong).
-"""
 import json
-import re
-from datetime import datetime
-from storage.db import get_conn
+import os
+import sqlite3
+from pathlib import Path
 
+import numpy as np
+import pandas as pd
 from scipy.stats import spearmanr
-from statsmodels.stats.proportion import proportion_confint
 
-HORIZONS = [5, 10, 20]  # hari bursa setelah sinyal muncul
-
-COMPONENT_KEYS = [
-    "comp_trend",
-    "comp_wyckoff",
-    "comp_vwap",
-    "comp_comparative_strength",
-    "comp_support_resistance",
-]
-
-_SCORE_IN_NOTE_RE = re.compile(r"score=(-?\d+(?:\.\d+)?)")
+DB_PATH = Path(os.getenv("DB_PATH", "data/screener.db"))
+OUT_PATH = Path(os.getenv("FORWARD_REPORT_PATH", "reports/forward_test_latest.json"))
+HORIZONS = (5, 10, 20)
+COST_PCT = float(os.getenv("ROUND_TRIP_COST_PCT", "0.50"))
+SLIPPAGE_PCT = float(os.getenv("ROUND_TRIP_SLIPPAGE_PCT", "0.20"))
+FRICTION_PCT = COST_PCT + SLIPPAGE_PCT
 
 
-def get_composite_signals():
-    """Ambil semua sinyal komposit yang pernah tersimpan, urut per ticker+tanggal."""
-    with get_conn() as conn:
-        rows = conn.execute("""
-            SELECT ticker, date, direction AS signal, note,
-                   score, comp_trend, comp_wyckoff, comp_vwap,
-                   comp_comparative_strength, comp_support_resistance
-            FROM signals
-            WHERE signal_type = 'composite'
-            ORDER BY ticker, date
-        """).fetchall()
-    return [dict(r) for r in rows]
+def _load_signals(conn: sqlite3.Connection) -> pd.DataFrame:
+    query = """
+        SELECT ticker, date, signal_type, score, note
+        FROM signals
+        WHERE signal_type IN ('composite', 'vwap_multi')
+        ORDER BY date, ticker
+    """
+    frame = pd.read_sql_query(query, conn)
+    if frame.empty:
+        return frame
+    frame["date"] = pd.to_datetime(frame["date"], errors="coerce")
+    return frame.dropna(subset=["ticker", "date", "signal_type"])
 
 
-def get_price_series(ticker: str) -> list[dict]:
-    """Ambil semua harga historis ticker tsb, urut tanggal naik."""
-    with get_conn() as conn:
-        rows = conn.execute("""
-            SELECT date, close FROM prices WHERE ticker = ? ORDER BY date ASC
-        """, (ticker,)).fetchall()
-    return [dict(r) for r in rows]
-
-
-def _resolve_score(sig: dict):
-    """Skor numerik kalau ada; kalau tidak, coba selamatkan dari teks note lama."""
-    if sig.get("score") is not None:
-        return sig["score"]
-    match = _SCORE_IN_NOTE_RE.search(sig.get("note") or "")
-    return float(match.group(1)) if match else None
-
-
-def compute_forward_returns():
-    signals = get_composite_signals()
-    price_cache = {}  # ticker -> list of {date, close}
-
-    results = []
-
-    for sig in signals:
-        ticker = sig["ticker"]
-        if ticker not in price_cache:
-            price_cache[ticker] = get_price_series(ticker)
-        prices = price_cache[ticker]
-
-        # cari index tanggal sinyal muncul di deretan harga
-        dates = [p["date"] for p in prices]
-        try:
-            idx = dates.index(sig["date"])
-        except ValueError:
-            continue  # tanggal sinyal belum punya harga tersimpan, skip
-
-        entry_price = prices[idx]["close"]
-        row = {
-            "ticker": ticker,
-            "date": sig["date"],
-            "signal": sig["signal"],
-            "entry_price": entry_price,
-            "score": _resolve_score(sig),
-            "returns": {},
-        }
-        for comp in COMPONENT_KEYS:
-            row[comp] = sig.get(comp)
-
-        for h in HORIZONS:
-            target_idx = idx + h
-            if target_idx < len(prices):
-                future_price = prices[target_idx]["close"]
-                pct = round((future_price - entry_price) / entry_price * 100, 2)
-                row["returns"][str(h)] = pct
-            else:
-                row["returns"][str(h)] = None  # belum cukup waktu berjalan
-
-        results.append(row)
-
-    return results
-
-
-def aggregate_by_signal(results: list[dict]) -> dict:
-    """Ringkas performa per horizon per label sinyal (beli/pantau/jual)."""
-    agg = {str(h): {} for h in HORIZONS}
-
-    for h in HORIZONS:
-        h_key = str(h)
-        by_label = {}
-        for r in results:
-            pct = r["returns"].get(h_key)
-            if pct is None:
-                continue
-            by_label.setdefault(r["signal"], []).append(pct)
-
-        rows = []
-        for label, pcts in by_label.items():
-            untung = sum(1 for p in pcts if p > 0)
-            rows.append({
-                "signal": label,
-                "jumlah_sampel": len(pcts),
-                "rata_rata_return_pct": round(sum(pcts) / len(pcts), 2),
-                "persen_untung": round(untung / len(pcts) * 100, 1),
-            })
-        agg[h_key] = rows
-
-    return agg
-
-
-def _information_coefficient(pairs: list[tuple]):
-    """pairs = list of (score_value, return_pct), sudah dibuang yang None."""
-    if len(pairs) < 30:
-        return None
-    xs = [p[0] for p in pairs]
-    ys = [p[1] for p in pairs]
-    if len(set(xs)) < 2:
-        return None
-    ic, p_value = spearmanr(xs, ys)
-    return {"ic": round(ic, 4), "p_value": round(p_value, 4), "n": len(pairs),
-            "significant": bool(p_value < 0.05)}
-
-
-def _winrate_ci(returns: list):
-    total = len(returns)
-    if total == 0:
-        return None
-    wins = sum(1 for r in returns if r > 0)
-    winrate = wins / total * 100
-    lower, upper = proportion_confint(wins, total, alpha=0.05, method="wilson")
+def _load_prices(conn: sqlite3.Connection) -> dict[str, pd.DataFrame]:
+    frame = pd.read_sql_query(
+        "SELECT ticker, date, open, close FROM price_history ORDER BY ticker, date", conn
+    )
+    if frame.empty:
+        return {}
+    frame["date"] = pd.to_datetime(frame["date"], errors="coerce")
+    frame["open"] = pd.to_numeric(frame["open"], errors="coerce")
+    frame["close"] = pd.to_numeric(frame["close"], errors="coerce")
+    frame = frame.dropna(subset=["ticker", "date", "open", "close"])
     return {
-        "winrate_pct": round(winrate, 2),
-        "ci_lower_pct": round(lower * 100, 2),
-        "ci_upper_pct": round(upper * 100, 2),
-        "n": total,
-        "beats_coinflip": bool(lower * 100 > 50),
+        ticker: group.drop_duplicates("date", keep="last").set_index("date").sort_index()
+        for ticker, group in frame.groupby("ticker")
     }
 
 
-def _expectancy(returns: list):
-    if not returns:
-        return None
-    wins = [r for r in returns if r > 0]
-    losses = [r for r in returns if r <= 0]
-    avg_win = sum(wins) / len(wins) if wins else 0
-    avg_loss = sum(losses) / len(losses) if losses else 0
-    winrate = len(wins) / len(returns)
-    exp = winrate * avg_win + (1 - winrate) * avg_loss
+def _parse_note(value: object) -> dict:
+    if not isinstance(value, str) or not value.strip():
+        return {}
+    try:
+        parsed = json.loads(value)
+        return parsed if isinstance(parsed, dict) else {}
+    except json.JSONDecodeError:
+        return {}
+
+
+def _future_returns(signal: pd.Series, prices: pd.DataFrame) -> dict:
+    result = {f"return_{h}d": np.nan for h in HORIZONS}
+    signal_date = pd.Timestamp(signal["date"])
+    location = prices.index.searchsorted(signal_date, side="right")
+    if location >= len(prices):
+        return result
+
+    entry_open = float(prices.iloc[location]["open"])
+    if not np.isfinite(entry_open) or entry_open <= 0:
+        return result
+
+    for horizon in HORIZONS:
+        exit_location = location + horizon - 1
+        if exit_location >= len(prices):
+            continue
+        exit_close = float(prices.iloc[exit_location]["close"])
+        gross = (exit_close / entry_open - 1.0) * 100.0
+        result[f"gross_return_{horizon}d"] = gross
+        result[f"return_{horizon}d"] = gross - FRICTION_PCT
+
+    result["entry_date"] = prices.index[location].date().isoformat()
+    result["entry_open"] = entry_open
+    return result
+
+
+def _group_stats(frame: pd.DataFrame, field: str) -> dict:
+    output: dict[str, dict] = {}
+    if field not in frame.columns:
+        return output
+    for label, group in frame.dropna(subset=[field]).groupby(field):
+        stats: dict[str, float | int | None] = {"count": int(len(group))}
+        for horizon in HORIZONS:
+            values = pd.to_numeric(group[f"return_{horizon}d"], errors="coerce").dropna()
+            stats[f"mean_{horizon}d"] = round(float(values.mean()), 4) if len(values) else None
+            stats[f"median_{horizon}d"] = round(float(values.median()), 4) if len(values) else None
+            stats[f"winrate_{horizon}d"] = round(float((values > 0).mean() * 100), 2) if len(values) else None
+            stats[f"n_{horizon}d"] = int(len(values))
+        output[str(label)] = stats
+    return output
+
+
+def _daily_ic(frame: pd.DataFrame, horizon: int) -> dict:
+    subset = frame[
+        (frame["signal_type"] == "composite")
+        & frame["score"].notna()
+        & frame[f"return_{horizon}d"].notna()
+    ]
+    values = []
+    for _, group in subset.groupby("date"):
+        if len(group) < 5 or group["score"].nunique() < 2:
+            continue
+        ic, _ = spearmanr(group["score"], group[f"return_{horizon}d"])
+        if np.isfinite(ic):
+            values.append(float(ic))
+    if not values:
+        return {"mean": None, "median": None, "positive_rate": None, "days": 0}
     return {
-        "avg_win_pct": round(avg_win, 3),
-        "avg_loss_pct": round(avg_loss, 3),
-        "expectancy_pct": round(exp, 4),
-        "positive": bool(exp > 0),
+        "mean": round(float(np.mean(values)), 4),
+        "median": round(float(np.median(values)), 4),
+        "positive_rate": round(float(np.mean(np.asarray(values) > 0) * 100), 2),
+        "days": len(values),
     }
 
 
-def compute_ic_report(results: list[dict]) -> dict:
-    """
-    Uji signifikansi statistik dari data forward test NYATA - struktur JSON-nya
-    sengaja dibuat SAMA PERSIS dengan web/ic_data.json (hasil evaluate_ic.py
-    untuk backtest), supaya bisa dirender pakai fungsi JS yang sama di
-    web/index.html (renderICReport), tidak perlu bikin komponen tampilan baru.
-    """
+def evaluate_forward() -> dict:
+    if not DB_PATH.exists():
+        raise FileNotFoundError(f"Database tidak ditemukan: {DB_PATH}")
+
+    with sqlite3.connect(DB_PATH) as conn:
+        signals = _load_signals(conn)
+        prices = _load_prices(conn)
+
+    rows = []
+    for _, signal in signals.iterrows():
+        ticker_prices = prices.get(str(signal["ticker"]))
+        if ticker_prices is None or ticker_prices.empty:
+            continue
+        note = _parse_note(signal.get("note"))
+        row = signal.to_dict()
+        row.update(_future_returns(signal, ticker_prices))
+        row["vwap_signal"] = note.get("signal")
+        row["vwap_confidence"] = note.get("confidence")
+        rows.append(row)
+
+    evaluated = pd.DataFrame(rows)
+    for horizon in HORIZONS:
+        column = f"return_{horizon}d"
+        if column not in evaluated:
+            evaluated[column] = np.nan
+
+    latest = []
+    if not evaluated.empty:
+        keep = ["ticker", "date", "signal_type", "score", "vwap_signal", "entry_date"]
+        keep += [f"return_{h}d" for h in HORIZONS]
+        latest = (
+            evaluated.sort_values("date", ascending=False)
+            .head(50)[keep]
+            .replace({np.nan: None})
+            .assign(date=lambda x: x["date"].dt.date.astype(str))
+            .to_dict("records")
+        )
+
     report = {
-        "horizons": HORIZONS,
-        "composite": {},
-        "components": {c.replace("comp_", ""): {} for c in COMPONENT_KEYS},
-        "winrate": {},
-        "expectancy": {},
+        "methodology": {
+            "signal_observed": "session close",
+            "execution": "next_session_open",
+            "round_trip_cost_pct": COST_PCT,
+            "round_trip_slippage_pct": SLIPPAGE_PCT,
+            "reported_returns": "net of configured friction",
+        },
+        "sample_count": int(len(evaluated)),
+        "by_signal": _group_stats(evaluated[evaluated["signal_type"] == "composite"], "signal_type"),
+        "by_vwap_signal": _group_stats(evaluated[evaluated["signal_type"] == "vwap_multi"], "vwap_signal"),
+        "ic": {f"{h}d": _daily_ic(evaluated, h) for h in HORIZONS},
+        "detail_terbaru": latest,
     }
-
-    for h in HORIZONS:
-        h_key = str(h)
-        matured = [r for r in results if r["returns"].get(h_key) is not None]
-        returns = [r["returns"][h_key] for r in matured]
-
-        composite_pairs = [
-            (r["score"], r["returns"][h_key]) for r in matured if r["score"] is not None
-        ]
-        report["composite"][h_key] = _information_coefficient(composite_pairs)
-
-        for comp in COMPONENT_KEYS:
-            name = comp.replace("comp_", "")
-            comp_pairs = [
-                (r[comp], r["returns"][h_key]) for r in matured if r.get(comp) is not None
-            ]
-            report["components"][name][h_key] = _information_coefficient(comp_pairs)
-
-        report["winrate"][h_key] = _winrate_ci(returns)
-        report["expectancy"][h_key] = _expectancy(returns)
-
+    OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    OUT_PATH.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     return report
 
 
-def export_forward_test_json(results: list[dict]):
-    matured = [r for r in results if any(v is not None for v in r["returns"].values())]
-
-    payload = {
-        "generated_at": datetime.now().isoformat(),
-        "jenis": "forward_test",
-        "catatan": (
-            "Ini hasil NYATA (bukan simulasi historis) dari sinyal yang pernah "
-            "muncul, diukur pakai harga real setelah waktu berjalan. Sampel akan "
-            "terus bertambah tiap hari cron job jalan. Horizon yang belum cukup "
-            "waktu (misal sinyal baru muncul 3 hari lalu, horizon 20 hari) belum "
-            "masuk hitungan sampai waktunya cukup."
-        ),
-        "total_sampel_matang": len(matured),
-        "total_sampel_terdaftar": len(results),
-        "horizons_hari_bursa": HORIZONS,
-        "by_signal": aggregate_by_signal(results),
-        "detail_terbaru": sorted(results, key=lambda r: r["date"], reverse=True)[:50],
-        "ic": compute_ic_report(results),
-    }
-
-    import os
-    os.makedirs("web", exist_ok=True)
-    with open("web/forward_test_data.json", "w") as f:
-        json.dump(payload, f, indent=2, default=str)
-
-    print(f"Selesai. {len(matured)}/{len(results)} sampel sudah matang (punya hasil).")
-    print("Tersimpan di web/forward_test_data.json (termasuk uji IC di dalamnya)")
-
-
 if __name__ == "__main__":
-    results = compute_forward_returns()
-    export_forward_test_json(results)
+    print(json.dumps(evaluate_forward(), indent=2, ensure_ascii=False))

@@ -1,246 +1,466 @@
 """
-Backtest sederhana untuk sistem screening di main.py.
+Backtest no-lookahead untuk sistem GLABS.
 
-TUJUAN (dijelaskan tanpa istilah IT):
-Script ini "memutar ulang" data harga historis, hari demi hari, dan di
-setiap titik waktu berpura-pura seolah-olah hari itu adalah HARI INI --
-lalu menjalankan persis formula yang sama dengan main.py (trend, Wyckoff,
-VWAP, comparative strength, skor komposit) memakai data yang tersedia
-SAMPAI hari itu saja (tidak mengintip masa depan).
-
-Setelah sinyal "beli/pantau/jual" tercatat, script menunggu 5, 10, dan 20
-hari bursa ke depan lalu mengecek: harga saham itu naik atau turun, dan
-berapa persen. Hasilnya dikumpulkan jadi tabel ringkas: kalau sistem bilang
-"beli", secara historis rata-rata hasilnya seperti apa?
-
-INI BUKAN JAMINAN HASIL MASA DEPAN. Ini cuma alat ukur "seberapa masuk akal
-skor yang dihasilkan sistem ini, berdasarkan apa yang sudah terjadi".
-
-CARA PAKAI:
-    python backtest.py
-
-Butuh koneksi internet (sama seperti main.py, karena ambil data historis
-lebih panjang dari yfinance). Hasilnya disimpan ke backtest_results.csv
-dan ringkasannya dicetak ke layar dalam bahasa biasa.
+Prinsip:
+- Sinyal hanya memakai data sampai penutupan hari t.
+- Entry terjadi pada Open hari bursa berikutnya (t+1).
+- Benchmark disejajarkan berdasarkan tanggal, bukan nomor baris.
+- Return utama sudah dikurangi biaya dan slippage eksplisit.
+- Mean, median, win rate, dan tail outcome dilaporkan bersama.
 """
+
+from __future__ import annotations
+
 import json
-import sys
+import os
 from datetime import datetime
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parent))
-
+import numpy as np
 import pandas as pd
 
 from data.yfinance_fetcher import fetch_batch, fetch_daily
-from screener.trend import trend_structure, support_resistance_levels
-from screener.wyckoff import analyze_latest_trading_range, comparative_strength
-from screener.vwap import price_vs_vwap
-from screener.scoring import compute_score, classify_signal
 from main import DEFAULT_WATCHLIST
+from screener.scoring import classify_signal, compute_score
+from screener.trend import (
+    support_resistance_levels,
+    trend_structure,
+)
+from screener.vwap import (
+    analyze_vwap_signals,
+    price_vs_vwap,
+)
+from screener.wyckoff import (
+    analyze_latest_trading_range,
+    comparative_strength,
+)
 
-# ---------------------------------------------------------------------------
-# PENGATURAN
-# ---------------------------------------------------------------------------
 
-# Ambil histori sepanjang mungkin biar sampel backtest lebih banyak.
-# yfinance untuk saham IDX biasanya sanggup kasih beberapa tahun ke belakang.
 PERIOD = "3y"
-
-# Berapa hari bursa minimum dibutuhkan sebelum sinyal pertama dihitung.
-# Wyckoff & trend butuh histori cukup panjang biar tidak "insufficient_data".
-WARMUP_BARS = 100
-
-# Sinyal dicek hasilnya berapa hari bursa ke depan.
+WARMUP_BARS = 120
 HORIZONS = [5, 10, 20]
-
-# Ambil 1 sampel tiap N hari bursa (bukan tiap hari), supaya sampel tidak
-# tumpang-tindih berlebihan (sinyal hari Senin dan Selasa itu 95% mirip,
-# kalau dihitung semua, hasil backtest jadi bias seolah sampelnya banyak
-# padahal sebenarnya cuma mengulang info yang sama).
 STRIDE = 5
 
+ROUND_TRIP_COST_PCT = float(
+    os.getenv("ROUND_TRIP_COST_PCT", "0.50")
+)
+ROUND_TRIP_SLIPPAGE_PCT = float(
+    os.getenv("ROUND_TRIP_SLIPPAGE_PCT", "0.20")
+)
+TOTAL_FRICTION_PCT = (
+    ROUND_TRIP_COST_PCT
+    + ROUND_TRIP_SLIPPAGE_PCT
+)
 
-def run_backtest():
-    print(f"Mengambil data historis {PERIOD} untuk {len(DEFAULT_WATCHLIST)} saham...")
-    price_data = fetch_batch(DEFAULT_WATCHLIST, period=PERIOD)
 
-    print("Mengambil data IHSG untuk comparative strength...")
-    ihsg = fetch_daily("^JKSE", period=PERIOD)
+def _aligned_benchmark(
+    benchmark: pd.DataFrame | None,
+    cutoff,
+) -> pd.DataFrame | None:
+    if benchmark is None or benchmark.empty:
+        return None
 
+    aligned = benchmark.loc[
+        benchmark.index <= cutoff
+    ]
+
+    return aligned if not aligned.empty else None
+
+
+def _safe_float(value) -> float | None:
+    try:
+        result = float(value)
+    except (TypeError, ValueError):
+        return None
+
+    return result if np.isfinite(result) else None
+
+
+def _summary(
+    frame: pd.DataFrame,
+    group_column: str,
+    return_column: str,
+) -> list[dict]:
     rows = []
-    max_horizon = max(HORIZONS)
 
-    for ticker, df in price_data.items():
-        n = len(df)
-        min_needed = WARMUP_BARS + max_horizon + 5
-        if n < min_needed:
-            print(f"[SKIP] {ticker}: cuma {n} hari data, butuh minimal {min_needed}")
+    for label, group in frame.groupby(
+        group_column,
+        dropna=False,
+    ):
+        values = group[return_column].dropna()
+
+        if values.empty:
             continue
 
-        print(f"Memproses {ticker} ({n} hari data)...")
+        rows.append(
+            {
+                group_column: str(label),
+                "jumlah_sampel": int(len(values)),
+                "rata_rata_return_pct": round(
+                    float(values.mean()),
+                    3,
+                ),
+                "median_return_pct": round(
+                    float(values.median()),
+                    3,
+                ),
+                "persen_untung": round(
+                    float((values > 0).mean() * 100),
+                    2,
+                ),
+                "return_terburuk": round(
+                    float(values.min()),
+                    3,
+                ),
+                "return_terbaik": round(
+                    float(values.max()),
+                    3,
+                ),
+            }
+        )
 
-        for t in range(WARMUP_BARS, n - max_horizon, STRIDE):
-            # "hist" = semua data SAMPAI hari ke-t saja. Ini kunci supaya
-            # backtest tidak curang mengintip masa depan.
-            hist = df.iloc[: t + 1]
+    return rows
 
-            trend = trend_structure(hist)
-            sr = support_resistance_levels(hist)
-            wy = analyze_latest_trading_range(hist)
-            vwap = price_vs_vwap(hist, window=5)
 
-            if ihsg is not None:
-                ihsg_hist = ihsg.iloc[: t + 1]
-                cs = comparative_strength(hist, ihsg_hist)
+def run_backtest() -> pd.DataFrame:
+    print(
+        f"Mengambil data {PERIOD} untuk "
+        f"{len(DEFAULT_WATCHLIST)} saham..."
+    )
+
+    price_data = fetch_batch(
+        DEFAULT_WATCHLIST,
+        period=PERIOD,
+    )
+    ihsg = fetch_daily("^JKSE", period=PERIOD)
+
+    rows: list[dict] = []
+    maximum_horizon = max(HORIZONS)
+
+    for ticker, dataframe in price_data.items():
+        dataframe = dataframe.sort_index()
+        total_rows = len(dataframe)
+        minimum_needed = (
+            WARMUP_BARS
+            + maximum_horizon
+            + 2
+        )
+
+        if total_rows < minimum_needed:
+            continue
+
+        print(
+            f"Memproses {ticker} "
+            f"({total_rows} hari data)..."
+        )
+
+        stop = total_rows - maximum_horizon - 1
+
+        for signal_index in range(
+            WARMUP_BARS,
+            stop,
+            STRIDE,
+        ):
+            history = dataframe.iloc[
+                :signal_index + 1
+            ]
+            signal_date = history.index[-1]
+            entry_index = signal_index + 1
+            entry_date = dataframe.index[entry_index]
+
+            entry_price = _safe_float(
+                dataframe["Open"].iloc[entry_index]
+            )
+
+            if entry_price is None or entry_price <= 0:
+                continue
+
+            benchmark_history = _aligned_benchmark(
+                ihsg,
+                signal_date,
+            )
+
+            trend = trend_structure(history)
+            support_resistance = (
+                support_resistance_levels(history)
+            )
+            wyckoff = (
+                analyze_latest_trading_range(history)
+            )
+            vwap_medium = price_vs_vwap(
+                history,
+                window=20,
+            )
+            vwap_analysis = analyze_vwap_signals(
+                history
+            )
+
+            if benchmark_history is None:
+                comparative = {
+                    "status": "no_ihsg_data",
+                }
             else:
-                cs = {"status": "no_ihsg_data"}
+                comparative = comparative_strength(
+                    history,
+                    benchmark_history,
+                )
 
-            scored = compute_score(trend, wy, vwap, cs, sr)
-            signal = classify_signal(scored)
+            scored = compute_score(
+                trend,
+                wyckoff,
+                vwap_medium,
+                comparative,
+                support_resistance,
+            )
+            composite_signal = classify_signal(
+                scored
+            )
 
-            entry_price = float(df["Close"].iloc[t])
             row = {
                 "ticker": ticker,
-                "date": df.index[t].strftime("%Y-%m-%d"),
+                "date": signal_date.strftime(
+                    "%Y-%m-%d"
+                ),
+                "entry_date": entry_date.strftime(
+                    "%Y-%m-%d"
+                ),
+                "entry_price": round(
+                    entry_price,
+                    4,
+                ),
+                "execution": "next_session_open",
                 "score": scored["score"],
-                "signal": signal,
-                "entry_price": round(entry_price, 2),
+                "signal": composite_signal,
+                "vwap_signal": vwap_analysis.get(
+                    "signal",
+                    "WAIT",
+                ),
+                "vwap_regime": vwap_analysis.get(
+                    "regime",
+                    "unknown",
+                ),
+                "vwap_rvol": vwap_analysis.get(
+                    "rvol"
+                ),
             }
-            for comp_name, comp_score in scored["breakdown"].items():
-                row[f"comp_{comp_name}"] = comp_score
-            for h in HORIZONS:
-                future_price = float(df["Close"].iloc[t + h])
-                row[f"return_{h}d_pct"] = round(
-                    (future_price - entry_price) / entry_price * 100, 2
+
+            for name, component_score in (
+                scored["breakdown"].items()
+            ):
+                row[f"comp_{name}"] = (
+                    component_score
                 )
+
+            for horizon in HORIZONS:
+                exit_index = (
+                    entry_index + horizon
+                )
+                exit_price = _safe_float(
+                    dataframe["Close"].iloc[
+                        exit_index
+                    ]
+                )
+
+                if (
+                    exit_price is None
+                    or exit_price <= 0
+                ):
+                    gross_return = np.nan
+                    net_return = np.nan
+                else:
+                    gross_return = (
+                        (
+                            exit_price
+                            / entry_price
+                        )
+                        - 1.0
+                    ) * 100.0
+                    net_return = (
+                        gross_return
+                        - TOTAL_FRICTION_PCT
+                    )
+
+                row[
+                    f"gross_return_{horizon}d_pct"
+                ] = round(gross_return, 4)
+                row[
+                    f"return_{horizon}d_pct"
+                ] = round(net_return, 4)
+
             rows.append(row)
 
     if not rows:
-        print("Tidak ada sampel yang terkumpul. Cek koneksi data / WARMUP_BARS.")
-        return
+        raise RuntimeError(
+            "Tidak ada sampel backtest yang valid."
+        )
 
-    result_df = pd.DataFrame(rows)
-    result_df.to_csv("backtest_results.csv", index=False)
-    print(f"\n{len(result_df)} sampel sinyal tersimpan ke backtest_results.csv")
-
-    print_report(result_df)
-    export_dashboard_json(result_df)
-
-
-def print_report(df: pd.DataFrame):
-    print("\n" + "=" * 70)
-    print("RINGKASAN BACKTEST (bahasa biasa)")
-    print("=" * 70)
-
-    print(
-        "\nCatatan penting: sampel di bawah ini saling berdekatan waktunya "
-        "(diambil tiap beberapa hari dari watchlist yang sama), jadi masih "
-        "mencerminkan kondisi pasar dalam periode yang terbatas. Anggap "
-        "sebagai indikasi awal, bukan kesimpulan final -- makin lama sistem "
-        "jalan dan makin banyak kondisi pasar yang terekam, makin bisa "
-        "dipercaya angkanya."
+    result = pd.DataFrame(rows)
+    result.to_csv(
+        "backtest_results.csv",
+        index=False,
     )
 
-    print(f"\nTotal sampel sinyal: {len(df)}")
+    print_report(result)
+    export_dashboard_json(result)
 
-    print("\n--- Performa per kategori sinyal ---")
-    for h in HORIZONS:
-        col = f"return_{h}d_pct"
-        summary = (
-            df.groupby("signal")[col]
-            .agg(
-                jumlah_sampel="count",
-                rata_rata_return_pct="mean",
-                persen_untung=lambda s: (s > 0).mean() * 100,
-                return_terburuk="min",
-                return_terbaik="max",
-            )
-            .round(2)
-        )
-        print(f"\nHasil {h} hari bursa setelah sinyal muncul:")
-        print(summary.to_string())
+    return result
 
-    print("\n--- Performa per rentang skor (dibagi 4 kelompok) ---")
-    df["kelompok_skor"] = pd.qcut(df["score"], q=4, duplicates="drop")
-    for h in HORIZONS:
-        col = f"return_{h}d_pct"
-        summary = (
-            df.groupby("kelompok_skor", observed=True)[col]
-            .agg(jumlah_sampel="count", rata_rata_return_pct="mean")
-            .round(2)
-        )
-        print(f"\nHasil {h} hari bursa, dikelompokkan dari skor terendah ke tertinggi:")
-        print(summary.to_string())
 
+def print_report(frame: pd.DataFrame) -> None:
+    print("\n" + "=" * 72)
+    print("BACKTEST NEXT-OPEN, SETELAH BIAYA")
+    print("=" * 72)
+    print(f"Total sampel: {len(frame)}")
     print(
-        "\nCara baca tabel kelompok skor: kalau skor makin tinggi rata-rata "
-        "return-nya juga makin tinggi (naik tangga rapi), itu tanda formula "
-        "scoring-nya cukup masuk akal. Kalau naik-turun tidak beraturan, "
-        "berarti bobot di scoring.py perlu ditinjau ulang."
+        "Friction round-trip: "
+        f"{TOTAL_FRICTION_PCT:.2f}%"
     )
 
+    for horizon in HORIZONS:
+        column = f"return_{horizon}d_pct"
 
-def export_dashboard_json(df: pd.DataFrame):
-    """
-    Tulis ringkasan backtest ke web/backtest_data.json supaya bisa dibaca
-    halaman Laporan di cockpit (web/index.html) via fetch(), sama caranya
-    seperti main.py menulis web/dashboard_data.json untuk sinyal harian.
-    """
-    df = df.copy()
-    df["kelompok_skor"] = pd.qcut(df["score"], q=4, duplicates="drop")
-
-    by_signal = {}
-    by_score_quartile = {}
-
-    for h in HORIZONS:
-        col = f"return_{h}d_pct"
-
-        sig_summary = (
-            df.groupby("signal")[col]
-            .agg(
-                jumlah_sampel="count",
-                rata_rata_return_pct="mean",
-                persen_untung=lambda s: round((s > 0).mean() * 100, 1),
-                return_terburuk="min",
-                return_terbaik="max",
-            )
-            .round(2)
+        print(
+            f"\nVWAP signal — horizon "
+            f"{horizon} hari:"
         )
-        by_signal[str(h)] = sig_summary.reset_index().to_dict(orient="records")
-
-        q_summary = (
-            df.groupby("kelompok_skor", observed=True)[col]
-            .agg(jumlah_sampel="count", rata_rata_return_pct="mean")
-            .round(2)
+        print(
+            pd.DataFrame(
+                _summary(
+                    frame,
+                    "vwap_signal",
+                    column,
+                )
+            ).to_string(index=False)
         )
-        by_score_quartile[str(h)] = [
-            {"rentang_skor": str(idx), **row}
-            for idx, row in q_summary.reset_index().set_index("kelompok_skor").iterrows()
-        ]
+
+        print(
+            f"\nComposite lama — horizon "
+            f"{horizon} hari:"
+        )
+        print(
+            pd.DataFrame(
+                _summary(
+                    frame,
+                    "signal",
+                    column,
+                )
+            ).to_string(index=False)
+        )
+
+
+def export_dashboard_json(
+    frame: pd.DataFrame,
+) -> None:
+    by_signal: dict[str, list[dict]] = {}
+    by_vwap_signal: dict[str, list[dict]] = {}
+    by_score_quartile: dict[
+        str,
+        list[dict],
+    ] = {}
+
+    scored = frame.copy()
+    scored["kelompok_skor"] = pd.qcut(
+        scored["score"],
+        q=4,
+        duplicates="drop",
+    )
+
+    for horizon in HORIZONS:
+        key = str(horizon)
+        return_column = (
+            f"return_{horizon}d_pct"
+        )
+
+        by_signal[key] = _summary(
+            scored,
+            "signal",
+            return_column,
+        )
+        by_vwap_signal[key] = _summary(
+            scored,
+            "vwap_signal",
+            return_column,
+        )
+        by_score_quartile[key] = _summary(
+            scored.assign(
+                kelompok_skor=scored[
+                    "kelompok_skor"
+                ].astype(str)
+            ),
+            "kelompok_skor",
+            return_column,
+        )
+
+    extreme_count = int(
+        sum(
+            (
+                frame[
+                    f"gross_return_{horizon}d_pct"
+                ].abs()
+                > 100
+            ).sum()
+            for horizon in HORIZONS
+        )
+    )
 
     payload = {
         "generated_at": datetime.now().isoformat(),
         "period": PERIOD,
+        "execution": "next_session_open",
+        "price_adjustment": "auto_adjust_true",
         "warmup_bars": WARMUP_BARS,
         "stride": STRIDE,
         "horizons_hari_bursa": HORIZONS,
-        "watchlist": DEFAULT_WATCHLIST,
-        "total_sampel": len(df),
+        "costs": {
+            "round_trip_cost_pct": (
+                ROUND_TRIP_COST_PCT
+            ),
+            "round_trip_slippage_pct": (
+                ROUND_TRIP_SLIPPAGE_PCT
+            ),
+            "total_friction_pct": (
+                TOTAL_FRICTION_PCT
+            ),
+        },
+        "total_sampel": int(len(frame)),
+        "extreme_gross_return_count": (
+            extreme_count
+        ),
         "by_signal": by_signal,
-        "by_score_quartile": by_score_quartile,
+        "by_vwap_signal": by_vwap_signal,
+        "by_score_quartile": (
+            by_score_quartile
+        ),
         "catatan": (
-            "Sampel diambil dari histori terbatas dan watchlist blue chip saja. "
-            "Anggap sebagai indikasi awal, bukan kesimpulan final."
+            "Return utama memakai entry Open sesi berikutnya "
+            "dan sudah dikurangi friction. Mean harus dibaca "
+            "bersama median dan tail outcome."
         ),
     }
 
-    out_path = Path(__file__).resolve().parent / "web" / "backtest_data.json"
-    out_path.parent.mkdir(exist_ok=True)
-    with open(out_path, "w") as f:
-        json.dump(payload, f, indent=2, default=str)
+    output = (
+        Path(__file__).resolve().parent
+        / "web"
+        / "backtest_data.json"
+    )
+    output.parent.mkdir(exist_ok=True)
 
-    print(f"Ringkasan backtest tersimpan ke {out_path}")
+    with open(
+        output,
+        "w",
+        encoding="utf-8",
+    ) as destination:
+        json.dump(
+            payload,
+            destination,
+            indent=2,
+            ensure_ascii=False,
+            default=str,
+        )
+
+    print(
+        f"\nHasil tersimpan ke {output}"
+    )
 
 
 if __name__ == "__main__":
