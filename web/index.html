@@ -184,7 +184,7 @@ body {
 .seg-slider {
   position: absolute;
   top: 3px; bottom: 3px; left: 3px;
-  width: calc(50% - 3px);
+  width: calc(33.333% - 2px);
   background: rgba(255,255,255,0.14);
   border-radius: 999px;
   box-shadow: 0 1px 0 rgba(255,255,255,0.12) inset, 0 3px 10px -5px rgba(0,0,0,0.5);
@@ -690,16 +690,17 @@ html { overflow-x: hidden; }
         <div class="controls">
           <div class="seg-group">
             <div class="seg-slider" id="seg-slider"></div>
-            <button class="active" id="style-weekly" onclick="setStyle('weekly')">Weekly</button>
+            <button class="active" id="style-daily" onclick="setStyle('daily')">Daily</button>
+            <button id="style-weekly" onclick="setStyle('weekly')">Weekly</button>
             <button id="style-swing" onclick="setStyle('swing')">Swing</button>
           </div>
         </div>
       </div>
       <p class="loading-msg" style="margin-top:-18px; margin-bottom:22px">
-        Toggle ini ganti <b>Top pick, Sinyal breakdown, Watchlist, Trend structure, VWAP,</b>
-        dan <b>Comparative strength</b> - "Swing" pakai window/lookback
-        lebih panjang (~3-4 bulan). <b>Wyckoff snapshot</b> dan <b>Ringkasan mingguan</b>
-        sengaja tetap statis karena datanya sama buat kedua gaya.
+        Toggle ini mengganti <b>Top pick, Sinyal breakdown, Watchlist, Trend structure,
+        Full VWAP, Wyckoff, Comparative strength,</b> serta <b>Support &amp; resistance</b>
+        sesuai Daily, Weekly, atau Swing. Komponen yang belum dikalibrasi untuk Daily
+        ditandai belum tersedia dan tidak diganti diam-diam dengan data Weekly.
       </p>
 
       <!-- ROW 1 -->
@@ -1091,27 +1092,32 @@ function vwapBadge(rawSignal) {
 
 const VWAP_SIGNAL_PRIORITY = { BUY:0, HOLD:1, WAIT:2, REDUCE:3, EXIT:4, AVOID:5 };
 
-function vwapRankMetrics(row) {
+const VWAP_FOCUS_KEY = {
+  daily: "vwap_fast",
+  weekly: "vwap_medium",
+  swing: "vwap_swing",
+};
+
+function vwapRankMetrics(row, style = currentStyle) {
   const analysis = row.vwap_analysis || {};
-  const horizons = [analysis.vwap_fast, analysis.vwap_medium, analysis.vwap_swing].filter(Boolean);
+  const focus = analysis[VWAP_FOCUS_KEY[style]] || {};
   return {
-    above: horizons.filter(item => item.position === "above").length,
-    positiveSlope: horizons.filter(item => Number(item.slope_pct) > 0).length,
+    above: focus.position === "above" ? 1 : 0,
+    positiveSlope: Number(focus.slope_pct) > 0 ? 1 : 0,
+    slope: Number.isFinite(Number(focus.slope_pct)) ? Number(focus.slope_pct) : -Infinity,
     rvol: Number.isFinite(Number(analysis.rvol)) ? Number(analysis.rvol) : -Infinity,
   };
 }
 
-function compareVwapCandidates(a, b) {
+function compareVwapCandidates(a, b, style = currentStyle) {
   const priority = (VWAP_SIGNAL_PRIORITY[a.vwap_signal] ?? 99) -
     (VWAP_SIGNAL_PRIORITY[b.vwap_signal] ?? 99);
   if (priority) return priority;
-
-  const aMetrics = vwapRankMetrics(a);
-  const bMetrics = vwapRankMetrics(b);
+  const aMetrics = vwapRankMetrics(a, style);
+  const bMetrics = vwapRankMetrics(b, style);
   if (aMetrics.above !== bMetrics.above) return bMetrics.above - aMetrics.above;
-  if (aMetrics.positiveSlope !== bMetrics.positiveSlope) {
-    return bMetrics.positiveSlope - aMetrics.positiveSlope;
-  }
+  if (aMetrics.positiveSlope !== bMetrics.positiveSlope) return bMetrics.positiveSlope - aMetrics.positiveSlope;
+  if (aMetrics.slope !== bMetrics.slope) return bMetrics.slope - aMetrics.slope;
   if (aMetrics.rvol !== bMetrics.rvol) return bMetrics.rvol - aMetrics.rvol;
   return String(a.ticker).localeCompare(String(b.ticker));
 }
@@ -1595,45 +1601,66 @@ async function loadDashboard() {
   // dipindah ke renderStyleDependent() di bawah.
   renderStyleDependent(currentStyle);
 
-  // Wyckoff snapshot
-  const accum = wl.filter(r => r.wyckoff?.bias === "accumulation");
-  const distrib = wl.filter(r => r.wyckoff?.bias === "distribution");
-  const bestAccum = s.strongest_accumulation;
-  if (bestAccum) {
-    const events = (bestAccum.wyckoff.events||[]).map(e=>e.type).join(", ") || "-";
-    document.getElementById("wyckoff-text").innerHTML =
-      `<b>${bestAccum.ticker}</b> menunjukkan sinyal akumulasi terkuat — fase ${phaseLetter(bestAccum.wyckoff.phase)}, event: ${events}.`;
-  } else {
-    document.getElementById("wyckoff-text").textContent = "Belum ada sinyal akumulasi kuat minggu ini.";
-  }
-  document.getElementById("wyckoff-footer").textContent = `${accum.length} akumulasi · ${distrib.length} distribusi`;
-
-  // Support & resistance terdekat
-  const srRows = document.getElementById("sr-rows");
-  srRows.innerHTML = wl.slice(0, 4).map(r => `
-    <div class="wl-row">
-      <span class="t">${r.ticker}</span>
-      <span class="s">S: ${fmtNum(r.support)} &middot; R: ${fmtNum(r.resistance)}</span>
-    </div>`).join("");
   window.dispatchEvent(new CustomEvent("dashboard-ready", { detail: data }));
 }
 
-let currentStyle = "weekly";
+const STYLE_CONFIG = {
+  "daily": {
+    "label": "Daily",
+    "scoreKey": "score_daily",
+    "signalKey": "signal_daily",
+    "trendKey": "trend_daily",
+    "vwapKey": "vwap",
+    "csKey": "comparative_strength_daily",
+    "bdKey": "score_breakdown_daily",
+    "supportKey": "support_daily",
+    "resistanceKey": "resistance_daily",
+    "vwapFocus": "5D"
+  },
+  "weekly": {
+    "label": "Weekly",
+    "scoreKey": "score",
+    "signalKey": "signal",
+    "trendKey": "trend",
+    "vwapKey": "vwap_medium",
+    "csKey": "comparative_strength",
+    "bdKey": "score_breakdown",
+    "supportKey": "support",
+    "resistanceKey": "resistance",
+    "vwapFocus": "20D"
+  },
+  "swing": {
+    "label": "Swing",
+    "scoreKey": "score_swing",
+    "signalKey": "signal_swing",
+    "trendKey": "trend_swing",
+    "vwapKey": "vwap_swing",
+    "csKey": "comparative_strength_swing",
+    "bdKey": "score_breakdown_swing",
+    "supportKey": "support_swing",
+    "resistanceKey": "resistance_swing",
+    "vwapFocus": "60D"
+  }
+};
+
+let currentStyle = "daily";
 
 function renderStyleDependent(style) {
   const wl = (window.dashboardData && window.dashboardData.watchlist) || [];
-  const isSwing = style === "swing";
-  const scoreKey = isSwing ? "score_swing" : "score";
-  const signalKey = isSwing ? "signal_swing" : "signal";
-  const trendKey = isSwing ? "trend_swing" : "trend";
-  const vwapKey = isSwing ? "vwap_swing" : "vwap";
-  const csKey = isSwing ? "comparative_strength_swing" : "comparative_strength";
-  const bdKey = isSwing ? "score_breakdown_swing" : "score_breakdown";
-  const label = isSwing ? "Swing" : "Weekly";
+  const config = STYLE_CONFIG[style] || STYLE_CONFIG.daily;
+  const {
+    label, scoreKey, signalKey, trendKey, vwapKey, csKey, bdKey,
+    supportKey, resistanceKey, vwapFocus,
+  } = config;
+  const styleRows = wl.filter(r =>
+    Number.isFinite(Number(r[scoreKey])) &&
+    ["beli", "pantau", "jual"].includes(r[signalKey])
+  );
+  const hasStyleData = styleRows.length > 0;
+  const waitingMessage = `Data ${label} belum tersedia. Menunggu screening otomatis berikutnya.`;
 
-  // --- Sinyal breakdown bar chart ---
   const sc = { beli: 0, pantau: 0, jual: 0 };
-  wl.forEach(r => { if (r[signalKey] in sc) sc[r[signalKey]]++; });
+  styleRows.forEach(r => { sc[r[signalKey]] += 1; });
   const signalBars = [
     { key:"beli", label:"Beli", color:"var(--success)" },
     { key:"pantau", label:"Pantau", color:"var(--warning)" },
@@ -1642,12 +1669,10 @@ function renderStyleDependent(style) {
   const maximumSignalCount = Math.max(...signalBars.map(item => sc[item.key]), 1);
   document.getElementById("signal-bar-chart").innerHTML = signalBars.map(item => {
     const count = sc[item.key] || 0;
-    const barHeight = count === 0
-      ? 4
-      : Math.max(10, Math.round((count / maximumSignalCount) * 68));
+    const barHeight = count === 0 ? 4 : Math.max(10, Math.round((count / maximumSignalCount) * 68));
     return `
       <div class="signal-bar-item" style="--bar-height:${barHeight}%; --bar-color:${item.color}"
-           title="${item.label}: ${count} ticker">
+           title="${item.label}: ${count} ticker ${label}">
         <div class="signal-bar-stage">
           <span class="signal-bar-value">${count}</span>
           <span class="signal-bar-fill" aria-hidden="true"></span>
@@ -1656,51 +1681,86 @@ function renderStyleDependent(style) {
       </div>`;
   }).join("");
 
-  // --- Watchlist (top 5, disortir sesuai skor style ini) ---
-  const sortedWl = [...wl].sort((a, b) => (b[scoreKey] || 0) - (a[scoreKey] || 0));
+  const sortedWl = [...styleRows].sort((a, b) =>
+    Number(b[scoreKey]) - Number(a[scoreKey]) ||
+    String(a.ticker).localeCompare(String(b.ticker))
+  );
   const wlRows = document.getElementById("watchlist-rows");
-  wlRows.innerHTML = sortedWl.slice(0, 5).map(r => {
-    const sig = r[signalKey] || "pantau";
-    return `
-    <div class="wl-row">
-      <span class="t">${r.ticker} <span class="s">${fmtNum(r.last_close)}</span></span>
-      <span class="badge ${sig}">${sig.charAt(0).toUpperCase()+sig.slice(1)}</span>
-    </div>`;
-  }).join("");
+  wlRows.innerHTML = hasStyleData
+    ? sortedWl.slice(0, 5).map(r => {
+        const sig = r[signalKey];
+        return `
+          <div class="wl-row">
+            <span class="t">${r.ticker} <span class="s">${fmtNum(r.last_close)}</span></span>
+            <span class="badge ${sig}">${sig.charAt(0).toUpperCase()+sig.slice(1)}</span>
+          </div>`;
+      }).join("")
+    : `<div class="vwap-meta">${waitingMessage}</div>`;
 
-  // --- Top pick (dihitung dari watchlist by style, bukan backend yang selalu weekly) ---
   const tp = sortedWl[0];
+  const topText = document.getElementById("toppick-text");
+  const topFooter = document.getElementById("toppick-footer-left");
+  const barsEl = document.getElementById("toppick-bars");
   if (tp) {
-    const wyBias = tp.wyckoff?.bias === "accumulation" ? "akumulasi" : tp.wyckoff?.bias === "distribution" ? "distribusi" : "belum jelas";
-    document.getElementById("toppick-text").innerHTML =
-      `<b>${tp.ticker}</b> memimpin skor screener ${label} di <b>${tp[scoreKey]}</b>, trend ${TREND_LABEL[tp[trendKey]]||tp[trendKey]}, ` +
-      `Wyckoff ${wyBias} (${phaseLetter(tp.wyckoff?.phase)}), harga ${tp[vwapKey]?.position === "above" ? "di atas" : "di bawah"} VWAP ${isSwing ? "Swing" : "mingguan"}.`;
-    document.getElementById("toppick-footer-left").textContent = `${tp.ticker} · ${fmtNum(tp.last_close)}`;
-
-    const barsEl = document.getElementById("toppick-bars");
+    const wyBias = tp.wyckoff?.bias === "accumulation" ? "akumulasi" :
+      tp.wyckoff?.bias === "distribution" ? "distribusi" : "belum jelas";
+    const wyText = style !== "daily"
+      ? `, Wyckoff ${wyBias} (${phaseLetter(tp.wyckoff?.phase)})`
+      : ", Wyckoff Daily belum dikalibrasi dan tidak memengaruhi skor";
+    topText.innerHTML =
+      `<b>${tp.ticker}</b> memimpin skor screener ${label} di <b>${tp[scoreKey]}</b>, ` +
+      `trend ${TREND_LABEL[tp[trendKey]]||tp[trendKey]}${wyText}, harga ` +
+      `${tp[vwapKey]?.position === "above" ? "di atas" : "di bawah"} VWAP ${vwapFocus}.`;
+    topFooter.textContent = `${tp.ticker} · ${fmtNum(tp.last_close)}`;
     const bd = tp[bdKey] || {};
     const vals = Object.values(bd).map(v => Math.abs(v));
     const maxVal = Math.max(...vals, 1);
-    barsEl.innerHTML = Object.entries(bd).map(([k, v]) => {
-      const h = Math.max(10, Math.round(Math.abs(v) / maxVal * 100));
-      const cls = Math.abs(v) === maxVal ? "bar hi" : "bar";
-      return `<div class="${cls}" style="height:${h}%" title="${k}: ${v}"></div>`;
+    barsEl.innerHTML = Object.entries(bd).map(([key, value]) => {
+      const height = Math.max(10, Math.round(Math.abs(value) / maxVal * 100));
+      const cls = Math.abs(value) === maxVal ? "bar hi" : "bar";
+      return `<div class="${cls}" style="height:${height}%" title="${key}: ${value}"></div>`;
     }).join("");
+  } else {
+    topText.textContent = waitingMessage;
+    topFooter.textContent = label;
+    barsEl.innerHTML = "";
   }
 
-  // --- Trend structure ---
-  const healthy = wl.filter(r => r[trendKey] === "uptrend" || r[trendKey] === "sideways").length;
-  const unhealthy = wl.filter(r => r[trendKey] === "downtrend").map(r => r.ticker);
-  document.getElementById("trend-text").innerHTML =
-    `${healthy} dari ${wl.length} ticker masih uptrend/sideways di atas support (${label}). ` +
-    (unhealthy.length ? `${unhealthy.join(", ")} tembus ke downtrend.` : "Tidak ada yang downtrend.");
-  document.getElementById("trend-stat").innerHTML = `${healthy}<span class="unit">/ ${wl.length} sehat</span>`;
+  const healthy = styleRows.filter(r => r[trendKey] === "uptrend" || r[trendKey] === "sideways").length;
+  const unhealthy = styleRows.filter(r => r[trendKey] === "downtrend").map(r => r.ticker);
+  document.getElementById("trend-text").innerHTML = hasStyleData
+    ? `${healthy} dari ${styleRows.length} ticker masih uptrend/sideways di atas support (${label}). ` +
+      (unhealthy.length ? `${unhealthy.join(", ")} tembus ke downtrend.` : "Tidak ada yang downtrend.")
+    : waitingMessage;
+  document.getElementById("trend-stat").innerHTML = hasStyleData
+    ? `${healthy}<span class="unit">/ ${styleRows.length} sehat</span>`
+    : `-<span class="unit">${label}</span>`;
 
-  // --- Keputusan VWAP multi-horizon; tidak mengikuti toggle skor Weekly/Swing. ---
+  if (style === "daily") {
+    document.getElementById("wyckoff-text").textContent =
+      "Wyckoff Daily belum dikalibrasi. Komponen ini dinetralkan dan tidak disalin dari Weekly.";
+    document.getElementById("wyckoff-footer").textContent = "Adjustment Daily menyusul";
+  } else {
+    const accum = styleRows.filter(r => r.wyckoff?.bias === "accumulation");
+    const distrib = styleRows.filter(r => r.wyckoff?.bias === "distribution");
+    const bestAccum = [...accum].sort((a, b) => Number(b[scoreKey]) - Number(a[scoreKey]))[0];
+    if (bestAccum) {
+      const events = (bestAccum.wyckoff.events || []).map(event => event.type).join(", ") || "-";
+      document.getElementById("wyckoff-text").innerHTML =
+        `<b>${bestAccum.ticker}</b> menunjukkan akumulasi terkuat untuk ranking ${label} — ` +
+        `fase ${phaseLetter(bestAccum.wyckoff.phase)}, event: ${events}.`;
+    } else {
+      document.getElementById("wyckoff-text").textContent =
+        hasStyleData ? `Belum ada sinyal akumulasi kuat (${label}).` : waitingMessage;
+    }
+    document.getElementById("wyckoff-footer").textContent =
+      `${accum.length} akumulasi · ${distrib.length} distribusi`;
+  }
+
   const vwapTitleEl = document.getElementById("vwap-card-title");
-  if (vwapTitleEl) vwapTitleEl.textContent = "Full VWAP 5/20/60";
+  if (vwapTitleEl) vwapTitleEl.textContent = `Full VWAP 5/20/60 · Fokus ${label} ${vwapFocus}`;
   const counts = { BUY:0, HOLD:0, WAIT:0, REDUCE:0, EXIT:0, AVOID:0 };
-  const validVwapRows = wl.filter(r =>
+  const validVwapRows = styleRows.filter(r =>
     r.vwap_analysis?.status === "ok" &&
     Object.prototype.hasOwnProperty.call(VWAP_SIGNAL_PRIORITY, r.vwap_signal)
   );
@@ -1708,25 +1768,45 @@ function renderStyleDependent(style) {
   document.getElementById("vwap-text").innerHTML = validVwapRows.length
     ? `<b>${counts.BUY} BUY</b> · ${counts.HOLD} HOLD · ${counts.WAIT} WAIT · ` +
       `${counts.REDUCE} REDUCE · ${counts.EXIT} EXIT · ${counts.AVOID} AVOID.`
-    : "Belum ada hasil Full VWAP yang valid. Menunggu screening berikutnya.";
-  const vwapRows = [...validVwapRows].sort(compareVwapCandidates);
+    : waitingMessage;
+  const vwapRows = [...validVwapRows].sort((a, b) => compareVwapCandidates(a, b, style));
   document.getElementById("vwap-signal-list").innerHTML = vwapRows.length
-    ? vwapRows.map(r => `
-      <div class="vwap-signal-row" onclick="event.stopPropagation(); openTickerAnalysis('${r.ticker}')"
-           title="${escapeHtml((r.vwap_analysis?.reasons || []).join(" "))}">
-        <span class="vwap-row-ticker">${r.ticker}</span>
-        <span class="vwap-row-price">${fmtNum(r.last_close)}</span>
-        ${vwapBadge(r.vwap_signal)}
-      </div>`).join("")
-    : `<div class="vwap-meta">Ticker lama tidak dipaksakan menjadi WAIT. Kartu akan terisi otomatis setelah data Full VWAP tersedia.</div>`;
+    ? vwapRows.map(r => {
+        const focus = r.vwap_analysis?.[VWAP_FOCUS_KEY[style]];
+        const focusText = focus
+          ? `${label} ${vwapFocus}: ${focus.position || "-"}, slope ${focus.slope_pct ?? "-"}%`
+          : `${label} ${vwapFocus}: data belum cukup`;
+        return `
+          <div class="vwap-signal-row" onclick="event.stopPropagation(); openTickerAnalysis('${r.ticker}')"
+               title="${escapeHtml(focusText)}">
+            <span class="vwap-row-ticker">${r.ticker}</span>
+            <span class="vwap-row-price">${fmtNum(r.last_close)}</span>
+            ${vwapBadge(r.vwap_signal)}
+          </div>`;
+      }).join("")
+    : `<div class="vwap-meta">${waitingMessage}</div>`;
+  document.getElementById("vwap-meta").textContent =
+    `Badge = keputusan Full VWAP 5/20/60; urutan difokuskan ke ${label} ${vwapFocus}.`;
 
-  // --- Comparative strength vs IHSG ---
-  const outperform = wl.filter(r => r[csKey]?.relative_strength_trend === "outperforming");
-  const underperform = wl.filter(r => r[csKey]?.relative_strength_trend === "underperforming");
-  document.getElementById("cs-text").innerHTML =
-    `<b>${outperform.length}</b> ticker mengungguli IHSG (${label}), <b>${underperform.length}</b> tertinggal. ` +
-    (outperform[0] ? `${outperform[0].ticker} outperform paling jelas.` : "");
-  document.getElementById("cs-footer").textContent = `${outperform.length} outperform · ${underperform.length} underperform`;
+  const outperform = styleRows.filter(r => r[csKey]?.relative_strength_trend === "outperforming");
+  const underperform = styleRows.filter(r => r[csKey]?.relative_strength_trend === "underperforming");
+  document.getElementById("cs-text").innerHTML = hasStyleData
+    ? `<b>${outperform.length}</b> ticker mengungguli IHSG (${label}), ` +
+      `<b>${underperform.length}</b> tertinggal. ` +
+      (outperform[0] ? `${outperform[0].ticker} outperform paling jelas.` : "")
+    : waitingMessage;
+  document.getElementById("cs-footer").textContent = hasStyleData
+    ? `${outperform.length} outperform · ${underperform.length} underperform`
+    : label;
+
+  const srRows = document.getElementById("sr-rows");
+  srRows.innerHTML = hasStyleData
+    ? sortedWl.slice(0, 4).map(r => `
+        <div class="wl-row">
+          <span class="t">${r.ticker}</span>
+          <span class="s">S: ${fmtNum(r[supportKey])} &middot; R: ${fmtNum(r[resistanceKey])}</span>
+        </div>`).join("")
+    : `<div class="vwap-meta">${waitingMessage}</div>`;
 }
 
 function enableVwapCardWheel() {
@@ -1748,11 +1828,13 @@ function enableVwapCardWheel() {
 enableVwapCardWheel();
 
 function setStyle(style) {
+  if (!STYLE_CONFIG[style]) return;
   currentStyle = style;
-  document.getElementById("style-weekly").classList.toggle("active", style === "weekly");
-  document.getElementById("style-swing").classList.toggle("active", style === "swing");
-  document.getElementById("seg-slider").style.transform =
-    style === "swing" ? "translateX(100%)" : "translateX(0%)";
+  ["daily", "weekly", "swing"].forEach(option => {
+    document.getElementById(`style-${option}`).classList.toggle("active", style === option);
+  });
+  const offset = { daily: 0, weekly: 100, swing: 200 }[style];
+  document.getElementById("seg-slider").style.transform = `translateX(${offset}%)`;
   renderStyleDependent(style);
 }
 
