@@ -1,8 +1,9 @@
 """
-Pipeline screening harian untuk 500 emiten IDX.
+Pipeline screening otomatis untuk 500 emiten IDX.
 
-Jalankan manual:
-    python main.py
+Dijalankan terjadwal oleh GitHub Actions setelah penutupan pasar.
+Menghasilkan sinyal VWAP BUY/HOLD/WAIT/REDUCE/EXIT/AVOID tanpa
+mengubah kontrak data dashboard yang sudah ada.
 """
 
 import json
@@ -20,7 +21,11 @@ from screener.trend import (
     trend_structure,
 )
 from screener.volatility import forecast_volatility_batch
-from screener.vwap import price_vs_vwap, rolling_vwap
+from screener.vwap import (
+    analyze_vwap_signals,
+    price_vs_vwap,
+    rolling_vwap,
+)
 from screener.wyckoff import (
     analyze_latest_trading_range,
     comparative_strength,
@@ -34,7 +39,7 @@ from storage.db import (
 
 
 EXPECTED_TICKER_COUNT = 500
-MINIMUM_ANALYSIS_ROWS = 60
+MINIMUM_ANALYSIS_ROWS = 65
 MINIMUM_GARCH_ROWS = 120
 DEFAULT_WATCHLIST = IDX_TICKERS_500
 
@@ -76,6 +81,14 @@ def build_price_history(
         visual,
         window=5,
     )
+    visual["vwap_20"] = rolling_vwap(
+        visual,
+        window=20,
+    )
+    visual["vwap_60"] = rolling_vwap(
+        visual,
+        window=60,
+    )
 
     history = []
 
@@ -94,8 +107,15 @@ def build_price_history(
                 and not pd.isna(volume)
                 else 0
             ),
+            # Key "vwap" dipertahankan agar HTML lama tetap kompatibel.
             "vwap": clean_number(
                 row.get("vwap_5")
+            ),
+            "vwap_20": clean_number(
+                row.get("vwap_20")
+            ),
+            "vwap_60": clean_number(
+                row.get("vwap_60")
             ),
             "swing_high": clean_number(
                 row.get("swing_high")
@@ -181,14 +201,20 @@ def process_ticker(
         )
     )
 
-    vwap = price_vs_vwap(
+    vwap_fast = price_vs_vwap(
         dataframe,
         window=5,
     )
-
-    vwap_swing = price_vs_vwap(
+    vwap_medium = price_vs_vwap(
         dataframe,
         window=20,
+    )
+    vwap_swing = price_vs_vwap(
+        dataframe,
+        window=60,
+    )
+    vwap_analysis = analyze_vwap_signals(
+        dataframe
     )
 
     wyckoff = analyze_latest_trading_range(
@@ -224,7 +250,7 @@ def process_ticker(
     scored = compute_score(
         trend,
         wyckoff,
-        vwap,
+        vwap_medium,
         cs_ihsg,
         support_resistance,
     )
@@ -282,6 +308,22 @@ def process_ticker(
         breakdown=scored["breakdown"],
     )
 
+    save_signal(
+        ticker,
+        date_string,
+        "vwap_multi",
+        vwap_analysis.get("signal", "WAIT"),
+        note=json.dumps(
+            {
+                "regime": vwap_analysis.get("regime"),
+                "reasons": vwap_analysis.get("reasons", []),
+                "execution": vwap_analysis.get("execution"),
+                "protective_stop": vwap_analysis.get("protective_stop"),
+            },
+            ensure_ascii=False,
+        ),
+    )
+
     volatility = volatility_results.get(
         ticker,
         {
@@ -306,7 +348,15 @@ def process_ticker(
             "nearest_resistance"
         ),
         "wyckoff": wyckoff,
-        "vwap": vwap,
+        # Key lama tetap menunjuk VWAP cepat untuk kompatibilitas HTML.
+        "vwap": vwap_fast,
+        "vwap_medium": vwap_medium,
+        "vwap_swing": vwap_swing,
+        "vwap_analysis": vwap_analysis,
+        "vwap_signal": vwap_analysis.get(
+            "signal",
+            "WAIT",
+        ),
         "comparative_strength": cs_ihsg,
         "comparative_strength_lq45": cs_lq45,
         "score": scored["score"],
@@ -333,7 +383,6 @@ def process_ticker(
                 "nearest_resistance"
             )
         ),
-        "vwap_swing": vwap_swing,
         "comparative_strength_swing": (
             cs_ihsg_swing
         ),
@@ -367,12 +416,24 @@ def export_dashboard_json(
         "pantau": 0,
         "jual": 0,
     }
+    vwap_signal_counts = {
+        "BUY": 0,
+        "HOLD": 0,
+        "WAIT": 0,
+        "REDUCE": 0,
+        "EXIT": 0,
+        "AVOID": 0,
+    }
 
     for item in results:
         signal = item.get("signal")
+        vwap_signal = item.get("vwap_signal")
 
         if signal in signal_counts:
             signal_counts[signal] += 1
+
+        if vwap_signal in vwap_signal_counts:
+            vwap_signal_counts[vwap_signal] += 1
 
     trend_healthy = sum(
         1
@@ -405,6 +466,7 @@ def export_dashboard_json(
         "watchlist": sorted_results,
         "summary": {
             "signal_counts": signal_counts,
+            "vwap_signal_counts": vwap_signal_counts,
             "trend_healthy": (
                 f"{trend_healthy}/"
                 f"{len(results)}"
@@ -570,6 +632,7 @@ def run_screening() -> None:
                 f"[OK] {ticker}: "
                 f"score={result['score']}, "
                 f"signal={result['signal']}, "
+                f"vwap={result['vwap_signal']}, "
                 f"volatility="
                 f"{result['volatility'].get('status')}"
             )
