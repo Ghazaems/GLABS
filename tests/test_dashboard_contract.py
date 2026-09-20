@@ -19,9 +19,8 @@ class DashboardContractTests(unittest.TestCase):
             "Full VWAP 5/20/60",
             "vwap_signal",
             "vwap_analysis",
-            'vwapHorizonHtml("Daily"',
-            'vwapHorizonHtml("Weekly"',
-            'vwapHorizonHtml("Swing"',
+            "vwap-signal-list",
+            "vwap-signal-row",
         ):
             self.assertIn(marker, self.index)
 
