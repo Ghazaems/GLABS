@@ -279,17 +279,38 @@ body {
 .bars .bar { width: 9px; border-radius: 3px 3px 0 0; background: rgba(255,255,255,0.16); transition: background .2s var(--ease); }
 .bars .bar.hi { background: var(--text-primary); box-shadow: 0 0 10px rgba(255,255,255,0.35); }
 
-/* signal breakdown */
-.sig-rows { display: flex; flex-direction: column; gap: 11px; margin-top: auto; }
-.sig-row { display: flex; align-items: center; gap: 10px; }
-.sig-row .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 8px currentColor; }
-.sig-row .dot.beli { background: var(--success); color: var(--success); }
-.sig-row .dot.jual { background: var(--danger); color: var(--danger); }
-.sig-row .dot.pantau { background: var(--warning); color: var(--warning); }
-.sig-row .name { flex: 1; font-size: 13px; color: var(--text-secondary); }
-.sig-row .n { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
-.sig-track { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; margin-top: 13px; overflow: hidden; display: flex; }
-.sig-track span { height: 100%; }
+/* signal breakdown bar chart */
+.signal-breakdown-card .card-body { display:flex; align-items:flex-end; min-height:132px; }
+.signal-bar-chart {
+  width:100%; height:132px;
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:clamp(10px,1.4vw,20px); align-items:end;
+  padding:2px 4px 0;
+}
+.signal-bar-item { min-width:0; height:100%; display:flex; flex-direction:column; align-items:center; }
+.signal-bar-stage {
+  position:relative; width:100%; flex:1;
+  display:flex; align-items:flex-end; justify-content:center;
+  padding-top:27px;
+}
+.signal-bar-value {
+  position:absolute; bottom:calc(var(--bar-height) + 7px);
+  left:50%; transform:translateX(-50%);
+  font-size:14px; line-height:1; font-weight:650;
+  color:var(--text-primary); font-variant-numeric:tabular-nums;
+}
+.signal-bar-fill {
+  width:min(38px,72%); height:var(--bar-height);
+  min-height:4px; border-radius:7px 7px 3px 3px;
+  background:var(--bar-color);
+  box-shadow:0 0 14px color-mix(in srgb, var(--bar-color) 32%, transparent);
+  transition:height .35s var(--ease);
+}
+.signal-bar-label {
+  width:100%; margin-top:7px; text-align:center;
+  color:var(--text-secondary); font-size:11.5px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
 
 /* watchlist mini table */
 .wl-row {
@@ -711,19 +732,18 @@ html { overflow-x: hidden; }
           <div class="card-foot"><span id="toppick-footer-left"></span><span class="link">Lihat detail</span></div>
         </div>
 
-        <div class="card">
+        <div class="card signal-breakdown-card">
           <div class="card-head">
             <div class="label">
               <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-6-8.5"/></svg>
               Sinyal breakdown
             </div>
           </div>
-          <div class="sig-rows">
-            <div class="sig-row"><span class="dot beli"></span><span class="name">Beli</span><span class="n" id="count-beli">0</span></div>
-            <div class="sig-row"><span class="dot pantau"></span><span class="name">Pantau</span><span class="n" id="count-pantau">0</span></div>
-            <div class="sig-row"><span class="dot jual"></span><span class="name">Jual</span><span class="n" id="count-jual">0</span></div>
+          <div class="card-body">
+            <div class="signal-bar-chart" id="signal-bar-chart" role="img" aria-label="Distribusi jumlah sinyal beli, pantau, dan jual">
+              <span class="loading-msg">Memuat...</span>
+            </div>
           </div>
-          <div class="sig-track" id="sig-track"></div>
           <div class="card-foot" style="margin-top:12px"><span></span><span class="link">Lihat semua sinyal</span></div>
         </div>
 
@@ -1611,17 +1631,30 @@ function renderStyleDependent(style) {
   const bdKey = isSwing ? "score_breakdown_swing" : "score_breakdown";
   const label = isSwing ? "Swing" : "Weekly";
 
-  // --- Sinyal breakdown ---
+  // --- Sinyal breakdown bar chart ---
   const sc = { beli: 0, pantau: 0, jual: 0 };
   wl.forEach(r => { if (r[signalKey] in sc) sc[r[signalKey]]++; });
-  document.getElementById("count-beli").textContent = sc.beli || 0;
-  document.getElementById("count-pantau").textContent = sc.pantau || 0;
-  document.getElementById("count-jual").textContent = sc.jual || 0;
-  const total = (sc.beli||0)+(sc.pantau||0)+(sc.jual||0) || 1;
-  document.getElementById("sig-track").innerHTML = `
-    <span style="width:${(sc.beli||0)/total*100}%; background:var(--success)"></span>
-    <span style="width:${(sc.pantau||0)/total*100}%; background:var(--warning)"></span>
-    <span style="width:${(sc.jual||0)/total*100}%; background:var(--danger)"></span>`;
+  const signalBars = [
+    { key:"beli", label:"Beli", color:"var(--success)" },
+    { key:"pantau", label:"Pantau", color:"var(--warning)" },
+    { key:"jual", label:"Jual", color:"var(--danger)" },
+  ];
+  const maximumSignalCount = Math.max(...signalBars.map(item => sc[item.key]), 1);
+  document.getElementById("signal-bar-chart").innerHTML = signalBars.map(item => {
+    const count = sc[item.key] || 0;
+    const barHeight = count === 0
+      ? 4
+      : Math.max(10, Math.round((count / maximumSignalCount) * 68));
+    return `
+      <div class="signal-bar-item" style="--bar-height:${barHeight}%; --bar-color:${item.color}"
+           title="${item.label}: ${count} ticker">
+        <div class="signal-bar-stage">
+          <span class="signal-bar-value">${count}</span>
+          <span class="signal-bar-fill" aria-hidden="true"></span>
+        </div>
+        <span class="signal-bar-label">${item.label}</span>
+      </div>`;
+  }).join("");
 
   // --- Watchlist (top 5, disortir sesuai skor style ini) ---
   const sortedWl = [...wl].sort((a, b) => (b[scoreKey] || 0) - (a[scoreKey] || 0));
