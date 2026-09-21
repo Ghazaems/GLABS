@@ -57,6 +57,9 @@ jobs:
         run: python main.py
 
       - name: Update forward test
+        env:
+          DB_PATH: storage/screener.db
+          FORWARD_REPORT_PATH: web/forward_test_data.json
         run: python forward_test.py
 
       - name: Validate generated signals
