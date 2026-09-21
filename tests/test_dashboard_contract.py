@@ -105,8 +105,17 @@ class DashboardContractTests(unittest.TestCase):
             '"score_daily": scored_daily["score"]',
             '"signal_daily": signal_daily',
             '"composite_daily"',
+            '"composite_swing"',
+            "scored_swing = compute_score",
         ):
             self.assertIn(marker, self.main)
+
+        self.assertIn(
+            "scored_swing = compute_score(\n"
+            "        trend_swing,\n"
+            "        wyckoff_swing,",
+            self.main,
+        )
         self.assertIn("wyckoff_daily", self.main)
         self.assertIn("wyckoff_swing", self.main)
 
