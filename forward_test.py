@@ -10,8 +10,8 @@ import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
 
-DB_PATH = Path(os.getenv("DB_PATH", "data/screener.db"))
-OUT_PATH = Path(os.getenv("FORWARD_REPORT_PATH", "reports/forward_test_latest.json"))
+DB_PATH = Path(os.getenv("DB_PATH", "storage/screener.db"))
+OUT_PATH = Path(os.getenv("FORWARD_REPORT_PATH", "web/forward_test_data.json"))
 HORIZONS = (5, 10, 20)
 COST_PCT = float(os.getenv("ROUND_TRIP_COST_PCT", "0.50"))
 SLIPPAGE_PCT = float(os.getenv("ROUND_TRIP_SLIPPAGE_PCT", "0.20"))
