@@ -392,17 +392,30 @@ def evaluate_forward() -> dict:
         evaluated_rows.append(row)
 
     evaluated = pd.DataFrame(evaluated_rows)
+    for column in (
+        "ticker",
+        "date",
+        "signal_type",
+        "signal",
+        "score",
+        "note",
+    ):
+        if column not in evaluated:
+            evaluated[column] = pd.Series(
+                dtype="object"
+            )
+
     for horizon in HORIZONS:
         column = f"return_{horizon}d"
         if column not in evaluated:
             evaluated[column] = np.nan
 
     weekly = evaluated[
-        evaluated.get("signal_type")
+        evaluated["signal_type"]
         == TIMEFRAME_TYPES["weekly"]
     ].copy()
     vwap = evaluated[
-        evaluated.get("signal_type")
+        evaluated["signal_type"]
         == "vwap_multi"
     ].copy()
 
@@ -428,7 +441,7 @@ def evaluate_forward() -> dict:
 
     for timeframe, signal_type in TIMEFRAME_TYPES.items():
         subset = evaluated[
-            evaluated.get("signal_type")
+            evaluated["signal_type"]
             == signal_type
         ].copy()
         by_timeframe[timeframe] = {
