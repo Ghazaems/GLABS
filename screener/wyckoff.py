@@ -281,6 +281,199 @@ def _estimate_phase(events: list[dict], bias: str | None = None) -> str:
 
 
 # ---------------------------------------------------------------------------
+# 4. MULTI-TIMEFRAME WYCKOFF SCREENING
+# ---------------------------------------------------------------------------
+
+WYCKOFF_EVENT_TYPES = (
+    "SC",
+    "BC",
+    "Spring",
+    "UT",
+    "SOS",
+    "SOW",
+    "LPS",
+    "LPSY",
+)
+
+# Semua timeframe tetap memakai candle harian. Perbedaannya adalah panjang
+# trading range dan jendela konfirmasi. Nilai ini adalah konfigurasi deteksi,
+# bukan klaim edge; bobot skor tetap nol sampai lolos validasi statistik.
+WYCKOFF_TIMEFRAME_SETTINGS = {
+    "daily": {
+        "min_bars": 5,
+        "max_range_pct": 0.08,
+        "range_window": 5,
+        "climax_lookback": 10,
+        "event_lookback": 7,
+        "lps_lookback": 5,
+    },
+    "weekly": {
+        "min_bars": 15,
+        "max_range_pct": 0.15,
+        "range_window": 15,
+        "climax_lookback": 15,
+        "event_lookback": 20,
+        "lps_lookback": 15,
+    },
+    "swing": {
+        "min_bars": 30,
+        "max_range_pct": 0.25,
+        "range_window": 30,
+        "climax_lookback": 30,
+        "event_lookback": 40,
+        "lps_lookback": 30,
+    },
+}
+
+
+def analyze_latest_trading_range(
+    df: pd.DataFrame,
+    timeframe: str = "weekly",
+) -> dict:
+    """Deteksi event Wyckoff terpisah untuk Daily, Weekly, atau Swing."""
+    if timeframe not in WYCKOFF_TIMEFRAME_SETTINGS:
+        raise ValueError(
+            "timeframe harus daily, weekly, atau swing."
+        )
+
+    config = WYCKOFF_TIMEFRAME_SETTINGS[timeframe]
+    ranges = detect_trading_ranges(
+        df,
+        min_bars=config["min_bars"],
+        max_range_pct=config["max_range_pct"],
+        window=config["range_window"],
+    )
+    if not ranges:
+        return {
+            "status": "no_trading_range_found",
+            "timeframe": timeframe,
+            "events": [],
+            "current_events": [],
+            "bias": "unclear",
+            "phase": "unclear",
+        }
+
+    tr = ranges[-1]
+    result = {
+        "status": "ok",
+        "timeframe": timeframe,
+        "tr_start": str(tr["start_date"].date()),
+        "tr_end": str(tr["end_date"].date()),
+        "tr_high": round(float(tr["tr_high"]), 2),
+        "tr_low": round(float(tr["tr_low"]), 2),
+        "events": [],
+        "settings": config,
+    }
+    bias_signals = []
+
+    climax = find_climax(
+        df,
+        tr,
+        lookback=config["climax_lookback"],
+    )
+    if climax:
+        result["events"].append(climax)
+        climax_bias = (
+            "accumulation"
+            if climax["type"] == "SC"
+            else "distribution"
+        )
+        bias_signals.append(
+            (climax["date"], climax_bias)
+        )
+        ar = find_automatic_reaction(
+            df,
+            climax,
+            tr,
+        )
+        if ar:
+            ar["context"] = climax_bias
+            result["events"].append(ar)
+            st = find_secondary_test(
+                df,
+                climax,
+                ar,
+            )
+            if st:
+                st["context"] = climax_bias
+                result["events"].append(st)
+
+    spring_ut = detect_spring_or_ut(
+        df,
+        tr,
+        lookback_after=config["event_lookback"],
+    )
+    if spring_ut:
+        result["events"].append(spring_ut)
+        bias_signals.append(
+            (
+                spring_ut["date"],
+                "accumulation"
+                if spring_ut["type"] == "Spring"
+                else "distribution",
+            )
+        )
+
+    breakout = detect_sos_sow(
+        df,
+        tr,
+        lookback_after=config["event_lookback"],
+    )
+    if breakout:
+        result["events"].append(breakout)
+        breakout_bias = (
+            "accumulation"
+            if breakout["type"] == "SOS"
+            else "distribution"
+        )
+        bias_signals.append(
+            (breakout["date"], breakout_bias)
+        )
+        lps = detect_lps_lpsy(
+            df,
+            breakout,
+            tr,
+            lookback_after=config["lps_lookback"],
+        )
+        if lps:
+            result["events"].append(lps)
+
+    if not bias_signals:
+        result["bias"] = "unclear"
+    else:
+        bias_signals.sort(key=lambda item: item[0])
+        directions = {
+            direction
+            for _, direction in bias_signals
+        }
+        if len(directions) > 1:
+            result["bias"] = "conflicting"
+            result["bias_note"] = (
+                "Sinyal arah saling bertentangan; "
+                "gunakan sebagai konteks visual."
+            )
+        else:
+            result["bias"] = bias_signals[-1][1]
+
+    result["phase"] = _estimate_phase(
+        result["events"],
+        result["bias"],
+    )
+    latest_date = pd.Timestamp(df.index[-1]).normalize()
+    result["current_events"] = [
+        event["type"]
+        for event in result["events"]
+        if pd.Timestamp(event["date"]).normalize()
+        == latest_date
+        and event["type"] in WYCKOFF_EVENT_TYPES
+    ]
+    result["calibration_status"] = (
+        "requires_cross_sectional_validation"
+    )
+    return result
+
+
+# ---------------------------------------------------------------------------
 # 4. COMPARATIVE STRENGTH vs IHSG
 # ---------------------------------------------------------------------------
 
