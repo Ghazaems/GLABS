@@ -9,6 +9,7 @@ mengubah kontrak data dashboard yang sudah ada.
 import json
 import os
 from datetime import datetime
+from pathlib import Path
 
 import pandas as pd
 
@@ -42,6 +43,43 @@ EXPECTED_TICKER_COUNT = 500
 MINIMUM_ANALYSIS_ROWS = 65
 MINIMUM_GARCH_ROWS = 120
 DEFAULT_WATCHLIST = IDX_TICKERS_500
+
+
+def load_wyckoff_calibration(
+    path: Path = Path("web/wyckoff_ic_data.json"),
+) -> dict[str, dict[str, float]]:
+    """Muat hanya bobot event yang sudah lolos validasi statistik."""
+    try:
+        payload = json.loads(
+            path.read_text(encoding="utf-8")
+        )
+    except (
+        FileNotFoundError,
+        json.JSONDecodeError,
+        OSError,
+    ):
+        return {
+            "daily": {},
+            "weekly": {},
+            "swing": {},
+        }
+
+    calibration = payload.get("calibration", {})
+    return {
+        timeframe: {
+            event: float(weight)
+            for event, weight in calibration.get(
+                timeframe,
+                {},
+            ).items()
+            if isinstance(weight, (int, float))
+        }
+        for timeframe in (
+            "daily",
+            "weekly",
+            "swing",
+        )
+    }
 
 
 def clean_number(value):
@@ -167,6 +205,7 @@ def process_ticker(
     ihsg: pd.DataFrame | None,
     lq45: pd.DataFrame | None,
     volatility_results: dict[str, dict],
+    wyckoff_calibration: dict[str, dict[str, float]],
 ) -> dict:
     """Analisis satu ticker dan susun hasil dashboard."""
     upsert_prices(ticker, dataframe)
@@ -232,17 +271,18 @@ def process_ticker(
         dataframe
     )
 
-    wyckoff = analyze_latest_trading_range(
-        dataframe
+    wyckoff_daily = analyze_latest_trading_range(
+        dataframe,
+        timeframe="daily",
     )
-    # Wyckoff saat ini belum dikalibrasi untuk horizon Daily. Komponen
-    # ini sengaja netral, bukan menyalin analisis Weekly.
-    wyckoff_daily = {
-        "status": "not_adjusted_for_daily",
-        "bias": "unclear",
-        "phase": None,
-        "events": [],
-    }
+    wyckoff = analyze_latest_trading_range(
+        dataframe,
+        timeframe="weekly",
+    )
+    wyckoff_swing = analyze_latest_trading_range(
+        dataframe,
+        timeframe="swing",
+    )
 
     cs_ihsg_daily = safe_comparative_strength(
         dataframe,
@@ -290,6 +330,10 @@ def process_ticker(
         vwap_fast,
         cs_ihsg_daily,
         support_resistance_daily,
+        wyckoff_weights=wyckoff_calibration.get(
+            "daily",
+            {},
+        ),
     )
 
     scored = compute_score(
@@ -298,6 +342,10 @@ def process_ticker(
         vwap_medium,
         cs_ihsg,
         support_resistance,
+        wyckoff_weights=wyckoff_calibration.get(
+            "weekly",
+            {},
+        ),
     )
 
     scored_swing = compute_score(
@@ -306,6 +354,10 @@ def process_ticker(
         vwap_swing,
         cs_ihsg_swing,
         support_resistance_swing,
+        wyckoff_weights=wyckoff_calibration.get(
+            "swing",
+            {},
+        ),
     )
 
     signal_daily = classify_signal(
@@ -454,6 +506,7 @@ def process_ticker(
         ),
         "signal_swing": signal_swing,
         "trend_swing": trend_swing,
+        "wyckoff_swing": wyckoff_swing,
         "support_swing": (
             support_resistance_swing.get(
                 "nearest_support"
@@ -678,6 +731,9 @@ def run_screening() -> None:
         if value.get("status") != "ok"
     )
 
+    wyckoff_calibration = (
+        load_wyckoff_calibration()
+    )
     results = []
     insufficient_data = []
     analysis_failed = []
@@ -705,6 +761,7 @@ def run_screening() -> None:
                 ihsg,
                 lq45,
                 volatility_results,
+                wyckoff_calibration,
             )
 
             results.append(result)
