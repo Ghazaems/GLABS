@@ -963,6 +963,21 @@ html { overflow-x: hidden; }
             <p class="loading-msg">Memuat ic_data.json...</p>
           </div>
         </div>
+        <div class="report-group">
+          <div class="report-group-head">
+            <span style="display:flex; align-items:center; gap:8px">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M5 15l4-5 3 2 4-7 3 4"/></svg>
+              <h2>Validasi Wyckoff <span>&middot; per event dan timeframe</span></h2>
+            </span>
+          </div>
+          <div class="explain-card" style="margin-bottom:16px">
+            Web menampilkan keputusan akhirnya. Event yang belum signifikan tetap
+            terlihat di chart sebagai konteks, tetapi bobotnya nol dalam skor komposit.
+          </div>
+          <div id="wyckoff-validation-body">
+            <p class="loading-msg">Memuat hasil validasi Wyckoff...</p>
+          </div>
+        </div>
       </div><!-- /view-laporan -->
 
       <div id="view-watchlist" style="display:none">
@@ -1610,6 +1625,7 @@ const STYLE_CONFIG = {
     "vwapKey": "vwap",
     "csKey": "comparative_strength_daily",
     "bdKey": "score_breakdown_daily",
+    "wyckoffKey": "wyckoff_daily",
     "supportKey": "support_daily",
     "resistanceKey": "resistance_daily",
     "vwapFocus": "5D"
@@ -1622,6 +1638,7 @@ const STYLE_CONFIG = {
     "vwapKey": "vwap_medium",
     "csKey": "comparative_strength",
     "bdKey": "score_breakdown",
+    "wyckoffKey": "wyckoff",
     "supportKey": "support",
     "resistanceKey": "resistance",
     "vwapFocus": "20D"
@@ -1634,6 +1651,7 @@ const STYLE_CONFIG = {
     "vwapKey": "vwap_swing",
     "csKey": "comparative_strength_swing",
     "bdKey": "score_breakdown_swing",
+    "wyckoffKey": "wyckoff_swing",
     "supportKey": "support_swing",
     "resistanceKey": "resistance_swing",
     "vwapFocus": "60D"
@@ -1647,7 +1665,7 @@ function renderStyleDependent(style) {
   const config = STYLE_CONFIG[style] || STYLE_CONFIG.daily;
   const {
     label, scoreKey, signalKey, trendKey, vwapKey, csKey, bdKey,
-    supportKey, resistanceKey, vwapFocus,
+    wyckoffKey, supportKey, resistanceKey, vwapFocus,
   } = config;
   const styleRows = wl.filter(r =>
     Number.isFinite(Number(r[scoreKey])) &&
@@ -1699,11 +1717,10 @@ function renderStyleDependent(style) {
   const topFooter = document.getElementById("toppick-footer-left");
   const barsEl = document.getElementById("toppick-bars");
   if (tp) {
-    const wyBias = tp.wyckoff?.bias === "accumulation" ? "akumulasi" :
-      tp.wyckoff?.bias === "distribution" ? "distribusi" : "belum jelas";
-    const wyText = style !== "daily"
-      ? `, Wyckoff ${wyBias} (${phaseLetter(tp.wyckoff?.phase)})`
-      : ", Wyckoff Daily belum dikalibrasi dan tidak memengaruhi skor";
+    const selectedWyckoff = tp[wyckoffKey] || {};
+    const wyBias = selectedWyckoff.bias === "accumulation" ? "akumulasi" :
+      selectedWyckoff.bias === "distribution" ? "distribusi" : "belum jelas";
+    const wyText = `, Wyckoff ${wyBias} (${phaseLetter(selectedWyckoff.phase)})`;
     topText.innerHTML =
       `<b>${tp.ticker}</b> memimpin skor screener ${label} di <b>${tp[scoreKey]}</b>, ` +
       `trend ${TREND_LABEL[tp[trendKey]]||tp[trendKey]}${wyText}, harga ` +
@@ -1733,26 +1750,25 @@ function renderStyleDependent(style) {
     ? `${healthy}<span class="unit">/ ${styleRows.length} sehat</span>`
     : `-<span class="unit">${label}</span>`;
 
-  if (style === "daily") {
-    document.getElementById("wyckoff-text").textContent =
-      "Wyckoff Daily belum dikalibrasi. Komponen ini dinetralkan dan tidak disalin dari Weekly.";
-    document.getElementById("wyckoff-footer").textContent = "Adjustment Daily menyusul";
+  const accum = styleRows.filter(r => r[wyckoffKey]?.bias === "accumulation");
+  const distrib = styleRows.filter(r => r[wyckoffKey]?.bias === "distribution");
+  const weighted = styleRows.filter(r => Number(r[bdKey]?.wyckoff) !== 0);
+  const bestAccum = [...accum].sort((a, b) => Number(b[scoreKey]) - Number(a[scoreKey]))[0];
+  if (bestAccum) {
+    const selected = bestAccum[wyckoffKey] || {};
+    const events = (selected.events || []).map(event => event.type).join(", ") || "-";
+    document.getElementById("wyckoff-text").innerHTML =
+      `<b>${bestAccum.ticker}</b> menunjukkan konteks akumulasi ${label} — ` +
+      `fase ${phaseLetter(selected.phase)}, event: ${events}. ` +
+      (weighted.length ? "Bobot statistik aktif hanya untuk event yang tervalidasi." :
+        "Belum ada event tervalidasi yang memengaruhi skor.");
   } else {
-    const accum = styleRows.filter(r => r.wyckoff?.bias === "accumulation");
-    const distrib = styleRows.filter(r => r.wyckoff?.bias === "distribution");
-    const bestAccum = [...accum].sort((a, b) => Number(b[scoreKey]) - Number(a[scoreKey]))[0];
-    if (bestAccum) {
-      const events = (bestAccum.wyckoff.events || []).map(event => event.type).join(", ") || "-";
-      document.getElementById("wyckoff-text").innerHTML =
-        `<b>${bestAccum.ticker}</b> menunjukkan akumulasi terkuat untuk ranking ${label} — ` +
-        `fase ${phaseLetter(bestAccum.wyckoff.phase)}, event: ${events}.`;
-    } else {
-      document.getElementById("wyckoff-text").textContent =
-        hasStyleData ? `Belum ada sinyal akumulasi kuat (${label}).` : waitingMessage;
-    }
-    document.getElementById("wyckoff-footer").textContent =
-      `${accum.length} akumulasi · ${distrib.length} distribusi`;
+    document.getElementById("wyckoff-text").textContent =
+      hasStyleData ? `Belum ada konteks akumulasi kuat (${label}).` : waitingMessage;
   }
+  document.getElementById("wyckoff-footer").textContent =
+    `${accum.length} akumulasi · ${distrib.length} distribusi · ` +
+    (weighted.length ? `${weighted.length} berbobot` : "konteks visual");
 
   const vwapTitleEl = document.getElementById("vwap-card-title");
   if (vwapTitleEl) vwapTitleEl.textContent = `Full VWAP 5/20/60 · Fokus ${label} ${vwapFocus}`;
@@ -1867,6 +1883,7 @@ function showView(name) {
     loadBacktestReport();
     loadForwardReport();
     loadICReport();
+    loadWyckoffValidationReport();
   }
 }
 
@@ -2186,6 +2203,48 @@ function renderForwardICSummary(bodyId, selectId, data) {
     });
   }).join("");
   document.getElementById(bodyId).innerHTML = `<div class="horizon-grid">${cards}</div>`;
+}
+
+function renderWyckoffValidationSummary(data) {
+  const body = document.getElementById("wyckoff-validation-body");
+  const summaries = data?.timeframe_summary;
+  const order = ["daily", "weekly", "swing"];
+  if (!summaries || !order.every(key => summaries[key])) {
+    body.innerHTML = `<div class="verdict-banner neutral"><span class="icon">○</span><span>
+      <b>Validasi belum tersedia.</b> Wyckoff tetap menjadi konteks visual dan
+      tidak memengaruhi skor sampai laporan statistik lengkap tersedia.
+    </span></div>`;
+    return;
+  }
+  body.innerHTML = `<div class="horizon-grid">${order.map(key => {
+    const item = summaries[key];
+    const validated = item.validated_events || [];
+    const reversed = item.reversed_events || [];
+    const tone = validated.length ? "good" : reversed.length ? "bad" : "neutral";
+    const icon = tone === "good" ? "✓" : tone === "bad" ? "⚠" : "○";
+    const eventText = validated.length
+      ? `Event berbobot: ${validated.join(", ")}.`
+      : "Belum ada event berbobot.";
+    return `<div class="h-card">
+      <div class="h-title">${item.label} · ${item.horizon}</div>
+      <div class="verdict-banner ${tone}" style="margin:10px 0 12px">
+        <span class="icon">${icon}</span><span><b>${item.headline}</b></span>
+      </div>
+      <p style="margin:0; color:var(--text-secondary); line-height:1.65">${eventText}</p>
+    </div>`;
+  }).join("")}</div>
+  <div class="note-card">AR dan ST tetap visual-only karena arah keduanya bergantung
+    pada konteks akumulasi atau distribusi.</div>`;
+}
+
+async function loadWyckoffValidationReport() {
+  try {
+    const response = await fetch("wyckoff_ic_data.json");
+    if (!response.ok) throw new Error("not found");
+    renderWyckoffValidationSummary(await response.json());
+  } catch (error) {
+    renderWyckoffValidationSummary(null);
+  }
 }
 
 async function loadICReport() {
