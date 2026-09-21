@@ -1,42 +1,75 @@
-
-name: Daily Forward Test (962 Ticker IDX)
+name: Forward Test Recovery (500 Emiten IDX)
 
 on:
-  schedule:
-    # 16:10 WIB (09:10 UTC) — 15 menit setelah daily screening selesai
-    # Forward test butuh data dari daily screening yang baru saja jalan
-    - cron: "10 9 * * 1-5"   # Senin-Jumat saja
-
-  workflow_dispatch: {}       # bisa trigger manual dari tab Actions di GitHub
+  # Forward test utama sudah menjadi bagian dari daily-screening.yml.
+  # Workflow ini hanya untuk pemulihan terkontrol, bukan cron duplikat.
+  workflow_dispatch: {}
 
 permissions:
   contents: write
 
+concurrency:
+  group: generated-data-writer
+  cancel-in-progress: false
+
 jobs:
   run-forward-test:
+    name: Rebuild forward-test report
     runs-on: ubuntu-latest
-    timeout-minutes: 10       # forward test cepat, cuma baca dari database
+    timeout-minutes: 15
+
+    env:
+      PYTHONUNBUFFERED: "1"
+      DB_PATH: storage/screener.db
+      FORWARD_REPORT_PATH: web/forward_test_data.json
+
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Run forward test (962 ticker IDX)
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -p "test_*.py" -v
+
+      - name: Rebuild forward-test report
         run: python forward_test.py
-        env:
-          PYTHONUNBUFFERED: "1"
 
-      - name: Commit updated forward test data
+      - name: Validate report
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(
+              Path("web/forward_test_data.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+          assert report["jenis"] == "forward_test"
+          assert report["horizons_hari_bursa"] == [5, 10, 20]
+          assert set(report["by_timeframe"]) == {
+              "daily",
+              "weekly",
+              "swing",
+          }
+          print("Forward-test report valid")
+          PY
+
+      - name: Commit updated report
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add web/forward_test_data.json
-          git diff --staged --quiet || git commit -m "chore: update forward test data $(date -u +%Y-%m-%d)"
+          git diff --staged --quiet || git commit -m "chore: rebuild forward test data $(date -u +%Y-%m-%d)"
           git push
