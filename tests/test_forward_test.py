@@ -38,6 +38,7 @@ class TestForwardTestPipeline(unittest.TestCase):
                     close REAL
                 );
                 CREATE TABLE signals (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     ticker TEXT NOT NULL,
                     date TEXT NOT NULL,
                     signal_type TEXT NOT NULL,
@@ -76,6 +77,23 @@ class TestForwardTestPipeline(unittest.TestCase):
             )
 
             signal_date = dates[0].date().isoformat()
+            conn.execute(
+                """
+                INSERT INTO signals (
+                    ticker, date, signal_type,
+                    direction, score, note,
+                    comp_trend, comp_wyckoff,
+                    comp_vwap,
+                    comp_comparative_strength,
+                    comp_support_resistance
+                ) VALUES (
+                    'TEST', ?, 'composite', 'jual',
+                    -60, '{}', -30, 0, -15, -15, 0
+                )
+                """,
+                (signal_date,),
+            )
+
             rows = [
                 ("composite_daily", "beli", 60.0, "{}"),
                 ("composite", "beli", 65.0, "{}"),
