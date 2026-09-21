@@ -55,10 +55,20 @@ def _load_signals(conn: sqlite3.Connection) -> pd.DataFrame:
             comp_support_resistance
         FROM signals
         WHERE signal_type IN ({placeholders})
+          AND id IN (
+              SELECT MAX(id)
+              FROM signals
+              WHERE signal_type IN ({placeholders})
+              GROUP BY ticker, date, signal_type
+          )
         ORDER BY date, ticker, signal_type
     """
     values = (*TIMEFRAME_TYPES.values(), "vwap_multi")
-    frame = pd.read_sql_query(query, conn, params=values)
+    frame = pd.read_sql_query(
+        query,
+        conn,
+        params=(*values, *values),
+    )
     if frame.empty:
         return frame
 
