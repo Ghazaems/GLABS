@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: daily-stock-screening-500
+  group: generated-data-writer
   cancel-in-progress: false
 
 jobs:
@@ -114,6 +114,33 @@ jobs:
           assert watchlist
           assert valid
           assert not invalid, invalid[:20]
+
+          with open(
+              "web/forward_test_data.json",
+              encoding="utf-8",
+          ) as source:
+              forward = json.load(source)
+
+          required = {
+              "generated_at",
+              "horizons_hari_bursa",
+              "total_sampel_terdaftar",
+              "total_sampel_matang",
+              "by_signal",
+              "by_vwap_signal",
+              "by_timeframe",
+              "detail_terbaru",
+              "ic",
+          }
+          assert required.issubset(forward), (
+              required - set(forward)
+          )
+          assert set(forward["by_timeframe"]) == {
+              "daily",
+              "weekly",
+              "swing",
+          }
+          print("Forward-test contract valid")
           PY
 
       - name: Commit generated data
