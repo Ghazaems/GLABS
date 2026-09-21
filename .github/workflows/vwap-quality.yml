@@ -10,6 +10,7 @@ on:
       - ".github/workflows/**"
   push:
     branches:
+      - main
       - "feat/**"
 
 permissions:
