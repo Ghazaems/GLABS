@@ -178,6 +178,25 @@ class TestForwardTestPipeline(unittest.TestCase):
             "forward_test",
         )
 
+    def test_empty_signal_history_returns_empty_report(self):
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("DELETE FROM signals")
+
+        report = forward_test.evaluate_forward()
+
+        self.assertEqual(
+            report["total_sampel_terdaftar"],
+            0,
+        )
+        self.assertEqual(
+            report["detail_terbaru"],
+            [],
+        )
+        self.assertEqual(
+            report["by_signal"]["5"],
+            [],
+        )
+
     def test_missing_database_fails_explicitly(self):
         forward_test.DB_PATH = (
             Path(self.tempdir.name) / "missing.db"
