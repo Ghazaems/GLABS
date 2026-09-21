@@ -31,6 +31,7 @@ from screener.vwap import (
     price_vs_vwap,
 )
 from screener.wyckoff import (
+    WYCKOFF_EVENT_TYPES,
     analyze_latest_trading_range,
     comparative_strength,
 )
@@ -39,6 +40,11 @@ from screener.wyckoff import (
 PERIOD = "3y"
 WARMUP_BARS = 120
 HORIZONS = [5, 20, 60]
+WYCKOFF_STYLE_BY_HORIZON = {
+    5: "daily",
+    20: "weekly",
+    60: "swing",
+}
 STRIDE = 5
 
 ROUND_TRIP_COST_PCT = float(
@@ -198,9 +204,18 @@ def run_backtest() -> pd.DataFrame:
             support_resistance = (
                 support_resistance_levels(history)
             )
-            wyckoff = (
-                analyze_latest_trading_range(history)
-            )
+            wyckoff_by_style = {
+                style: analyze_latest_trading_range(
+                    history,
+                    timeframe=style,
+                )
+                for style in (
+                    "daily",
+                    "weekly",
+                    "swing",
+                )
+            }
+            wyckoff = wyckoff_by_style["weekly"]
             vwap_by_horizon = {
                 horizon: price_vs_vwap(
                     history,
@@ -270,6 +285,26 @@ def run_backtest() -> pd.DataFrame:
                         horizon_vwap
                     )
                 )
+
+            for style, analysis in (
+                wyckoff_by_style.items()
+            ):
+                current_events = set(
+                    analysis.get(
+                        "current_events",
+                        [],
+                    )
+                )
+                for event_type in (
+                    WYCKOFF_EVENT_TYPES
+                ):
+                    row[
+                        f"wyckoff_{style}_"
+                        f"{event_type.lower()}"
+                    ] = int(
+                        event_type
+                        in current_events
+                    )
 
             for name, component_score in (
                 scored["breakdown"].items()
