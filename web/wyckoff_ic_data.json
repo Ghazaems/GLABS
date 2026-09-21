@@ -1,0 +1,45 @@
+{
+  "generated_at": null,
+  "status": "pending_first_validation",
+  "methodology": {
+    "type": "cross_sectional_per_date_per_event",
+    "signal": "binary event presence on signal date",
+    "timeframes": {
+      "daily": 5,
+      "weekly": 20,
+      "swing": 60
+    }
+  },
+  "results": [],
+  "calibration": {
+    "daily": {},
+    "weekly": {},
+    "swing": {}
+  },
+  "timeframe_summary": {
+    "daily": {
+      "label": "Daily",
+      "horizon": "5D",
+      "headline": "Menunggu validasi otomatis pertama.",
+      "validated_events": [],
+      "contextual_events": [],
+      "reversed_events": []
+    },
+    "weekly": {
+      "label": "Weekly",
+      "horizon": "20D",
+      "headline": "Menunggu validasi otomatis pertama.",
+      "validated_events": [],
+      "contextual_events": [],
+      "reversed_events": []
+    },
+    "swing": {
+      "label": "Swing",
+      "horizon": "60D",
+      "headline": "Menunggu validasi otomatis pertama.",
+      "validated_events": [],
+      "contextual_events": [],
+      "reversed_events": []
+    }
+  }
+}

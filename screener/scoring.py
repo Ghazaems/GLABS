@@ -27,7 +27,8 @@ def _phase_letter(phase_str: str) -> str:
 
 
 def compute_score(trend: str, wyckoff: dict, vwap: dict, comparative: dict,
-                   support_resistance: dict) -> dict:
+                   support_resistance: dict,
+                   wyckoff_weights: dict[str, float] | None = None) -> dict:
     score = 0
     breakdown = {}
     notes = []
@@ -37,15 +38,24 @@ def compute_score(trend: str, wyckoff: dict, vwap: dict, comparative: dict,
     score += s
     breakdown["trend"] = s
 
-    # Wyckoff bias + phase
-    s = 0
-    bias = wyckoff.get("bias")
-    if bias == "accumulation":
-        s += WYCKOFF_PHASE_SCORE.get(_phase_letter(wyckoff.get("phase", "")), 0)
-    elif bias == "distribution":
-        s -= WYCKOFF_PHASE_SCORE.get(_phase_letter(wyckoff.get("phase", "")), 0)
-    elif bias == "conflicting":
-        notes.append("Sinyal Wyckoff berlawanan arah (conflicting) - komponen ini dinetralkan.")
+    # Wyckoff hanya boleh memengaruhi skor bila event pada bar terbaru
+    # sudah lolos validasi cross-sectional untuk timeframe terkait.
+    weights = wyckoff_weights or {}
+    current_events = wyckoff.get("current_events", [])
+    s = round(
+        sum(
+            float(weights.get(event_type, 0.0))
+            for event_type in current_events
+        ),
+        2,
+    )
+    s = max(-30.0, min(30.0, s))
+    if not current_events:
+        notes.append("Tidak ada event Wyckoff baru pada bar terakhir.")
+    elif not any(event_type in weights for event_type in current_events):
+        notes.append(
+            "Event Wyckoff hanya kontekstual; belum lolos validasi statistik."
+        )
     score += s
     breakdown["wyckoff"] = s
 

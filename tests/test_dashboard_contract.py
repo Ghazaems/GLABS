@@ -99,13 +99,16 @@ class DashboardContractTests(unittest.TestCase):
             "cs_ihsg_daily",
             "window=5",
             "scored_daily = compute_score",
-            '"status": "not_adjusted_for_daily"',
+            'timeframe="daily"',
+            'timeframe="weekly"',
+            'timeframe="swing"',
             '"score_daily": scored_daily["score"]',
             '"signal_daily": signal_daily',
             '"composite_daily"',
         ):
             self.assertIn(marker, self.main)
         self.assertIn("wyckoff_daily", self.main)
+        self.assertIn("wyckoff_swing", self.main)
 
 
     def test_ic_web_shows_conclusions_not_raw_calculations(self):
@@ -120,6 +123,21 @@ class DashboardContractTests(unittest.TestCase):
             self.assertIn(marker, self.index)
         self.assertNotIn("Lihat detail teknis (IC, p-value)", self.index)
         self.assertNotIn("<th class=\"num\">IC</th>", self.index)
+
+
+    def test_wyckoff_validation_is_summary_only(self):
+        for marker in (
+            "Validasi Wyckoff",
+            "loadWyckoffValidationReport",
+            "wyckoff_ic_data.json",
+            "Event berbobot",
+            "konteks visual",
+            '"wyckoffKey": "wyckoff_daily"',
+            '"wyckoffKey": "wyckoff_swing"',
+        ):
+            self.assertIn(marker, self.index)
+        self.assertNotIn("mean_IC", self.index)
+        self.assertNotIn("%positive_months", self.index)
 
     def test_cockpit_has_three_vwap_lines_and_risk_context(self):
         for marker in (
