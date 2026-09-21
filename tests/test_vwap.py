@@ -112,6 +112,31 @@ class TestVwapEngine(unittest.TestCase):
 
         self.assertNotEqual(result["signal"], "BUY")
 
+    def test_established_bearish_regime_returns_avoid(self):
+        frame = self.frame(100)
+        close = np.linspace(150.0, 100.0, len(frame))
+        frame["High"] = close + 1.0
+        frame["Low"] = close - 1.0
+        frame["Close"] = close
+
+        result = analyze_vwap_signals(frame)
+
+        self.assertEqual(result["signal"], "AVOID")
+
+    def test_fresh_slow_vwap_breakdown_returns_exit(self):
+        frame = self.frame(100)
+        frame.loc[frame.index[-1], "High"] = 81.0
+        frame.loc[frame.index[-1], "Low"] = 79.0
+        frame.loc[frame.index[-1], "Close"] = 80.0
+
+        result = analyze_vwap_signals(frame)
+
+        self.assertEqual(result["signal"], "EXIT")
+        self.assertIn(
+            "Harga baru breakdown VWAP swing.",
+            result["reasons"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
