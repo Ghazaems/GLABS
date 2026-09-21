@@ -350,7 +350,7 @@ def process_ticker(
 
     scored_swing = compute_score(
         trend_swing,
-        wyckoff,
+        wyckoff_swing,
         vwap_swing,
         cs_ihsg_swing,
         support_resistance_swing,
@@ -421,10 +421,22 @@ def process_ticker(
     save_signal(
         ticker,
         date_string,
+        "composite_swing",
+        signal_swing,
+        note=f"score={scored_swing['score']}",
+        score=scored_swing["score"],
+        breakdown=scored_swing["breakdown"],
+    )
+
+    save_signal(
+        ticker,
+        date_string,
         "vwap_multi",
         vwap_analysis.get("signal", "WAIT"),
         note=json.dumps(
             {
+                "signal": vwap_analysis.get("signal"),
+                "confidence": vwap_analysis.get("confidence"),
                 "regime": vwap_analysis.get("regime"),
                 "reasons": vwap_analysis.get("reasons", []),
                 "execution": vwap_analysis.get("execution"),
