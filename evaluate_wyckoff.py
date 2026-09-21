@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 import math
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -223,7 +223,7 @@ def evaluate(path: Path) -> dict:
     }
 
     return {
-        "generated_at": datetime.now().isoformat(),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "source": str(path),
         "methodology": {
             "type": "cross_sectional_per_date_per_event",
