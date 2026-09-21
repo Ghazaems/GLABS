@@ -1,16 +1,20 @@
 
-name: Daily Backtest (962 Ticker IDX)
+name: Daily Backtest (500 Emiten IDX)
 
 on:
   schedule:
-    # 16:20 WIB (09:20 UTC) — 10 menit setelah forward test selesai
+    # 17:15 WIB (10:15 UTC) — setelah pipeline screening harian
     # Backtest butuh waktu lebih lama karena proses data historis 3 tahun
-    - cron: "20 9 * * 1-5"   # Senin-Jumat saja
+    - cron: "15 10 * * 1-5"   # Senin-Jumat saja
 
   workflow_dispatch: {}       # bisa trigger manual dari tab Actions di GitHub
 
 permissions:
   contents: write
+
+concurrency:
+  group: generated-data-writer
+  cancel-in-progress: false
 
 jobs:
   run-backtest:
