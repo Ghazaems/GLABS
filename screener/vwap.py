@@ -380,6 +380,7 @@ def analyze_vwap_signals(
     previous_fast = fast.iloc[-2]
     last_medium = medium.iloc[-1]
     last_slow = slow.iloc[-1]
+    previous_slow = slow.iloc[-2]
 
     last_fast_slope = fast_slope.iloc[-1]
     last_medium_slope = medium_slope.iloc[-1]
@@ -395,6 +396,7 @@ def analyze_vwap_signals(
         previous_fast,
         last_medium,
         last_slow,
+        previous_slow,
         last_medium_slope,
         last_slow_slope,
         last_atr,
@@ -468,7 +470,10 @@ def analyze_vwap_signals(
         and below_medium.fillna(False).all()
     )
 
-    slow_exit = bool(last_close < last_slow)
+    slow_breakdown = bool(
+        previous_close >= previous_slow
+        and last_close < last_slow
+    )
 
     buy_condition = bool(
         bullish_swing
@@ -490,14 +495,20 @@ def analyze_vwap_signals(
         or last_medium_slope <= 0
     )
 
-    exit_condition = bool(
-        medium_exit_confirmed
-        or slow_exit
-    )
-
     avoid_condition = bool(
         bearish_swing
         and bearish_medium
+    )
+
+    # EXIT adalah kejadian transisi/breakdown baru. Kondisi bearish
+    # yang sudah berlangsung diklasifikasikan AVOID agar dua status
+    # tidak saling menelan dan AVOID benar-benar dapat dicapai.
+    exit_condition = bool(
+        slow_breakdown
+        or (
+            medium_exit_confirmed
+            and not avoid_condition
+        )
     )
 
     reasons: list[str] = []
@@ -511,9 +522,9 @@ def analyze_vwap_signals(
                 "di bawah VWAP menengah."
             )
 
-        if slow_exit:
+        if slow_breakdown:
             reasons.append(
-                "Close berada di bawah VWAP swing."
+                "Harga baru breakdown VWAP swing."
             )
 
     elif buy_condition:
