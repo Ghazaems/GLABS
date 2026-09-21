@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 import os
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -446,7 +446,7 @@ def evaluate_forward() -> dict:
         }
 
     payload = {
-        "generated_at": datetime.now().isoformat(),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "jenis": "forward_test",
         "catatan": (
             "Sinyal diamati pada penutupan sesi dan dieksekusi "
