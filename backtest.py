@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -466,7 +466,7 @@ def export_dashboard_json(
     )
 
     payload = {
-        "generated_at": datetime.now().isoformat(),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "period": PERIOD,
         "execution": "next_session_open",
         "price_adjustment": "auto_adjust_true",
