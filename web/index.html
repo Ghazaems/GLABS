@@ -1997,11 +1997,15 @@ async function loadBacktestReport() {
 
   const { winPct, totalSampel, totalWin } = computeCombinedWinrate(bySignal[String(REPORT_HORIZON)]);
   renderDonut("backtest-donut", winPct, totalSampel);
+  const tickerCount = Number(data.ticker_count);
+  const tickerText = Number.isFinite(tickerCount) && tickerCount > 0
+    ? ` &middot; ${tickerCount} ticker`
+    : "";
   document.getElementById("backtest-summary-text").innerHTML =
     `Dari <b>${totalSampel}</b> sampel sinyal (semua kategori, horizon ${REPORT_HORIZON} hari bursa),
     <b>${totalWin}</b> di antaranya profit dan <b>${totalSampel - totalWin}</b> rugi.
-    Total ${data.total_sampel} sampel &middot; periode ${data.period} &middot;
-    ${data.watchlist.length} ticker &middot; digenerate ${genDate}.
+    Total ${data.total_sampel} sampel &middot; periode ${data.period}${tickerText}
+    &middot; digenerate ${genDate}.
     <div class="donut-legend"><span><i class="win"></i>Profit</span><span><i class="loss"></i>Rugi</span></div>`;
 
   const quartileReturnKey = hasExcess ? "rata_rata_excess_return_pct" : "rata_rata_return_pct";
