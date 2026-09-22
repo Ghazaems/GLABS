@@ -485,6 +485,7 @@ def export_dashboard_json(
             ),
         },
         "total_sampel": int(len(frame)),
+        "ticker_count": int(frame["ticker"].nunique()),
         "extreme_gross_return_count": (
             extreme_count
         ),
