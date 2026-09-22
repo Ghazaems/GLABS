@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-22T12:41:50.037882+00:00",
+  "generated_at": "2026-09-22T14:13:40.937129+00:00",
   "jenis": "forward_test",
   "catatan": "Sinyal diamati pada penutupan sesi dan dieksekusi pada pembukaan sesi berikutnya. Return sudah dikurangi friction 0.70%.",
   "execution": "next_session_open",
