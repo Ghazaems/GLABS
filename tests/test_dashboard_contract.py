@@ -120,6 +120,11 @@ class DashboardContractTests(unittest.TestCase):
         self.assertIn("wyckoff_swing", self.main)
 
 
+    def test_backtest_renderer_tolerates_legacy_report_without_watchlist(self):
+        self.assertIn("const tickerCount = Number(data.ticker_count)", self.index)
+        self.assertIn("Number.isFinite(tickerCount)", self.index)
+        self.assertNotIn("data.watchlist.length", self.index)
+
     def test_ic_web_shows_conclusions_not_raw_calculations(self):
         for marker in (
             "Validasi VWAP",
