@@ -613,35 +613,18 @@ body {
 /* ---------- Volatility projection chart ---------- */
 #riwayat-chart-wrap { overflow: hidden; }
 .vol-chart { width: 100%; height: auto; display: block; cursor: crosshair; }
-.vol-history-segment {
+.vol-history-area { opacity: .11; }
+.vol-history-line {
   fill: none; stroke-linecap: round; stroke-linejoin: round;
   stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0;
-  animation: vol-line-reveal .34s var(--ease) forwards;
-  animation-delay: calc(var(--segment-index) * 16ms);
-}
-.vol-projection-reveal {
-  transform-box: fill-box; transform-origin: left center;
-  animation: vol-projection-reveal .88s cubic-bezier(.22,.8,.24,1) forwards;
-  animation-delay: var(--projection-delay);
+  animation: vol-history-reveal .9s cubic-bezier(.22,.8,.24,1) forwards;
 }
 .vol-projection-line {
   fill: none; stroke-linecap: round; stroke-linejoin: round;
-  stroke-dasharray: 2 7;
-  animation: vol-dash-flow 1.2s linear infinite;
+  stroke-dasharray: 2 7; opacity: .92;
 }
-.vol-horizon-marker {
-  opacity: 0; animation: vol-fade-in .35s ease forwards;
-  animation-delay: var(--projection-delay);
-}
-.vol-terminal-marker {
-  opacity: 0; transform-box: fill-box; transform-origin: center;
-  animation: vol-marker-in .42s cubic-bezier(.2,.9,.3,1.35) forwards;
-  animation-delay: var(--projection-delay);
-}
-.vol-end-marker {
-  opacity: 0; animation: vol-marker-in .35s cubic-bezier(.2,.9,.3,1.35) forwards;
-  animation-delay: calc(var(--projection-delay) + .78s);
-}
+.vol-horizon-marker { opacity: .7; }
+.vol-terminal-marker, .vol-end-marker { opacity: 1; }
 .vol-tooltip-card {
   fill: rgba(20,20,23,.96); stroke: rgba(255,255,255,.12); stroke-width: 1;
   filter: drop-shadow(0 12px 22px rgba(0,0,0,.38));
@@ -651,25 +634,13 @@ body {
 .vol-tooltip-value { fill: #f5f5f2; font-size: 13px; font-weight: 700; }
 .vol-axis-pill { fill: #f5f5f2; filter: drop-shadow(0 6px 12px rgba(0,0,0,.25)); }
 .vol-axis-pill-text { fill: #151517; font-size: 11px; font-weight: 650; }
-@keyframes vol-line-reveal {
-  from { stroke-dashoffset: 1; opacity: .2; }
+@keyframes vol-history-reveal {
+  from { stroke-dashoffset: 1; opacity: .18; }
   to { stroke-dashoffset: 0; opacity: 1; }
 }
-@keyframes vol-projection-reveal {
-  from { transform: scaleX(0); opacity: 0; }
-  to { transform: scaleX(1); opacity: 1; }
-}
-@keyframes vol-dash-flow { to { stroke-dashoffset: -18; } }
-@keyframes vol-fade-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes vol-marker-in {
-  from { opacity: 0; transform: scale(.35); }
-  to { opacity: 1; transform: scale(1); }
-}
 @media (prefers-reduced-motion: reduce) {
-  .vol-history-segment, .vol-projection-reveal, .vol-projection-line,
-  .vol-horizon-marker, .vol-terminal-marker, .vol-end-marker {
-    animation: none !important; opacity: 1;
-    stroke-dashoffset: 0; transform: none;
+  .vol-history-line {
+    animation: none !important; opacity: 1; stroke-dashoffset: 0;
   }
 }
 
@@ -1131,9 +1102,8 @@ html { overflow-x: hidden; }
 
         <div class="qcard" style="margin-top:14px; padding:20px;">
           <div style="display:flex; flex-wrap:wrap; gap:16px; margin-bottom:10px; font-size:12px; color:var(--text-secondary);">
-            <span style="display:flex; align-items:center; gap:5px;"><i style="width:10px;height:2px;background:#32d74b;display:inline-block;"></i>Tren naik</span>
-            <span style="display:flex; align-items:center; gap:5px;"><i style="width:10px;height:2px;background:#ff453a;display:inline-block;"></i>Tren turun</span>
-            <span style="display:flex; align-items:center; gap:5px;"><i style="width:10px;height:10px;border-radius:2px;background:rgba(96,165,250,0.15);border:1px solid #60a5fa;display:inline-block;"></i>Proyeksi GARCH 95% (10 hari)</span>
+            <span style="display:flex; align-items:center; gap:5px;"><i id="riwayat-trend-swatch" style="width:14px;height:2px;background:#32d74b;display:inline-block;border-radius:99px;"></i><span id="riwayat-trend-label">Harga historis</span></span>
+            <span style="display:flex; align-items:center; gap:5px;"><i style="width:14px;height:0;border-top:2px dotted #60a5fa;display:inline-block;"></i>Rentang volatilitas GARCH 95%</span>
           </div>
           <div id="riwayat-chart-wrap"><p class="loading-msg">Memuat...</p></div>
           <p class="loading-msg" id="riwayat-note" style="padding:12px 0 0;"></p>
@@ -1563,6 +1533,23 @@ document.addEventListener("click", (e) => {
   if (e.target !== input && !dd.contains(e.target)) closeRiwayatDropdown();
 });
 
+function volatilityClosingTrend(stock) {
+  const history = stock?.volatility?.price_history || [];
+  const firstClose = Number(history[0]?.close);
+  const lastClose = Number(history[history.length - 1]?.close ?? stock?.last_close);
+  const trend = String(stock?.trend || "").toLowerCase();
+  const bullish = trend === "uptrend"
+    ? true
+    : trend === "downtrend"
+      ? false
+      : lastClose >= firstClose;
+  return {
+    bullish,
+    color: bullish ? "#32d74b" : "#ff453a",
+    label: bullish ? "Tren penutupan naik" : "Tren penutupan turun",
+  };
+}
+
 function renderRiwayatDetail(stock) {
   const v = stock.volatility;
   document.getElementById("riwayat-stat-price").textContent = "Rp " + fmtNum(stock.last_close);
@@ -1571,6 +1558,12 @@ function renderRiwayatDetail(stock) {
   const regimeEl = document.getElementById("riwayat-stat-regime");
   regimeEl.textContent = v.regime.charAt(0).toUpperCase() + v.regime.slice(1);
   regimeEl.style.color = v.regime === "tinggi" ? "var(--danger)" : v.regime === "rendah" ? "var(--success)" : "var(--text-primary)";
+
+  const closingTrend = volatilityClosingTrend(stock);
+  const trendSwatch = document.getElementById("riwayat-trend-swatch");
+  const trendLabel = document.getElementById("riwayat-trend-label");
+  if (trendSwatch) trendSwatch.style.background = closingTrend.color;
+  if (trendLabel) trendLabel.textContent = closingTrend.label;
 
   document.getElementById("riwayat-chart-wrap").innerHTML = buildVolatilitySvg(stock);
 
@@ -1637,8 +1630,12 @@ function buildVolatilitySvg(stock) {
   const safeId = String(stock.ticker || "stock").replace(/[^a-zA-Z0-9_-]/g, "");
   const chartId = `vol-chart-${safeId}`;
   const bandGradientId = `vol-band-gradient-${safeId}`;
-  const strokeGradientId = `vol-stroke-gradient-${safeId}`;
-  const projectionDelayMs = Math.min(1750, Math.max(360, histN * 16 + 140));
+  const historyGradientId = `vol-history-gradient-${safeId}`;
+  const closingTrend = volatilityClosingTrend(stock);
+  const historyColor = closingTrend.color;
+  const historyPoints = hist.map((row, i) => ({ x: x(i), y: y(row.close) }));
+  const historyLine = smoothPath(historyPoints);
+  const historyArea = `${historyLine} L${historyPoints[historyPoints.length - 1].x},${H - bottom} L${historyPoints[0].x},${H - bottom} Z`;
   const lastClose = Number(hist[histN - 1].close ?? v.last_price);
   const anchorIndex = histN - 1;
   const anchorX = x(anchorIndex), anchorY = y(lastClose);
@@ -1646,47 +1643,30 @@ function buildVolatilitySvg(stock) {
   let svg = `<svg id="${chartId}" data-chart-id="${safeId}" class="vol-chart"
     viewBox="0 0 ${W} ${H}" role="img"
     aria-label="Riwayat harga dan proyeksi volatilitas ${stock.ticker}"
-    style="--projection-delay:${projectionDelayMs}ms"
     onmouseleave="hideVolatilityTooltip(this)">`;
   svg += `<defs>
     <linearGradient id="${bandGradientId}" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#60a5fa" stop-opacity=".04"/>
-      <stop offset="60%" stop-color="#60a5fa" stop-opacity=".13"/>
-      <stop offset="100%" stop-color="#2563eb" stop-opacity=".24"/>
+      <stop offset="0%" stop-color="#60a5fa" stop-opacity=".035"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity=".2"/>
     </linearGradient>
-    <linearGradient id="${strokeGradientId}" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#93c5fd"/>
-      <stop offset="100%" stop-color="#3b82f6"/>
+    <linearGradient id="${historyGradientId}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${historyColor}" stop-opacity=".5"/>
+      <stop offset="100%" stop-color="${historyColor}" stop-opacity="0"/>
     </linearGradient>
   </defs>`;
 
   for (let i = 0; i < 4; i++) {
     const yy = top + i * plotH / 3, val = max - i * span / 3;
     svg += `<line x1="${left}" y1="${yy}" x2="${W - right}" y2="${yy}"
-      stroke="rgba(255,255,255,0.08)" stroke-dasharray="5 8"/>
-      <text x="${W - right + 9}" y="${yy + 4}" fill="rgba(245,245,242,0.38)"
+      stroke="rgba(255,255,255,0.07)" stroke-dasharray="5 8"/>
+      <text x="${W - right + 9}" y="${yy + 4}" fill="rgba(245,245,242,0.36)"
         font-size="10">${fmtNum(val)}</text>`;
   }
 
-  for (let i = 1; i < histN; i++) {
-    const p0i = Math.max(0, i - 2), p1i = i - 1, p2i = i, p3i = Math.min(histN - 1, i + 1);
-    const p0 = { x: x(p0i), y: y(hist[p0i].close) };
-    const p1 = { x: x(p1i), y: y(hist[p1i].close) };
-    const p2 = { x: x(p2i), y: y(hist[p2i].close) };
-    const p3 = { x: x(p3i), y: y(hist[p3i].close) };
-    const c1x = p1.x + (p2.x - p0.x) / 6;
-    const c1y = p1.y + (p2.y - p0.y) / 6;
-    const c2x = p2.x - (p3.x - p1.x) / 6;
-    const c2y = p2.y - (p3.y - p1.y) / 6;
-    const previous = Number(hist[i - 1].close);
-    const current = Number(hist[i].close);
-    const rising = current >= previous;
-    const color = rising ? "#32d74b" : "#ff453a";
-    svg += `<path class="vol-history-segment" pathLength="1"
-      style="--segment-index:${i - 1}"
-      d="M${p1.x},${p1.y} C${c1x},${c1y} ${c2x},${c2y} ${p2.x},${p2.y}"
-      stroke="${color}" stroke-width="2.35"/>`;
-  }
+  svg += `<path class="vol-history-area" d="${historyArea}"
+    fill="url(#${historyGradientId})"/>`;
+  svg += `<path class="vol-history-line" pathLength="1" d="${historyLine}"
+    stroke="${historyColor}" stroke-width="2.45"/>`;
 
   if (fcN) {
     const upperPoints = [{ x: anchorX, y: anchorY }];
@@ -1711,23 +1691,21 @@ function buildVolatilitySvg(stock) {
     const lowerEndY = lowerPoints[lowerPoints.length - 1].y;
 
     svg += `<line class="vol-horizon-marker" x1="${anchorX}" y1="${top}"
-      x2="${anchorX}" y2="${H - bottom}" stroke="rgba(96,165,250,.3)"
+      x2="${anchorX}" y2="${H - bottom}" stroke="rgba(96,165,250,.28)"
       stroke-dasharray="3 6"/>`;
-    svg += `<g class="vol-projection-reveal">
-      <path d="${bandFill}" fill="url(#${bandGradientId})"/>
-      <path class="vol-projection-line" d="${smoothPath(upperPoints)}"
-        stroke="url(#${strokeGradientId})" stroke-width="2"/>
-      <path class="vol-projection-line" d="${smoothPath(lowerPoints)}"
-        stroke="url(#${strokeGradientId})" stroke-width="2"/>
-    </g>`;
+    svg += `<path d="${bandFill}" fill="url(#${bandGradientId})"/>`;
+    svg += `<path class="vol-projection-line" d="${smoothPath(upperPoints)}"
+      stroke="#60a5fa" stroke-width="1.8"/>`;
+    svg += `<path class="vol-projection-line" d="${smoothPath(lowerPoints)}"
+      stroke="#60a5fa" stroke-width="1.8"/>`;
     svg += `<circle class="vol-terminal-marker" cx="${anchorX}" cy="${anchorY}"
-      r="9" fill="rgba(17,17,18,.72)" stroke="#60a5fa" stroke-width="2"/>
+      r="8.5" fill="rgba(17,17,18,.78)" stroke="#60a5fa" stroke-width="1.8"/>
       <circle class="vol-terminal-marker" cx="${anchorX}" cy="${anchorY}"
       r="2.8" fill="#60a5fa"/>`;
     svg += `<circle class="vol-end-marker" cx="${endX}" cy="${upperEndY}"
-      r="3.5" fill="#60a5fa"/>
+      r="3.4" fill="#60a5fa"/>
       <circle class="vol-end-marker" cx="${endX}" cy="${lowerEndY}"
-      r="3.5" fill="#60a5fa"/>`;
+      r="3.4" fill="#60a5fa"/>`;
   }
 
   const tickIndexes = [...new Set([
@@ -1737,17 +1715,17 @@ function buildVolatilitySvg(stock) {
     histN - 1,
   ])];
   tickIndexes.forEach(i => {
-    svg += `<text x="${x(i)}" y="${H - 13}" fill="rgba(245,245,242,.46)"
+    svg += `<text x="${x(i)}" y="${H - 13}" fill="rgba(245,245,242,.44)"
       font-size="10.5" text-anchor="middle">${shortDate(hist[i]?.date)}</text>`;
   });
-  svg += `<text x="${W - right}" y="${H - 13}" fill="rgba(96,165,250,.7)"
+  svg += `<text x="${W - right}" y="${H - 13}" fill="rgba(96,165,250,.72)"
     font-size="10.5" text-anchor="end">+${fcN} hari</text>`;
 
   svg += `<g id="vol-interaction-${safeId}" visibility="hidden" pointer-events="none">
     <line id="vol-crosshair-${safeId}" y1="${top}" y2="${H - bottom}"
-      stroke="rgba(245,245,242,.42)" stroke-width="1"/>
+      stroke="rgba(245,245,242,.38)" stroke-width="1"/>
     <circle id="vol-hover-point-${safeId}" r="4.5" fill="#111"
-      stroke="#60a5fa" stroke-width="2"/>
+      stroke="${historyColor}" stroke-width="2"/>
     <g id="vol-tooltip-${safeId}">
       <rect class="vol-tooltip-card" width="166" height="70" rx="10"/>
       <text id="vol-tooltip-date-${safeId}" class="vol-tooltip-date" x="14" y="22"></text>
@@ -1766,8 +1744,6 @@ function buildVolatilitySvg(stock) {
   const hitWidth = Math.max(8, plotW / totalN);
   hist.forEach((row, i) => {
     const current = Number(row.close);
-    const previous = i ? Number(hist[i - 1].close) : current;
-    const color = current >= previous ? "#32d74b" : "#ff453a";
     const px = x(i), py = y(current);
     const tooltipX = Math.min(Math.max(px + 12, left), W - right - 172);
     const tooltipY = Math.max(top + 4, py - 82);
@@ -1778,7 +1754,7 @@ function buildVolatilitySvg(stock) {
       data-tooltip-x="${tooltipX}" data-tooltip-y="${tooltipY}"
       data-pill-x="${pillX}" data-pill-y="${H - bottom + 7}"
       data-date="${fullDate(row.date)}" data-short-date="${shortDate(row.date)}"
-      data-value="${fmtNum(current)}" data-color="${color}"
+      data-value="${fmtNum(current)}" data-color="${historyColor}"
       onmouseenter="showVolatilityTooltip(this)"
       onmousemove="showVolatilityTooltip(this)"
       ontouchstart="showVolatilityTooltip(this)"/>`;
@@ -1787,6 +1763,7 @@ function buildVolatilitySvg(stock) {
   svg += `</svg>`;
   return svg;
 }
+
 
 function showVolatilityTooltip(hit) {
   const id = hit.dataset.chart;
