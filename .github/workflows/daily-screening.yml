@@ -2,10 +2,10 @@ name: Daily Stock Screening (500 Emiten IDX)
 
 on:
   schedule:
-    # Run utama: 09:15 UTC = 16:15 WIB, Senin-Jumat.
-    - cron: "15 9 * * 1-5"
-    # Recovery otomatis: 11:15 UTC = 18:15 WIB. Dilewati jika data hari ini sudah ada.
-    - cron: "15 11 * * 1-5"
+    # Pemeriksaan otomatis tiap jam 16:37-22:37 WIB, Senin-Jumat.
+    # Menit 37 menghindari antrean cron yang lazim pada menit 00/15/30.
+    # Hanya slot pertama dengan data yang belum segar menjalankan screening penuh.
+    - cron: "37 9-15 * * 1-5"
   workflow_dispatch:
   push:
     branches:
@@ -38,7 +38,6 @@ jobs:
         id: freshness
         env:
           EVENT_NAME: ${{ github.event_name }}
-          EVENT_SCHEDULE: ${{ github.event.schedule }}
         run: |
           python - <<'PY'
           import json
@@ -49,10 +48,7 @@ jobs:
           should_run = True
           reason = "primary-or-explicit-trigger"
 
-          if (
-              os.environ.get("EVENT_NAME") == "schedule"
-              and os.environ.get("EVENT_SCHEDULE") == "15 11 * * 1-5"
-          ):
+          if os.environ.get("EVENT_NAME") == "schedule":
               try:
                   with open("web/dashboard_data.json", encoding="utf-8") as source:
                       payload = json.load(source)
