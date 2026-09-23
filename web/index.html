@@ -612,23 +612,22 @@ body {
 
 /* ---------- Volatility projection chart ---------- */
 #riwayat-chart-wrap { overflow: hidden; }
-.vol-chart { width: 100%; height: auto; display: block; }
+.vol-chart { width: 100%; height: auto; display: block; cursor: crosshair; }
 .vol-history-segment {
   fill: none; stroke-linecap: round; stroke-linejoin: round;
   stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0;
   animation: vol-line-reveal .34s var(--ease) forwards;
   animation-delay: calc(var(--segment-index) * 16ms);
 }
-.vol-projection-band {
+.vol-projection-reveal {
   transform-box: fill-box; transform-origin: left center;
-  animation: vol-band-reveal .75s var(--ease) forwards;
+  animation: vol-projection-reveal .88s cubic-bezier(.22,.8,.24,1) forwards;
   animation-delay: var(--projection-delay);
 }
 .vol-projection-line {
-  fill: none; stroke: #60a5fa; stroke-linecap: round; stroke-linejoin: round;
-  stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0;
-  animation: vol-line-reveal .8s var(--ease) forwards;
-  animation-delay: var(--projection-delay);
+  fill: none; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 2 7;
+  animation: vol-dash-flow 1.2s linear infinite;
 }
 .vol-horizon-marker {
   opacity: 0; animation: vol-fade-in .35s ease forwards;
@@ -641,23 +640,33 @@ body {
 }
 .vol-end-marker {
   opacity: 0; animation: vol-marker-in .35s cubic-bezier(.2,.9,.3,1.35) forwards;
-  animation-delay: calc(var(--projection-delay) + .72s);
+  animation-delay: calc(var(--projection-delay) + .78s);
 }
+.vol-tooltip-card {
+  fill: rgba(20,20,23,.96); stroke: rgba(255,255,255,.12); stroke-width: 1;
+  filter: drop-shadow(0 12px 22px rgba(0,0,0,.38));
+}
+.vol-tooltip-date { fill: #f5f5f2; font-size: 12px; font-weight: 650; }
+.vol-tooltip-label { fill: rgba(245,245,242,.52); font-size: 11px; }
+.vol-tooltip-value { fill: #f5f5f2; font-size: 13px; font-weight: 700; }
+.vol-axis-pill { fill: #f5f5f2; filter: drop-shadow(0 6px 12px rgba(0,0,0,.25)); }
+.vol-axis-pill-text { fill: #151517; font-size: 11px; font-weight: 650; }
 @keyframes vol-line-reveal {
   from { stroke-dashoffset: 1; opacity: .2; }
   to { stroke-dashoffset: 0; opacity: 1; }
 }
-@keyframes vol-band-reveal {
+@keyframes vol-projection-reveal {
   from { transform: scaleX(0); opacity: 0; }
   to { transform: scaleX(1); opacity: 1; }
 }
+@keyframes vol-dash-flow { to { stroke-dashoffset: -18; } }
 @keyframes vol-fade-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes vol-marker-in {
   from { opacity: 0; transform: scale(.35); }
   to { opacity: 1; transform: scale(1); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .vol-history-segment, .vol-projection-band, .vol-projection-line,
+  .vol-history-segment, .vol-projection-reveal, .vol-projection-line,
   .vol-horizon-marker, .vol-terminal-marker, .vol-end-marker {
     animation: none !important; opacity: 1;
     stroke-dashoffset: 0; transform: none;
@@ -1578,7 +1587,7 @@ function buildVolatilitySvg(stock) {
   const hist = (v.price_history || []).slice(-90);
   const upper = v.upper_band_95 || [];
   const lower = v.lower_band_95 || [];
-  const W = 1080, H = 320, top = 20, bottom = 30, left = 10, right = 60;
+  const W = 1080, H = 340, top = 22, bottom = 46, left = 18, right = 64;
   const plotH = H - bottom - top, plotW = W - left - right;
   const histN = hist.length, fcN = Math.min(upper.length, lower.length);
   const totalN = Math.max(histN + fcN, 1);
@@ -1591,103 +1600,222 @@ function buildVolatilitySvg(stock) {
   }
 
   const rawMin = Math.min(...values), rawMax = Math.max(...values);
-  const padding = Math.max((rawMax - rawMin) * .08, rawMax * .01, 1);
+  const padding = Math.max((rawMax - rawMin) * .1, rawMax * .01, 1);
   const min = rawMin - padding, max = rawMax + padding, span = max - min || 1;
   const x = i => left + (i + .5) * plotW / totalN;
   const y = val => top + (max - Number(val)) / span * plotH;
-  const safeId = String(stock.ticker || "stock").replace(/[^a-zA-Z0-9_-]/g, "");
-  const gradientId = `vol-band-gradient-${safeId}`;
-  const shadowId = `vol-blue-glow-${safeId}`;
-  const projectionDelayMs = Math.min(1700, Math.max(320, histN * 16 + 120));
+  const shortDate = raw => {
+    const date = new Date(`${raw}T00:00:00`);
+    return Number.isNaN(date.getTime())
+      ? String(raw || "")
+      : date.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+  };
+  const fullDate = raw => {
+    const date = new Date(`${raw}T00:00:00`);
+    return Number.isNaN(date.getTime())
+      ? String(raw || "")
+      : date.toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" });
+  };
+  const smoothPath = points => {
+    if (!points.length) return "";
+    if (points.length === 1) return `M${points[0].x},${points[0].y}`;
+    let path = `M${points[0].x},${points[0].y}`;
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[Math.max(0, i - 1)];
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const p3 = points[Math.min(points.length - 1, i + 2)];
+      const c1x = p1.x + (p2.x - p0.x) / 6;
+      const c1y = p1.y + (p2.y - p0.y) / 6;
+      const c2x = p2.x - (p3.x - p1.x) / 6;
+      const c2y = p2.y - (p3.y - p1.y) / 6;
+      path += ` C${c1x},${c1y} ${c2x},${c2y} ${p2.x},${p2.y}`;
+    }
+    return path;
+  };
 
-  let svg = `<svg class="vol-chart" viewBox="0 0 ${W} ${H}" role="img"
+  const safeId = String(stock.ticker || "stock").replace(/[^a-zA-Z0-9_-]/g, "");
+  const chartId = `vol-chart-${safeId}`;
+  const bandGradientId = `vol-band-gradient-${safeId}`;
+  const strokeGradientId = `vol-stroke-gradient-${safeId}`;
+  const projectionDelayMs = Math.min(1750, Math.max(360, histN * 16 + 140));
+  const lastClose = Number(hist[histN - 1].close ?? v.last_price);
+  const anchorIndex = histN - 1;
+  const anchorX = x(anchorIndex), anchorY = y(lastClose);
+
+  let svg = `<svg id="${chartId}" data-chart-id="${safeId}" class="vol-chart"
+    viewBox="0 0 ${W} ${H}" role="img"
     aria-label="Riwayat harga dan proyeksi volatilitas ${stock.ticker}"
-    style="--projection-delay:${projectionDelayMs}ms">`;
+    style="--projection-delay:${projectionDelayMs}ms"
+    onmouseleave="hideVolatilityTooltip(this)">`;
   svg += `<defs>
-    <linearGradient id="${gradientId}" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#60a5fa" stop-opacity=".08"/>
-      <stop offset="55%" stop-color="#60a5fa" stop-opacity=".14"/>
-      <stop offset="100%" stop-color="#60a5fa" stop-opacity=".23"/>
+    <linearGradient id="${bandGradientId}" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#60a5fa" stop-opacity=".04"/>
+      <stop offset="60%" stop-color="#60a5fa" stop-opacity=".13"/>
+      <stop offset="100%" stop-color="#2563eb" stop-opacity=".24"/>
     </linearGradient>
-    <filter id="${shadowId}" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="2.4" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
+    <linearGradient id="${strokeGradientId}" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#93c5fd"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
   </defs>`;
 
-  for (let i = 0; i < 5; i++) {
-    const yy = top + i * plotH / 4, val = max - i * span / 4;
+  for (let i = 0; i < 4; i++) {
+    const yy = top + i * plotH / 3, val = max - i * span / 3;
     svg += `<line x1="${left}" y1="${yy}" x2="${W - right}" y2="${yy}"
-      stroke="rgba(255,255,255,0.07)"/>
-      <text x="${W - right + 8}" y="${yy + 4}" fill="rgba(245,245,242,0.4)"
+      stroke="rgba(255,255,255,0.08)" stroke-dasharray="5 8"/>
+      <text x="${W - right + 9}" y="${yy + 4}" fill="rgba(245,245,242,0.38)"
         font-size="10">${fmtNum(val)}</text>`;
   }
 
   for (let i = 1; i < histN; i++) {
+    const p0i = Math.max(0, i - 2), p1i = i - 1, p2i = i, p3i = Math.min(histN - 1, i + 1);
+    const p0 = { x: x(p0i), y: y(hist[p0i].close) };
+    const p1 = { x: x(p1i), y: y(hist[p1i].close) };
+    const p2 = { x: x(p2i), y: y(hist[p2i].close) };
+    const p3 = { x: x(p3i), y: y(hist[p3i].close) };
+    const c1x = p1.x + (p2.x - p0.x) / 6;
+    const c1y = p1.y + (p2.y - p0.y) / 6;
+    const c2x = p2.x - (p3.x - p1.x) / 6;
+    const c2y = p2.y - (p3.y - p1.y) / 6;
     const previous = Number(hist[i - 1].close);
     const current = Number(hist[i].close);
     const rising = current >= previous;
     const color = rising ? "#32d74b" : "#ff453a";
-    const trendLabel = rising ? "naik" : "turun";
     svg += `<path class="vol-history-segment" pathLength="1"
       style="--segment-index:${i - 1}"
-      d="M${x(i - 1)},${y(previous)} L${x(i)},${y(current)}"
-      stroke="${color}" stroke-width="2.2">
-      <title>${hist[i]?.date || ""}: ${fmtNum(current)} (${trendLabel})</title>
-    </path>`;
+      d="M${p1.x},${p1.y} C${c1x},${c1y} ${c2x},${c2y} ${p2.x},${p2.y}"
+      stroke="${color}" stroke-width="2.35"/>`;
   }
 
   if (fcN) {
-    const startIdx = histN - 1;
-    const lastClose = Number(hist[histN - 1].close ?? v.last_price);
-    let up = `M${x(startIdx)},${y(lastClose)}`;
-    let low = `M${x(startIdx)},${y(lastClose)}`;
-    let bandFill = `M${x(startIdx)},${y(lastClose)}`;
+    const upperPoints = [{ x: anchorX, y: anchorY }];
+    const lowerPoints = [{ x: anchorX, y: anchorY }];
+    upper.slice(0, fcN).forEach((value, i) => upperPoints.push({
+      x: x(anchorIndex + 1 + i), y: y(value)
+    }));
+    lower.slice(0, fcN).forEach((value, i) => lowerPoints.push({
+      x: x(anchorIndex + 1 + i), y: y(value)
+    }));
 
-    upper.slice(0, fcN).forEach((value, i) => {
-      const px = x(startIdx + 1 + i), py = y(value);
-      up += ` L${px},${py}`;
-      bandFill += ` L${px},${py}`;
-    });
-    for (let i = fcN - 1; i >= 0; i--) {
-      bandFill += ` L${x(startIdx + 1 + i)},${y(lower[i])}`;
+    let bandFill = smoothPath(upperPoints);
+    const reversedLower = [...lowerPoints].reverse();
+    bandFill += ` L${reversedLower[0].x},${reversedLower[0].y}`;
+    for (let i = 1; i < reversedLower.length; i++) {
+      bandFill += ` L${reversedLower[i].x},${reversedLower[i].y}`;
     }
     bandFill += " Z";
-    lower.slice(0, fcN).forEach((value, i) => {
-      low += ` L${x(startIdx + 1 + i)},${y(value)}`;
-    });
 
-    const endX = x(startIdx + fcN);
-    const upperEndY = y(upper[fcN - 1]);
-    const lowerEndY = y(lower[fcN - 1]);
+    const endX = upperPoints[upperPoints.length - 1].x;
+    const upperEndY = upperPoints[upperPoints.length - 1].y;
+    const lowerEndY = lowerPoints[lowerPoints.length - 1].y;
 
-    svg += `<path class="vol-projection-band" d="${bandFill}" fill="url(#${gradientId})"/>`;
-    svg += `<path class="vol-projection-line" pathLength="1" d="${up}"
-      stroke-width="1.7" stroke-dasharray="1" filter="url(#${shadowId})">
-      <title>Batas atas proyeksi 95%: ${fmtNum(upper[fcN - 1])}</title>
-    </path>`;
-    svg += `<path class="vol-projection-line" pathLength="1" d="${low}"
-      stroke-width="1.7" stroke-dasharray="1" filter="url(#${shadowId})">
-      <title>Batas bawah proyeksi 95%: ${fmtNum(lower[fcN - 1])}</title>
-    </path>`;
-    svg += `<line class="vol-horizon-marker" x1="${x(startIdx)}" y1="${top}"
-      x2="${x(startIdx)}" y2="${H - bottom}" stroke="rgba(96,165,250,.34)"
-      stroke-dasharray="2 4"/>`;
-    svg += `<circle class="vol-terminal-marker" cx="${x(startIdx)}" cy="${y(lastClose)}"
-      r="5.5" fill="#111" stroke="#60a5fa" stroke-width="2"/>`;
+    svg += `<line class="vol-horizon-marker" x1="${anchorX}" y1="${top}"
+      x2="${anchorX}" y2="${H - bottom}" stroke="rgba(96,165,250,.3)"
+      stroke-dasharray="3 6"/>`;
+    svg += `<g class="vol-projection-reveal">
+      <path d="${bandFill}" fill="url(#${bandGradientId})"/>
+      <path class="vol-projection-line" d="${smoothPath(upperPoints)}"
+        stroke="url(#${strokeGradientId})" stroke-width="2"/>
+      <path class="vol-projection-line" d="${smoothPath(lowerPoints)}"
+        stroke="url(#${strokeGradientId})" stroke-width="2"/>
+    </g>`;
+    svg += `<circle class="vol-terminal-marker" cx="${anchorX}" cy="${anchorY}"
+      r="9" fill="rgba(17,17,18,.72)" stroke="#60a5fa" stroke-width="2"/>
+      <circle class="vol-terminal-marker" cx="${anchorX}" cy="${anchorY}"
+      r="2.8" fill="#60a5fa"/>`;
     svg += `<circle class="vol-end-marker" cx="${endX}" cy="${upperEndY}"
-      r="3.2" fill="#60a5fa"/>`;
-    svg += `<circle class="vol-end-marker" cx="${endX}" cy="${lowerEndY}"
-      r="3.2" fill="#60a5fa"/>`;
+      r="3.5" fill="#60a5fa"/>
+      <circle class="vol-end-marker" cx="${endX}" cy="${lowerEndY}"
+      r="3.5" fill="#60a5fa"/>`;
   }
 
-  svg += `<text x="${left}" y="${H - 8}" fill="rgba(245,245,242,0.4)"
-    font-size="10">${hist[0]?.date || ""}</text>
-    <text x="${W - right}" y="${H - 8}" fill="rgba(245,245,242,0.4)"
-      font-size="10" text-anchor="end">+${fcN} hari ke depan</text>`;
+  const tickIndexes = [...new Set([
+    0,
+    Math.floor((histN - 1) / 3),
+    Math.floor((histN - 1) * 2 / 3),
+    histN - 1,
+  ])];
+  tickIndexes.forEach(i => {
+    svg += `<text x="${x(i)}" y="${H - 13}" fill="rgba(245,245,242,.46)"
+      font-size="10.5" text-anchor="middle">${shortDate(hist[i]?.date)}</text>`;
+  });
+  svg += `<text x="${W - right}" y="${H - 13}" fill="rgba(96,165,250,.7)"
+    font-size="10.5" text-anchor="end">+${fcN} hari</text>`;
+
+  svg += `<g id="vol-interaction-${safeId}" visibility="hidden" pointer-events="none">
+    <line id="vol-crosshair-${safeId}" y1="${top}" y2="${H - bottom}"
+      stroke="rgba(245,245,242,.42)" stroke-width="1"/>
+    <circle id="vol-hover-point-${safeId}" r="4.5" fill="#111"
+      stroke="#60a5fa" stroke-width="2"/>
+    <g id="vol-tooltip-${safeId}">
+      <rect class="vol-tooltip-card" width="166" height="70" rx="10"/>
+      <text id="vol-tooltip-date-${safeId}" class="vol-tooltip-date" x="14" y="22"></text>
+      <circle id="vol-tooltip-dot-${safeId}" cx="17" cy="48" r="4"/>
+      <text class="vol-tooltip-label" x="29" y="52">Harga</text>
+      <text id="vol-tooltip-value-${safeId}" class="vol-tooltip-value"
+        x="152" y="52" text-anchor="end"></text>
+    </g>
+    <g id="vol-pill-${safeId}">
+      <rect class="vol-axis-pill" width="76" height="28" rx="14"/>
+      <text id="vol-pill-text-${safeId}" class="vol-axis-pill-text"
+        x="38" y="18" text-anchor="middle"></text>
+    </g>
+  </g>`;
+
+  const hitWidth = Math.max(8, plotW / totalN);
+  hist.forEach((row, i) => {
+    const current = Number(row.close);
+    const previous = i ? Number(hist[i - 1].close) : current;
+    const color = current >= previous ? "#32d74b" : "#ff453a";
+    const px = x(i), py = y(current);
+    const tooltipX = Math.min(Math.max(px + 12, left), W - right - 172);
+    const tooltipY = Math.max(top + 4, py - 82);
+    const pillX = Math.min(Math.max(px - 38, left), W - right - 76);
+    svg += `<rect x="${px - hitWidth / 2}" y="${top}" width="${hitWidth}"
+      height="${plotH}" fill="transparent" pointer-events="all"
+      data-chart="${safeId}" data-x="${px}" data-y="${py}"
+      data-tooltip-x="${tooltipX}" data-tooltip-y="${tooltipY}"
+      data-pill-x="${pillX}" data-pill-y="${H - bottom + 7}"
+      data-date="${fullDate(row.date)}" data-short-date="${shortDate(row.date)}"
+      data-value="${fmtNum(current)}" data-color="${color}"
+      onmouseenter="showVolatilityTooltip(this)"
+      onmousemove="showVolatilityTooltip(this)"
+      ontouchstart="showVolatilityTooltip(this)"/>`;
+  });
+
   svg += `</svg>`;
   return svg;
 }
+
+function showVolatilityTooltip(hit) {
+  const id = hit.dataset.chart;
+  const interaction = document.getElementById(`vol-interaction-${id}`);
+  if (!interaction) return;
+  const crosshair = document.getElementById(`vol-crosshair-${id}`);
+  const point = document.getElementById(`vol-hover-point-${id}`);
+  const tooltip = document.getElementById(`vol-tooltip-${id}`);
+  const pill = document.getElementById(`vol-pill-${id}`);
+  const px = Number(hit.dataset.x), py = Number(hit.dataset.y);
+  interaction.setAttribute("visibility", "visible");
+  crosshair.setAttribute("x1", px);
+  crosshair.setAttribute("x2", px);
+  point.setAttribute("cx", px);
+  point.setAttribute("cy", py);
+  point.setAttribute("stroke", hit.dataset.color);
+  tooltip.setAttribute("transform", `translate(${hit.dataset.tooltipX} ${hit.dataset.tooltipY})`);
+  pill.setAttribute("transform", `translate(${hit.dataset.pillX} ${hit.dataset.pillY})`);
+  document.getElementById(`vol-tooltip-date-${id}`).textContent = hit.dataset.date;
+  document.getElementById(`vol-tooltip-value-${id}`).textContent = hit.dataset.value;
+  document.getElementById(`vol-tooltip-dot-${id}`).setAttribute("fill", hit.dataset.color);
+  document.getElementById(`vol-pill-text-${id}`).textContent = hit.dataset.shortDate;
+}
+
+function hideVolatilityTooltip(svg) {
+  const interaction = document.getElementById(`vol-interaction-${svg.dataset.chartId}`);
+  if (interaction) interaction.setAttribute("visibility", "hidden");
+}
+
 async function loadDashboard() {
   let data;
   try {
