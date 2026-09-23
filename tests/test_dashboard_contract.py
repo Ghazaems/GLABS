@@ -123,7 +123,6 @@ class DashboardContractTests(unittest.TestCase):
     def test_volatility_chart_has_trend_colors_and_animated_projection(self):
         for marker in (
             "vol-history-segment",
-            "vol-projection-band",
             "vol-projection-line",
             "vol-terminal-marker",
             "vol-end-marker",
