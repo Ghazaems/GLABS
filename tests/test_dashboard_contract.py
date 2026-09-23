@@ -137,7 +137,7 @@ class DashboardContractTests(unittest.TestCase):
             "vol-axis-pill",
             "prefers-reduced-motion: reduce",
             'rising ? "#32d74b" : "#ff453a"',
-            'stroke: #60a5fa',
+            'stroke="#60a5fa"',
             'pathLength="1"',
             'stroke-dasharray: 2 7',
             "Proyeksi GARCH 95% (10 hari)",
