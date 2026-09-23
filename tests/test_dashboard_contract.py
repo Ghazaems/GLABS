@@ -120,28 +120,36 @@ class DashboardContractTests(unittest.TestCase):
         self.assertIn("wyckoff_swing", self.main)
 
 
-    def test_volatility_chart_has_trend_colors_and_animated_projection(self):
+    def test_volatility_chart_uses_one_close_trend_color_and_calm_projection(self):
         for marker in (
-            "vol-history-segment",
+            "vol-history-line",
+            "vol-history-area",
             "vol-projection-line",
             "vol-terminal-marker",
             "vol-end-marker",
-            "vol-line-reveal",
-            "vol-projection-reveal",
-            "vol-dash-flow",
+            "vol-history-reveal",
             "vol-tooltip-card",
             "showVolatilityTooltip",
             "hideVolatilityTooltip",
             "vol-crosshair-",
             "vol-axis-pill",
+            "volatilityClosingTrend",
             "prefers-reduced-motion: reduce",
-            'rising ? "#32d74b" : "#ff453a"',
+            'bullish ? "#32d74b" : "#ff453a"',
             'stroke="#60a5fa"',
             'pathLength="1"',
             'stroke-dasharray: 2 7',
-            "Proyeksi GARCH 95% (10 hari)",
+            "Rentang volatilitas GARCH 95%",
         ):
             self.assertIn(marker, self.index)
+
+        for obsolete in (
+            "vol-history-segment",
+            "vol-projection-reveal",
+            "vol-dash-flow",
+        ):
+            self.assertNotIn(obsolete, self.index)
+
 
     def test_backtest_renderer_tolerates_legacy_report_without_watchlist(self):
         self.assertIn("const tickerCount = Number(data.ticker_count)", self.index)
