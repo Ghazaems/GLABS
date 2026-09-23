@@ -610,6 +610,60 @@ body {
 .donut-legend i.loss { background: var(--danger); }
 
 
+/* ---------- Volatility projection chart ---------- */
+#riwayat-chart-wrap { overflow: hidden; }
+.vol-chart { width: 100%; height: auto; display: block; }
+.vol-history-segment {
+  fill: none; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0;
+  animation: vol-line-reveal .34s var(--ease) forwards;
+  animation-delay: calc(var(--segment-index) * 16ms);
+}
+.vol-projection-band {
+  transform-box: fill-box; transform-origin: left center;
+  animation: vol-band-reveal .75s var(--ease) forwards;
+  animation-delay: var(--projection-delay);
+}
+.vol-projection-line {
+  fill: none; stroke: #60a5fa; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0;
+  animation: vol-line-reveal .8s var(--ease) forwards;
+  animation-delay: var(--projection-delay);
+}
+.vol-horizon-marker {
+  opacity: 0; animation: vol-fade-in .35s ease forwards;
+  animation-delay: var(--projection-delay);
+}
+.vol-terminal-marker {
+  opacity: 0; transform-box: fill-box; transform-origin: center;
+  animation: vol-marker-in .42s cubic-bezier(.2,.9,.3,1.35) forwards;
+  animation-delay: var(--projection-delay);
+}
+.vol-end-marker {
+  opacity: 0; animation: vol-marker-in .35s cubic-bezier(.2,.9,.3,1.35) forwards;
+  animation-delay: calc(var(--projection-delay) + .72s);
+}
+@keyframes vol-line-reveal {
+  from { stroke-dashoffset: 1; opacity: .2; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+@keyframes vol-band-reveal {
+  from { transform: scaleX(0); opacity: 0; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+@keyframes vol-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes vol-marker-in {
+  from { opacity: 0; transform: scale(.35); }
+  to { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vol-history-segment, .vol-projection-band, .vol-projection-line,
+  .vol-horizon-marker, .vol-terminal-marker, .vol-end-marker {
+    animation: none !important; opacity: 1;
+    stroke-dashoffset: 0; transform: none;
+  }
+}
+
 /* ---------- scrollbar : Apple-style translucent overlay ---------- */
 html { overflow-x: hidden; }
 * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.22) transparent; }
@@ -1068,8 +1122,9 @@ html { overflow-x: hidden; }
 
         <div class="qcard" style="margin-top:14px; padding:20px;">
           <div style="display:flex; flex-wrap:wrap; gap:16px; margin-bottom:10px; font-size:12px; color:var(--text-secondary);">
-            <span style="display:flex; align-items:center; gap:5px;"><i style="width:10px;height:2px;background:#32d74b;display:inline-block;"></i>Harga historis</span>
-            <span style="display:flex; align-items:center; gap:5px;"><i style="width:10px;height:10px;border-radius:2px;background:rgba(96,165,250,0.15);border:1px solid #60a5fa;display:inline-block;"></i>Band 95% (10 hari)</span>
+            <span style="display:flex; align-items:center; gap:5px;"><i style="width:10px;height:2px;background:#32d74b;display:inline-block;"></i>Tren naik</span>
+            <span style="display:flex; align-items:center; gap:5px;"><i style="width:10px;height:2px;background:#ff453a;display:inline-block;"></i>Tren turun</span>
+            <span style="display:flex; align-items:center; gap:5px;"><i style="width:10px;height:10px;border-radius:2px;background:rgba(96,165,250,0.15);border:1px solid #60a5fa;display:inline-block;"></i>Proyeksi GARCH 95% (10 hari)</span>
           </div>
           <div id="riwayat-chart-wrap"><p class="loading-msg">Memuat...</p></div>
           <p class="loading-msg" id="riwayat-note" style="padding:12px 0 0;"></p>
@@ -1521,45 +1576,118 @@ function renderRiwayatDetail(stock) {
 function buildVolatilitySvg(stock) {
   const v = stock.volatility;
   const hist = (v.price_history || []).slice(-90);
+  const upper = v.upper_band_95 || [];
+  const lower = v.lower_band_95 || [];
   const W = 1080, H = 320, top = 20, bottom = 30, left = 10, right = 60;
   const plotH = H - bottom - top, plotW = W - left - right;
-  const histN = hist.length, fcN = (v.upper_band_95 || []).length, totalN = histN + fcN;
-  const values = hist.map(d => d.close).concat(v.upper_band_95 || []).concat(v.lower_band_95 || []);
-  const min = Math.min(...values) * .97, max = Math.max(...values) * 1.03, span = max - min || 1;
-  const x = i => left + (i + .5) * plotW / totalN, y = val => top + (max - val) / span * plotH;
+  const histN = hist.length, fcN = Math.min(upper.length, lower.length);
+  const totalN = Math.max(histN + fcN, 1);
+  const values = hist.map(d => Number(d.close))
+    .concat(upper.slice(0, fcN).map(Number))
+    .concat(lower.slice(0, fcN).map(Number))
+    .filter(Number.isFinite);
+  if (!histN || !values.length) {
+    return '<p class="loading-msg">Data harga historis belum cukup untuk divisualisasikan.</p>';
+  }
 
-  let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; display:block;" role="img" aria-label="Forecast volatilitas ${stock.ticker}">`;
+  const rawMin = Math.min(...values), rawMax = Math.max(...values);
+  const padding = Math.max((rawMax - rawMin) * .08, rawMax * .01, 1);
+  const min = rawMin - padding, max = rawMax + padding, span = max - min || 1;
+  const x = i => left + (i + .5) * plotW / totalN;
+  const y = val => top + (max - Number(val)) / span * plotH;
+  const safeId = String(stock.ticker || "stock").replace(/[^a-zA-Z0-9_-]/g, "");
+  const gradientId = `vol-band-gradient-${safeId}`;
+  const shadowId = `vol-blue-glow-${safeId}`;
+  const projectionDelayMs = Math.min(1700, Math.max(320, histN * 16 + 120));
+
+  let svg = `<svg class="vol-chart" viewBox="0 0 ${W} ${H}" role="img"
+    aria-label="Riwayat harga dan proyeksi volatilitas ${stock.ticker}"
+    style="--projection-delay:${projectionDelayMs}ms">`;
+  svg += `<defs>
+    <linearGradient id="${gradientId}" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#60a5fa" stop-opacity=".08"/>
+      <stop offset="55%" stop-color="#60a5fa" stop-opacity=".14"/>
+      <stop offset="100%" stop-color="#60a5fa" stop-opacity=".23"/>
+    </linearGradient>
+    <filter id="${shadowId}" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>`;
+
   for (let i = 0; i < 5; i++) {
     const yy = top + i * plotH / 4, val = max - i * span / 4;
-    svg += `<line x1="${left}" y1="${yy}" x2="${W - right}" y2="${yy}" stroke="rgba(255,255,255,0.07)"/><text x="${W - right + 8}" y="${yy + 4}" fill="rgba(245,245,242,0.4)" font-size="10">${fmtNum(val)}</text>`;
+    svg += `<line x1="${left}" y1="${yy}" x2="${W - right}" y2="${yy}"
+      stroke="rgba(255,255,255,0.07)"/>
+      <text x="${W - right + 8}" y="${yy + 4}" fill="rgba(245,245,242,0.4)"
+        font-size="10">${fmtNum(val)}</text>`;
   }
 
-  let path = "";
-  hist.forEach((d, i) => { path += `${i ? "L" : "M"}${x(i)},${y(d.close)}`; });
-  svg += `<path d="${path}" fill="none" stroke="#32d74b" stroke-width="2"/>`;
+  for (let i = 1; i < histN; i++) {
+    const previous = Number(hist[i - 1].close);
+    const current = Number(hist[i].close);
+    const rising = current >= previous;
+    const color = rising ? "#32d74b" : "#ff453a";
+    const trendLabel = rising ? "naik" : "turun";
+    svg += `<path class="vol-history-segment" pathLength="1"
+      style="--segment-index:${i - 1}"
+      d="M${x(i - 1)},${y(previous)} L${x(i)},${y(current)}"
+      stroke="${color}" stroke-width="2.2">
+      <title>${hist[i]?.date || ""}: ${fmtNum(current)} (${trendLabel})</title>
+    </path>`;
+  }
 
   if (fcN) {
-    const startIdx = histN - 1, lastClose = hist.length ? hist[hist.length - 1].close : v.last_price;
-    let up = `M${x(startIdx)},${y(lastClose)}`, low = `M${x(startIdx)},${y(lastClose)}`;
-    v.upper_band_95.forEach((u, i) => { up += ` L${x(startIdx + 1 + i)},${y(u)}`; });
-    v.lower_band_95.forEach((l, i) => { low += ` L${x(startIdx + 1 + i)},${y(l)}`; });
-
+    const startIdx = histN - 1;
+    const lastClose = Number(hist[histN - 1].close ?? v.last_price);
+    let up = `M${x(startIdx)},${y(lastClose)}`;
+    let low = `M${x(startIdx)},${y(lastClose)}`;
     let bandFill = `M${x(startIdx)},${y(lastClose)}`;
-    v.upper_band_95.forEach((u, i) => { bandFill += ` L${x(startIdx + 1 + i)},${y(u)}`; });
-    for (let i = v.lower_band_95.length - 1; i >= 0; i--) { bandFill += ` L${x(startIdx + 1 + i)},${y(v.lower_band_95[i])}`; }
-    bandFill += " Z";
 
-    svg += `<path d="${bandFill}" fill="rgba(96,165,250,0.12)"/>`;
-    svg += `<path d="${up}" fill="none" stroke="#60a5fa" stroke-width="1.4" stroke-dasharray="5 4"/>`;
-    svg += `<path d="${low}" fill="none" stroke="#60a5fa" stroke-width="1.4" stroke-dasharray="5 4"/>`;
-    svg += `<line x1="${x(startIdx)}" y1="${top}" x2="${x(startIdx)}" y2="${H - bottom}" stroke="rgba(255,255,255,0.18)" stroke-dasharray="2 3"/>`;
+    upper.slice(0, fcN).forEach((value, i) => {
+      const px = x(startIdx + 1 + i), py = y(value);
+      up += ` L${px},${py}`;
+      bandFill += ` L${px},${py}`;
+    });
+    for (let i = fcN - 1; i >= 0; i--) {
+      bandFill += ` L${x(startIdx + 1 + i)},${y(lower[i])}`;
+    }
+    bandFill += " Z";
+    lower.slice(0, fcN).forEach((value, i) => {
+      low += ` L${x(startIdx + 1 + i)},${y(value)}`;
+    });
+
+    const endX = x(startIdx + fcN);
+    const upperEndY = y(upper[fcN - 1]);
+    const lowerEndY = y(lower[fcN - 1]);
+
+    svg += `<path class="vol-projection-band" d="${bandFill}" fill="url(#${gradientId})"/>`;
+    svg += `<path class="vol-projection-line" pathLength="1" d="${up}"
+      stroke-width="1.7" stroke-dasharray="1" filter="url(#${shadowId})">
+      <title>Batas atas proyeksi 95%: ${fmtNum(upper[fcN - 1])}</title>
+    </path>`;
+    svg += `<path class="vol-projection-line" pathLength="1" d="${low}"
+      stroke-width="1.7" stroke-dasharray="1" filter="url(#${shadowId})">
+      <title>Batas bawah proyeksi 95%: ${fmtNum(lower[fcN - 1])}</title>
+    </path>`;
+    svg += `<line class="vol-horizon-marker" x1="${x(startIdx)}" y1="${top}"
+      x2="${x(startIdx)}" y2="${H - bottom}" stroke="rgba(96,165,250,.34)"
+      stroke-dasharray="2 4"/>`;
+    svg += `<circle class="vol-terminal-marker" cx="${x(startIdx)}" cy="${y(lastClose)}"
+      r="5.5" fill="#111" stroke="#60a5fa" stroke-width="2"/>`;
+    svg += `<circle class="vol-end-marker" cx="${endX}" cy="${upperEndY}"
+      r="3.2" fill="#60a5fa"/>`;
+    svg += `<circle class="vol-end-marker" cx="${endX}" cy="${lowerEndY}"
+      r="3.2" fill="#60a5fa"/>`;
   }
 
-  svg += `<text x="${left}" y="${H - 8}" fill="rgba(245,245,242,0.4)" font-size="10">${hist[0]?.date || ""}</text><text x="${W - right}" y="${H - 8}" fill="rgba(245,245,242,0.4)" font-size="10" text-anchor="end">+${fcN} hari ke depan</text>`;
+  svg += `<text x="${left}" y="${H - 8}" fill="rgba(245,245,242,0.4)"
+    font-size="10">${hist[0]?.date || ""}</text>
+    <text x="${W - right}" y="${H - 8}" fill="rgba(245,245,242,0.4)"
+      font-size="10" text-anchor="end">+${fcN} hari ke depan</text>`;
   svg += `</svg>`;
   return svg;
 }
-
 async function loadDashboard() {
   let data;
   try {
