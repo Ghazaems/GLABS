@@ -121,6 +121,22 @@ class DashboardContractTests(unittest.TestCase):
             self.screening_workflow,
         )
 
+    def test_validation_workflow_is_autonomous_and_recoverable(self):
+        workflow = (
+            ROOT / ".github" / "workflows" / "weekly-ic-validation.yml"
+        ).read_text(encoding="utf-8")
+        for marker in (
+            "workflow_dispatch:",
+            "push:",
+            "weekly-ic-validation.yml",
+            'cron: "17 1,4,7,10 * * 6,0"',
+            "generated-data-writer",
+            "Check whether weekly validation is already fresh",
+            "git pull --rebase origin main",
+        ):
+            self.assertIn(marker, workflow)
+
+
     def test_backend_computes_daily_without_copying_weekly(self):
         for marker in (
             "trend_daily = trend_structure",
