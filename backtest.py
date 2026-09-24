@@ -19,6 +19,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from analysis_contract import HORIZONS, holding_exit_index
 from data.yfinance_fetcher import fetch_batch, fetch_daily
 from main import DEFAULT_WATCHLIST
 from screener.scoring import classify_signal, compute_score
@@ -39,7 +40,6 @@ from screener.wyckoff import (
 
 PERIOD = "3y"
 WARMUP_BARS = 120
-HORIZONS = [5, 20, 60]
 WYCKOFF_STYLE_BY_HORIZON = {
     5: "daily",
     20: "weekly",
@@ -58,19 +58,12 @@ TOTAL_FRICTION_PCT = (
     + ROUND_TRIP_SLIPPAGE_PCT
 )
 
-# Ranking IC memakai sinyal VWAP horizon terkait tanpa bobot buatan.
-# Spearman menangani ties ketika beberapa saham sama-sama above/below.
-VWAP_POSITION_RANK = {
-    "below": -1.0,
-    "at_vwap": 0.0,
-    "above": 1.0,
-}
-
-
-def _vwap_rank_signal(result: dict) -> float | None:
+# Predictor IC harus kontinu. Spearman akan melakukan ranking lintas saham
+# pada tanggal yang sama; memakai -1/+1 membuang hampir seluruh informasi.
+def _vwap_distance_predictor(result: dict) -> float | None:
     if result.get("status") != "ok":
         return None
-    return VWAP_POSITION_RANK.get(result.get("position"))
+    return _safe_float(result.get("distance_pct"))
 
 
 def _aligned_benchmark(
@@ -174,7 +167,7 @@ def run_backtest() -> pd.DataFrame:
             f"({total_rows} hari data)..."
         )
 
-        stop = total_rows - maximum_horizon - 1
+        stop = total_rows - maximum_horizon
 
         for signal_index in range(
             WARMUP_BARS,
@@ -280,10 +273,15 @@ def run_backtest() -> pd.DataFrame:
             for horizon, horizon_vwap in (
                 vwap_by_horizon.items()
             ):
-                row[f"vwap_rank_{horizon}d"] = (
-                    _vwap_rank_signal(
-                        horizon_vwap
-                    )
+                row[
+                    f"vwap_distance_{horizon}d_pct"
+                ] = _vwap_distance_predictor(
+                    horizon_vwap
+                )
+                row[
+                    f"vwap_slope_{horizon}d_pct"
+                ] = _safe_float(
+                    horizon_vwap.get("slope_pct")
                 )
 
             for style, analysis in (
@@ -314,8 +312,9 @@ def run_backtest() -> pd.DataFrame:
                 )
 
             for horizon in HORIZONS:
-                exit_index = (
-                    entry_index + horizon
+                exit_index = holding_exit_index(
+                    entry_index,
+                    horizon,
                 )
                 exit_price = _safe_float(
                     dataframe["Close"].iloc[

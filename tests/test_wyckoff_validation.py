@@ -1,4 +1,4 @@
-"""Wyckoff timeframe screening, calibration, and scoring contracts."""
+"""Wyckoff timeframe validation and scoring contracts."""
 from pathlib import Path
 import tempfile
 import unittest
@@ -13,12 +13,13 @@ from screener.wyckoff import WYCKOFF_TIMEFRAME_SETTINGS
 class WyckoffValidationTests(unittest.TestCase):
     def _sample(self) -> pd.DataFrame:
         rows = []
-        tickers = ["AAA", "BBB", "CCC", "DDD", "EEE", "FFF"]
-        for month in range(1, 7):
+        tickers = [f"T{index:03d}" for index in range(40)]
+        for month in range(1, 13):
+            date = pd.Timestamp("2025-01-15") + pd.DateOffset(months=month)
             for index, ticker in enumerate(tickers):
                 row = {
                     "ticker": ticker,
-                    "date": f"2026-{month:02d}-15",
+                    "date": date.date().isoformat(),
                     "return_5d_pct": float(index),
                     "return_20d_pct": float(index) * 1.5,
                     "return_60d_pct": float(index) * 2.0,
@@ -26,8 +27,8 @@ class WyckoffValidationTests(unittest.TestCase):
                 for timeframe in TIMEFRAMES:
                     for event in EVENT_DIRECTION:
                         row[f"wyckoff_{timeframe}_{event.lower()}"] = 0
-                    row[f"wyckoff_{timeframe}_spring"] = int(index >= 3)
-                    row[f"wyckoff_{timeframe}_ut"] = int(index < 3)
+                    row[f"wyckoff_{timeframe}_spring"] = int(index >= 20)
+                    row[f"wyckoff_{timeframe}_ut"] = int(index < 20)
                 rows.append(row)
         return pd.DataFrame(rows)
 
@@ -42,29 +43,32 @@ class WyckoffValidationTests(unittest.TestCase):
         }
         self.assertEqual(len(windows), 3)
 
-    def test_event_ic_is_separate_by_event_and_timeframe(self):
+    def test_event_ic_uses_hac_and_fdr_before_calibration(self):
         with tempfile.TemporaryDirectory() as directory:
             source = Path(directory) / "backtest.csv"
             self._sample().to_csv(source, index=False)
             report = evaluate(source)
 
+        methodology = report["methodology"]
         self.assertEqual(
-            report["methodology"]["type"],
+            methodology["type"],
             "cross_sectional_per_date_per_event",
         )
-        self.assertEqual(
-            set(report["calibration"]),
-            {"daily", "weekly", "swing"},
-        )
+        self.assertIn("HAC", methodology["inference"])
+        self.assertIn("Benjamini-Hochberg", methodology["multiple_testing"])
+        self.assertEqual(set(report["calibration"]), {"daily", "weekly", "swing"})
         for timeframe in TIMEFRAMES:
-            self.assertGreater(
-                report["calibration"][timeframe]["Spring"],
-                0,
-            )
-            self.assertLess(
-                report["calibration"][timeframe]["UT"],
-                0,
-            )
+            self.assertGreater(report["calibration"][timeframe]["Spring"], 0)
+            self.assertLess(report["calibration"][timeframe]["UT"], 0)
+
+        tested = [
+            row for row in report["results"]
+            if row["statistics"] is not None
+        ]
+        self.assertTrue(tested)
+        self.assertTrue(
+            all(row["statistics"]["q_value_fdr"] is not None for row in tested)
+        )
 
     def test_unvalidated_wyckoff_is_neutral_in_composite(self):
         base = compute_score(

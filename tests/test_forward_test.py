@@ -56,7 +56,7 @@ class TestForwardTestPipeline(unittest.TestCase):
 
             dates = pd.date_range(
                 "2026-01-01",
-                periods=30,
+                periods=70,
                 freq="B",
             )
             conn.executemany(
@@ -144,7 +144,7 @@ class TestForwardTestPipeline(unittest.TestCase):
 
         self.assertEqual(
             report["horizons_hari_bursa"],
-            [5, 10, 20],
+            [5, 20, 60],
         )
         self.assertEqual(
             report["total_sampel_terdaftar"],
@@ -168,6 +168,10 @@ class TestForwardTestPipeline(unittest.TestCase):
             ],
             "BUY",
         )
+        expected_5d = ((105.5 / 101.0) - 1.0) * 100.0 - 0.70
+        five_day = report["by_signal"]["5"][0]["rata_rata_return_pct"]
+        self.assertAlmostEqual(five_day, expected_5d, places=4)
+
         self.assertTrue(self.out_path.exists())
 
         persisted = json.loads(

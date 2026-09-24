@@ -11,6 +11,8 @@ import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
 
+from analysis_contract import HORIZONS, holding_exit_index
+
 
 ROOT = Path(__file__).resolve().parent
 
@@ -25,7 +27,6 @@ OUT_PATH = _configured_path(
     "FORWARD_REPORT_PATH",
     "web/forward_test_data.json",
 )
-HORIZONS = (5, 10, 20)
 COST_PCT = float(os.getenv("ROUND_TRIP_COST_PCT", "0.50"))
 SLIPPAGE_PCT = float(
     os.getenv("ROUND_TRIP_SLIPPAGE_PCT", "0.20")
@@ -163,7 +164,7 @@ def _future_returns(
     result["entry_open"] = entry_open
 
     for horizon in HORIZONS:
-        exit_location = location + horizon - 1
+        exit_location = holding_exit_index(location, horizon)
         if exit_location >= len(prices):
             continue
 
