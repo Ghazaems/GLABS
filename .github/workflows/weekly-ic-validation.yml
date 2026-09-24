@@ -1,15 +1,23 @@
 name: Weekly Signal IC Validation
 
 on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/weekly-ic-validation.yml"
   schedule:
-    # 02:00 UTC = 09:00 WIB, Sabtu. Tidak ada workflow_dispatch.
-    - cron: "0 2 * * 6"
+    # Weekend watchdog, WIB 08:17/11:17/14:17/17:17.
+    # Only the first slot with a stale report runs the expensive validation.
+    - cron: "17 1,4,7,10 * * 6,0"
 
 permissions:
   contents: write
 
 concurrency:
-  group: weekly-vwap-ic-validation
+  # Serialize every workflow that writes generated dashboard data.
+  group: generated-data-writer
   cancel-in-progress: false
 
 jobs:
@@ -25,7 +33,52 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Check whether weekly validation is already fresh
+        id: freshness
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          force = os.environ.get("GITHUB_EVENT_NAME") != "schedule"
+          fresh = False
+
+          if not force:
+              try:
+                  vwap = json.loads(Path("web/ic_data.json").read_text(encoding="utf-8"))
+                  wyckoff = json.loads(Path("web/wyckoff_ic_data.json").read_text(encoding="utf-8"))
+
+                  vwap_time = datetime.fromisoformat(vwap["generated_at"].replace("Z", "+00:00"))
+                  wyckoff_time = datetime.fromisoformat(wyckoff["generated_at"].replace("Z", "+00:00"))
+                  now = datetime.now(timezone.utc)
+                  current_week = now.isocalendar()[:2]
+
+                  fresh = (
+                      vwap_time.isocalendar()[:2] == current_week
+                      and wyckoff_time.isocalendar()[:2] == current_week
+                      and vwap.get("methodology", {}).get("type") == "cross_sectional_per_date"
+                      and wyckoff.get("methodology", {}).get("type") == "cross_sectional_per_date_per_event"
+                      and set(vwap.get("horizon_results", {})) == {"5", "20", "60"}
+                      and set(wyckoff.get("calibration", {})) == {"daily", "weekly", "swing"}
+                  )
+              except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError):
+                  fresh = False
+
+          should_run = force or not fresh
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"run_validation={'true' if should_run else 'false'}\n")
+          print(
+              "validation-required"
+              if should_run
+              else "weekly-validation-already-fresh"
+          )
+          PY
+
       - name: Setup Python
+        if: steps.freshness.outputs.run_validation == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -33,23 +86,29 @@ jobs:
           cache-dependency-path: requirements.txt
 
       - name: Install dependencies
+        if: steps.freshness.outputs.run_validation == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run tests
+        if: steps.freshness.outputs.run_validation == 'true'
         run: python -m unittest discover -s tests -p "test_*.py" -v
 
       - name: Run no-lookahead backtest
+        if: steps.freshness.outputs.run_validation == 'true'
         run: python backtest.py
 
       - name: Evaluate cross-sectional VWAP IC
+        if: steps.freshness.outputs.run_validation == 'true'
         run: python evaluate_ic.py backtest_results.csv web/ic_data.json
 
       - name: Evaluate cross-sectional Wyckoff events
+        if: steps.freshness.outputs.run_validation == 'true'
         run: python evaluate_wyckoff.py backtest_results.csv web/wyckoff_ic_data.json
 
       - name: Validate report contract
+        if: steps.freshness.outputs.run_validation == 'true'
         run: |
           python - <<'PY'
           import json
@@ -67,9 +126,11 @@ jobs:
           PY
 
       - name: Commit validation results
+        if: steps.freshness.outputs.run_validation == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add backtest_results.csv web/backtest_data.json web/ic_data.json web/wyckoff_ic_data.json
           git diff --staged --quiet || git commit -m "chore: update weekly VWAP IC validation $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
           git push
