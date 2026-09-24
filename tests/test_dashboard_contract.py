@@ -211,6 +211,8 @@ class DashboardContractTests(unittest.TestCase):
             "horizon_results",
             "Web hanya menampilkan",
             "Laporan lama belum sesuai metode terbaru",
+            'fetch("ic_data.json", { cache: "no-store" })',
+            'fetch("wyckoff_ic_data.json", { cache: "no-store" })',
         ):
             self.assertIn(marker, self.index)
         self.assertNotIn("Lihat detail teknis (IC, p-value)", self.index)
