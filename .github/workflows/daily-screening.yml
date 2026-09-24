@@ -2,10 +2,10 @@ name: Daily Stock Screening (500 Emiten IDX)
 
 on:
   schedule:
-    # Pemeriksaan otomatis tiap jam 16:37-22:37 WIB, Senin-Jumat.
-    # Menit 37 menghindari antrean cron yang lazim pada menit 00/15/30.
-    # Hanya slot pertama dengan data yang belum segar menjalankan screening penuh.
-    - cron: "37 9-15 * * 1-5"
+    # Watchdog setiap 30 menit pada 14:07-22:37 WIB, Senin-Jumat.
+    # Slot sebelum penutupan hanya melakukan freshness check ringan.
+    # Banyak slot mengurangi risiko event cron GitHub terlambat atau terlewat.
+    - cron: "7,37 7-15 * * 1-5"
   workflow_dispatch:
   push:
     branches:
@@ -42,35 +42,60 @@ jobs:
           python - <<'PY'
           import json
           import os
-          from datetime import datetime
+          from datetime import datetime, time, timedelta
           from zoneinfo import ZoneInfo
 
-          should_run = True
-          reason = "primary-or-explicit-trigger"
+          WIB = ZoneInfo("Asia/Jakarta")
+          MARKET_CLOSE = time(16, 15)
+          LATE_RECOVERY_END = time(5, 0)
+          now_wib = datetime.now(WIB)
 
-          if os.environ.get("EVENT_NAME") == "schedule":
+          def previous_weekday(value):
+              candidate = value - timedelta(days=1)
+              while candidate.weekday() >= 5:
+                  candidate -= timedelta(days=1)
+              return candidate
+
+          if now_wib.time() < LATE_RECOVERY_END:
+              session_date = previous_weekday(now_wib.date())
+              eligible = True
+              timing_reason = "late-recovery"
+          elif now_wib.time() < MARKET_CLOSE:
+              session_date = previous_weekday(now_wib.date())
+              eligible = os.environ.get("EVENT_NAME") != "schedule"
+              timing_reason = "market-not-closed"
+          else:
+              session_date = now_wib.date()
+              eligible = True
+              timing_reason = "after-market-close"
+
+          should_run = eligible
+          reason = timing_reason
+
+          if eligible and os.environ.get("EVENT_NAME") == "schedule":
               try:
                   with open("web/dashboard_data.json", encoding="utf-8") as source:
                       payload = json.load(source)
-                  generated = datetime.fromisoformat(
-                      payload["generated_at"].replace("Z", "+00:00")
+                  completed_session = payload.get("screening_session_date")
+                  should_run = completed_session != session_date.isoformat()
+                  reason = (
+                      "session-stale"
+                      if should_run
+                      else "session-already-complete"
                   )
-                  today_wib = datetime.now(ZoneInfo("Asia/Jakarta")).date()
-                  fresh = (
-                      generated.astimezone(ZoneInfo("Asia/Jakarta")).date()
-                      == today_wib
-                  )
-                  should_run = not fresh
-                  reason = "data-stale" if should_run else "data-already-fresh"
-              except (OSError, KeyError, TypeError, ValueError) as exc:
+              except (OSError, TypeError, ValueError) as exc:
                   should_run = True
                   reason = f"freshness-check-failed-{type(exc).__name__}"
 
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
               print(f"run={str(should_run).lower()}", file=output)
               print(f"reason={reason}", file=output)
+              print(f"session_date={session_date.isoformat()}", file=output)
 
-          print(f"Run screening: {should_run} ({reason})")
+          print(
+              f"Run screening: {should_run}; "
+              f"session={session_date.isoformat()}; reason={reason}"
+          )
           PY
 
       - name: Setup Python
@@ -105,6 +130,8 @@ jobs:
 
       - name: Run screening
         if: steps.freshness.outputs.run == 'true'
+        env:
+          SCREENING_SESSION_DATE: ${{ steps.freshness.outputs.session_date }}
         run: |
           for attempt in 1 2; do
             python main.py && exit 0
@@ -124,9 +151,12 @@ jobs:
 
       - name: Validate generated signals
         if: steps.freshness.outputs.run == 'true'
+        env:
+          EXPECTED_SESSION_DATE: ${{ steps.freshness.outputs.session_date }}
         run: |
           python - <<'PY'
           import json
+          import os
 
           with open(
               "web/dashboard_data.json",
@@ -175,6 +205,10 @@ jobs:
           assert watchlist
           assert valid
           assert not invalid, invalid[:20]
+          assert data.get("market_data_date")
+          assert data.get("screening_session_date") == os.environ[
+              "EXPECTED_SESSION_DATE"
+          ]
 
           with open(
               "web/forward_test_data.json",
@@ -206,12 +240,14 @@ jobs:
 
       - name: Commit generated data
         if: steps.freshness.outputs.run == 'true'
+        env:
+          SCREENING_SESSION_DATE: ${{ steps.freshness.outputs.session_date }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add web/dashboard_data.json web/forward_test_data.json storage/screener.db
           if ! git diff --staged --quiet; then
-            git commit -m "chore: update screening data $(date -u +%Y-%m-%d)"
+            git commit -m "chore: update screening data ${SCREENING_SESSION_DATE}"
             git pull --rebase origin main
             git push
           else
