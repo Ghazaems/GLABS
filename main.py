@@ -8,6 +8,7 @@ mengubah kontrak data dashboard yang sudah ada.
 
 import json
 import os
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -459,6 +460,7 @@ def process_ticker(
 
     return {
         "ticker": ticker,
+        "last_price_date": date_string,
         "last_close": clean_number(
             dataframe["Close"].iloc[-1]
         ),
@@ -606,8 +608,25 @@ def export_dashboard_json(
         else None
     )
 
+    price_dates = [
+        item.get("last_price_date")
+        for item in results
+        if item.get("last_price_date")
+    ]
+    market_data_date = (
+        Counter(price_dates).most_common(1)[0][0]
+        if price_dates
+        else None
+    )
+    screening_session_date = (
+        os.environ.get("SCREENING_SESSION_DATE")
+        or market_data_date
+    )
+
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
+        "screening_session_date": screening_session_date,
+        "market_data_date": market_data_date,
         "universe_size": EXPECTED_TICKER_COUNT,
         "watchlist": sorted_results,
         "summary": {
