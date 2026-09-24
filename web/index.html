@@ -1998,13 +1998,16 @@ function renderStyleDependent(style) {
   }
 
   const healthy = styleRows.filter(r => r[trendKey] === "uptrend" || r[trendKey] === "sideways").length;
-  const unhealthy = styleRows.filter(r => r[trendKey] === "downtrend").map(r => r.ticker);
-  document.getElementById("trend-text").innerHTML = hasStyleData
-    ? `${healthy} dari ${styleRows.length} ticker masih uptrend/sideways di atas support (${label}). ` +
-      (unhealthy.length ? `${unhealthy.join(", ")} tembus ke downtrend.` : "Tidak ada yang downtrend.")
+  const unhealthyCount = styleRows.filter(r => r[trendKey] === "downtrend").length;
+  const healthyPct = styleRows.length ? Math.round((healthy / styleRows.length) * 100) : 0;
+  const marketTone = healthyPct >= 70 ? "Mayoritas pasar masih sehat."
+    : healthyPct >= 50 ? "Kondisi pasar cukup seimbang."
+    : "Mayoritas pasar sedang melemah.";
+  document.getElementById("trend-text").textContent = hasStyleData
+    ? `${marketTone} ${unhealthyCount} ticker berada dalam downtrend (${label}).`
     : waitingMessage;
   document.getElementById("trend-stat").innerHTML = hasStyleData
-    ? `${healthy}<span class="unit">/ ${styleRows.length} sehat</span>`
+    ? `${healthyPct}%<span class="unit">${healthy} dari ${styleRows.length} sehat</span>`
     : `-<span class="unit">${label}</span>`;
 
   const accum = styleRows.filter(r => r[wyckoffKey]?.bias === "accumulation");
