@@ -43,7 +43,7 @@ jobs:
           from datetime import datetime, timezone
           from pathlib import Path
 
-          force = os.environ.get("GITHUB_EVENT_NAME") != "schedule"
+          force = os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch"
           fresh = False
 
           if not force:
@@ -133,4 +133,9 @@ jobs:
           git add backtest_results.csv web/backtest_data.json web/ic_data.json web/wyckoff_ic_data.json
           git diff --staged --quiet || git commit -m "chore: update weekly VWAP IC validation $(date -u +%Y-%m-%d)"
           git pull --rebase origin main
-          git push
+          for attempt in 1 2 3 4 5; do
+            git push && exit 0
+            echo "Push failed (attempt $attempt/5); retrying..."
+            sleep $((attempt * 15))
+          done
+          exit 1
