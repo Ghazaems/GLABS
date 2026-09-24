@@ -3,11 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <script>try{if(!sessionStorage.getItem('gk_ok'))location.replace('/gate.html?relock=1')}catch(e){}</script>
-<title>Morning Ghazker — Stock Screener</title>
+<title>Ghazker — Stock Screener</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="cockpit.css">
-<link rel="stylesheet" href="workspace.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js"></script>
 <style>
@@ -718,7 +717,7 @@ html { overflow-x: hidden; }
       <div id="view-overview">
       <div class="greet-row">
         <div class="greet">
-          <h1>Morning <em>Ghazker</em></h1>
+          <h1><span id="greet-period">Morning</span> <em>Ghazker</em></h1>
           <p id="greet-sub">Memuat data screener...</p>
         </div>
         <div class="controls">
@@ -1792,6 +1791,31 @@ function hideVolatilityTooltip(svg) {
   const interaction = document.getElementById(`vol-interaction-${svg.dataset.chartId}`);
   if (interaction) interaction.setAttribute("visibility", "hidden");
 }
+
+const GREETING_PERIODS = [
+  { start: 5, end: 11, label: "Morning" },
+  { start: 11, end: 15, label: "Afternoon" },
+  { start: 15, end: 19, label: "Evening" },
+];
+
+function getTimeGreeting(date = new Date()) {
+  const hour = date.getHours();
+  const period = GREETING_PERIODS.find(({ start, end }) => hour >= start && hour < end);
+  return period ? period.label : "Night";
+}
+
+function updateTimeGreeting() {
+  const greeting = getTimeGreeting();
+  const periodEl = document.getElementById("greet-period");
+  if (periodEl) periodEl.textContent = greeting;
+  document.title = `${greeting} Ghazker — Stock Screener`;
+}
+
+updateTimeGreeting();
+window.setInterval(updateTimeGreeting, 60_000);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) updateTimeGreeting();
+});
 
 async function loadDashboard() {
   let data;
