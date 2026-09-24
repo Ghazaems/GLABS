@@ -2476,7 +2476,7 @@ function renderWyckoffValidationSummary(data) {
 
 async function loadWyckoffValidationReport() {
   try {
-    const response = await fetch("wyckoff_ic_data.json");
+    const response = await fetch("wyckoff_ic_data.json", { cache: "no-store" });
     if (!response.ok) throw new Error("not found");
     renderWyckoffValidationSummary(await response.json());
   } catch (error) {
@@ -2487,7 +2487,7 @@ async function loadWyckoffValidationReport() {
 async function loadICReport() {
   let data;
   try {
-    const res = await fetch("ic_data.json");
+    const res = await fetch("ic_data.json", { cache: "no-store" });
     if (!res.ok) throw new Error("not found");
     data = await res.json();
   } catch (e) {
