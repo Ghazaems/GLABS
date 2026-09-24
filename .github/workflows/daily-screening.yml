@@ -7,6 +7,11 @@ on:
     # Banyak slot mengurangi risiko event cron GitHub terlambat atau terlewat.
     - cron: "7,37 7-15 * * 1-5"
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - "Daily Backtest (500 Emiten IDX)"
+    types:
+      - completed
   push:
     branches:
       - main
@@ -72,7 +77,7 @@ jobs:
           should_run = eligible
           reason = timing_reason
 
-          if eligible and os.environ.get("EVENT_NAME") == "schedule":
+          if eligible and os.environ.get("EVENT_NAME") != "workflow_dispatch":
               try:
                   with open("web/dashboard_data.json", encoding="utf-8") as source:
                       payload = json.load(source)
