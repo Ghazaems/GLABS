@@ -110,6 +110,9 @@ class DashboardContractTests(unittest.TestCase):
             "session-already-complete",
             "SCREENING_SESSION_DATE:",
             "EXPECTED_SESSION_DATE:",
+            "workflow_run:",
+            '"Daily Backtest (500 Emiten IDX)"',
+            'os.environ.get("EVENT_NAME") != "workflow_dispatch"',
         ):
             self.assertIn(marker, self.screening_workflow)
 
