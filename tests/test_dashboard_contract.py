@@ -7,6 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "web" / "index.html"
 COCKPIT = ROOT / "web" / "cockpit.js"
 MAIN = ROOT / "main.py"
+SCREENING_WORKFLOW = ROOT / ".github" / "workflows" / "daily-screening.yml"
 
 
 class DashboardContractTests(unittest.TestCase):
@@ -15,6 +16,7 @@ class DashboardContractTests(unittest.TestCase):
         cls.index = INDEX.read_text(encoding="utf-8")
         cls.cockpit = COCKPIT.read_text(encoding="utf-8")
         cls.main = MAIN.read_text(encoding="utf-8")
+        cls.screening_workflow = SCREENING_WORKFLOW.read_text(encoding="utf-8")
 
     def test_dashboard_exposes_multi_horizon_decision(self):
         for marker in (
@@ -89,6 +91,32 @@ class DashboardContractTests(unittest.TestCase):
             "swing: 200",
         ):
             self.assertIn(marker, self.index)
+
+    def test_autonomous_screening_is_market_session_aware(self):
+        for marker in (
+            '"last_price_date": date_string',
+            '"market_data_date": market_data_date',
+            '"screening_session_date": screening_session_date',
+            'os.environ.get("SCREENING_SESSION_DATE")',
+        ):
+            self.assertIn(marker, self.main)
+
+        for marker in (
+            'cron: "7,37 7-15 * * 1-5"',
+            "MARKET_CLOSE = time(16, 15)",
+            "LATE_RECOVERY_END = time(5, 0)",
+            "previous_weekday",
+            'payload.get("screening_session_date")',
+            "session-already-complete",
+            "SCREENING_SESSION_DATE:",
+            "EXPECTED_SESSION_DATE:",
+        ):
+            self.assertIn(marker, self.screening_workflow)
+
+        self.assertNotIn(
+            'generated.astimezone(ZoneInfo("Asia/Jakarta")).date()',
+            self.screening_workflow,
+        )
 
     def test_backend_computes_daily_without_copying_weekly(self):
         for marker in (
