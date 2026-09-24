@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: monthly-vwap-validation
+  group: generated-data-writer
   cancel-in-progress: false
 
 jobs:
@@ -45,8 +45,11 @@ jobs:
       - name: Run next-open backtest
         run: python backtest.py
 
-      - name: Evaluate information coefficient
+      - name: Evaluate VWAP information coefficient
         run: python evaluate_ic.py
+
+      - name: Evaluate Wyckoff events
+        run: python evaluate_wyckoff.py
 
       - name: Validate reports
         run: |
@@ -64,12 +67,27 @@ jobs:
 
           assert report.get("execution") == "next_session_open"
           assert report.get("total_sampel", 0) > 0
+
+          with open("web/ic_data.json") as source:
+              ic = json.load(source)
+          assert ic["methodology"]["inference"] == "HAC/Newey-West intercept test"
+          assert "Benjamini-Hochberg" in ic["methodology"]["multiple_testing"]
+
+          with open("web/wyckoff_ic_data.json") as source:
+              wyckoff = json.load(source)
+          assert wyckoff["methodology"]["inference"] == "HAC/Newey-West intercept test"
           PY
 
       - name: Commit validation reports
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add backtest_results.csv web/backtest_data.json web/ic_data.json
-          git diff --staged --quiet || git commit -m "chore: refresh VWAP validation $(date -u +%Y-%m-%d)"
-          git push
+          git add backtest_results.csv web/backtest_data.json web/ic_data.json web/wyckoff_ic_data.json
+          git diff --staged --quiet || git commit -m "chore: refresh signal validation $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
+          for attempt in 1 2 3 4 5; do
+            git push && exit 0
+            echo "Push failed (attempt $attempt/5); retrying..."
+            sleep $((attempt * 15))
+          done
+          exit 1

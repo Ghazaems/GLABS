@@ -57,7 +57,7 @@ jobs:
               )
           )
           assert report["jenis"] == "forward_test"
-          assert report["horizons_hari_bursa"] == [5, 10, 20]
+          assert report["horizons_hari_bursa"] == [5, 20, 60]
           assert set(report["by_timeframe"]) == {
               "daily",
               "weekly",
@@ -72,4 +72,10 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add web/forward_test_data.json
           git diff --staged --quiet || git commit -m "chore: rebuild forward test data $(date -u +%Y-%m-%d)"
-          git push
+          git pull --rebase origin main
+          for attempt in 1 2 3 4 5; do
+            git push && exit 0
+            echo "Push failed (attempt $attempt/5); retrying..."
+            sleep $((attempt * 15))
+          done
+          exit 1

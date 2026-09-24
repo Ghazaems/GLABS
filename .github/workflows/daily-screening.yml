@@ -207,6 +207,10 @@ jobs:
           print(f"VWAP valid: {len(valid)}")
 
           assert coverage.get("requested") == 500
+          assert coverage.get("quality_gate") == "passed"
+          assert coverage.get("fetch_coverage_pct", 0) >= 90
+          assert coverage.get("success_coverage_pct", 0) >= 90
+          assert coverage.get("dominant_market_date_pct", 0) >= 90
           assert watchlist
           assert valid
           assert not invalid, invalid[:20]
@@ -254,7 +258,12 @@ jobs:
           if ! git diff --staged --quiet; then
             git commit -m "chore: update screening data ${SCREENING_SESSION_DATE}"
             git pull --rebase origin main
-            git push
+            for attempt in 1 2 3 4 5; do
+              git push && exit 0
+              echo "Push failed (attempt $attempt/5); retrying..."
+              sleep $((attempt * 15))
+            done
+            exit 1
           else
             echo "Tidak ada perubahan data untuk di-commit."
           fi

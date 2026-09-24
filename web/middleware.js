@@ -37,7 +37,12 @@ async function hasSession(request) {
   return safeEqual(sig, await hmacHex(secret, exp));
 }
 
-const NO_STORE = { "cache-control": "private, no-store" };
+const NO_STORE = {
+  "cache-control": "private, no-store",
+  "x-content-type-options": "nosniff",
+  "referrer-policy": "same-origin",
+  "x-frame-options": "DENY",
+};
 
 export default async function middleware(request) {
   const url = new URL(request.url);

@@ -43,6 +43,15 @@ from storage.db import (
 EXPECTED_TICKER_COUNT = 500
 MINIMUM_ANALYSIS_ROWS = 65
 MINIMUM_GARCH_ROWS = 120
+MINIMUM_FETCH_COVERAGE_PCT = float(
+    os.environ.get("MINIMUM_FETCH_COVERAGE_PCT", "90")
+)
+MINIMUM_SUCCESS_COVERAGE_PCT = float(
+    os.environ.get("MINIMUM_SUCCESS_COVERAGE_PCT", "90")
+)
+MINIMUM_DOMINANT_DATE_PCT = float(
+    os.environ.get("MINIMUM_DOMINANT_DATE_PCT", "90")
+)
 DEFAULT_WATCHLIST = IDX_TICKERS_500
 
 
@@ -59,6 +68,22 @@ def load_wyckoff_calibration(
         json.JSONDecodeError,
         OSError,
     ):
+        return {
+            "daily": {},
+            "weekly": {},
+            "swing": {},
+        }
+
+    methodology = payload.get("methodology", {})
+    robust_report = (
+        methodology.get("inference")
+        == "HAC/Newey-West intercept test"
+        and "Benjamini-Hochberg"
+        in methodology.get("multiple_testing", "")
+    )
+    if not robust_report:
+        # Fail closed: laporan lama/in-sample tidak boleh memberi bobot
+        # pada keputusan produksi.
         return {
             "daily": {},
             "weekly": {},
@@ -628,6 +653,12 @@ def export_dashboard_json(
         "screening_session_date": screening_session_date,
         "market_data_date": market_data_date,
         "universe_size": EXPECTED_TICKER_COUNT,
+        "analysis_contract": {
+            "indicator": "rolling_vwap_on_daily_bars",
+            "horizons": [5, 20, 60],
+            "execution": "next_session_open",
+            "signal_status": "experimental_decision_support",
+        },
         "watchlist": sorted_results,
         "summary": {
             "signal_counts": signal_counts,
@@ -679,9 +710,9 @@ def export_dashboard_json(
         json.dump(
             payload,
             output_file,
-            indent=2,
             ensure_ascii=False,
             default=str,
+            separators=(",", ":"),
         )
 
 
@@ -710,18 +741,32 @@ def run_screening() -> None:
         if ticker not in price_data
     ]
 
+    fetch_coverage_pct = (
+        len(price_data) / len(tickers) * 100.0
+    )
     print(
         f"Coverage fetch: "
         f"{len(price_data)}/{len(tickers)} "
-        f"berhasil; "
+        f"berhasil ({fetch_coverage_pct:.1f}%); "
         f"{len(failed_fetch)} gagal."
     )
+    if fetch_coverage_pct < MINIMUM_FETCH_COVERAGE_PCT:
+        raise RuntimeError(
+            "Fetch coverage terlalu rendah untuk publikasi: "
+            f"{fetch_coverage_pct:.1f}% < "
+            f"{MINIMUM_FETCH_COVERAGE_PCT:.1f}%."
+        )
 
     print("Mengambil data IHSG...")
     ihsg = fetch_daily(
         "^JKSE",
         period="1y",
     )
+    if ihsg is None or ihsg.empty:
+        raise RuntimeError(
+            "Data IHSG tidak tersedia; screening dibatalkan agar "
+            "comparative strength tidak diterbitkan secara parsial."
+        )
 
     print("Mengambil data LQ45...")
     lq45 = fetch_daily(
@@ -821,10 +866,46 @@ def run_screening() -> None:
                 f"{error}"
             )
 
+    if not results:
+        raise RuntimeError("Tidak ada ticker yang berhasil dianalisis.")
+
+    success_coverage_pct = (
+        len(results) / len(tickers) * 100.0
+    )
+    result_dates = Counter(
+        item["last_price_date"]
+        for item in results
+        if item.get("last_price_date")
+    )
+    dominant_date, dominant_count = (
+        result_dates.most_common(1)[0]
+    )
+    dominant_date_pct = (
+        dominant_count / len(results) * 100.0
+    )
+
+    if success_coverage_pct < MINIMUM_SUCCESS_COVERAGE_PCT:
+        raise RuntimeError(
+            "Analysis coverage terlalu rendah untuk publikasi: "
+            f"{success_coverage_pct:.1f}% < "
+            f"{MINIMUM_SUCCESS_COVERAGE_PCT:.1f}%."
+        )
+    if dominant_date_pct < MINIMUM_DOMINANT_DATE_PCT:
+        raise RuntimeError(
+            "Tanggal data tidak konsisten untuk publikasi: "
+            f"hanya {dominant_date_pct:.1f}% ticker pada "
+            f"tanggal dominan {dominant_date}."
+        )
+
     coverage = {
         "requested": len(tickers),
         "fetched": len(price_data),
         "success": len(results),
+        "fetch_coverage_pct": round(fetch_coverage_pct, 2),
+        "success_coverage_pct": round(success_coverage_pct, 2),
+        "dominant_market_date": dominant_date,
+        "dominant_market_date_pct": round(dominant_date_pct, 2),
+        "quality_gate": "passed",
         "failed_fetch": failed_fetch,
         "insufficient_data": insufficient_data,
         "analysis_failed": analysis_failed,

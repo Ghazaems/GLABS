@@ -4,7 +4,7 @@ name: Daily Backtest (500 Emiten IDX)
 on:
   schedule:
     # 17:15 WIB (10:15 UTC) — setelah pipeline screening harian
-    # Backtest butuh waktu lebih lama karena proses data historis 3 tahun
+    # Backtest historis penuh dijalankan setelah sesi; writer diserialkan
     - cron: "15 10 * * 1-5"   # Senin-Jumat saja
 
   workflow_dispatch: {}       # bisa trigger manual dari tab Actions di GitHub
@@ -19,7 +19,7 @@ concurrency:
 jobs:
   run-backtest:
     runs-on: ubuntu-latest
-    timeout-minutes: 60       # backtest butuh waktu lama (962 ticker × 3 tahun data)
+    timeout-minutes: 180
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -32,7 +32,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run backtest (962 ticker IDX)
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -p "test_*.py" -v
+
+      - name: Run backtest (500 ticker IDX)
         run: python backtest.py
         env:
           PYTHONUNBUFFERED: "1"
@@ -43,4 +46,10 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add web/backtest_data.json backtest_results.csv
           git diff --staged --quiet || git commit -m "chore: update backtest data $(date -u +%Y-%m-%d)"
-          git push
+          git pull --rebase origin main
+          for attempt in 1 2 3 4 5; do
+            git push && exit 0
+            echo "Push failed (attempt $attempt/5); retrying..."
+            sleep $((attempt * 15))
+          done
+          exit 1

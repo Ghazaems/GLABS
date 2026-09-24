@@ -20,7 +20,7 @@ class DashboardContractTests(unittest.TestCase):
 
     def test_dashboard_exposes_multi_horizon_decision(self):
         for marker in (
-            "Full VWAP 5/20/60",
+            "Rolling VWAP 5/20/60",
             "vwap_signal",
             "vwap_analysis",
             "vwap-signal-list",
@@ -137,6 +137,30 @@ class DashboardContractTests(unittest.TestCase):
             self.assertIn(marker, workflow)
 
 
+    def test_publication_fails_closed_on_bad_data(self):
+        for marker in (
+            "MINIMUM_FETCH_COVERAGE_PCT",
+            "MINIMUM_SUCCESS_COVERAGE_PCT",
+            "MINIMUM_DOMINANT_DATE_PCT",
+            "Fetch coverage terlalu rendah untuk publikasi",
+            "Analysis coverage terlalu rendah untuk publikasi",
+            "Tanggal data tidak konsisten untuk publikasi",
+            '"quality_gate": "passed"',
+            '"indicator": "rolling_vwap_on_daily_bars"',
+            "robust_report",
+        ):
+            self.assertIn(marker, self.main)
+
+    def test_forward_and_backtest_share_execution_contract(self):
+        contract = (ROOT / "analysis_contract.py").read_text(encoding="utf-8")
+        backtest = (ROOT / "backtest.py").read_text(encoding="utf-8")
+        forward = (ROOT / "forward_test.py").read_text(encoding="utf-8")
+        self.assertIn("HORIZONS = (5, 20, 60)", contract)
+        self.assertIn("holding_exit_index", backtest)
+        self.assertIn("holding_exit_index", forward)
+        self.assertIn("vwap_distance_", backtest)
+        self.assertNotIn("VWAP_POSITION_RANK", backtest)
+
     def test_backend_computes_daily_without_copying_weekly(self):
         for marker in (
             "trend_daily = trend_structure",
@@ -232,6 +256,21 @@ class DashboardContractTests(unittest.TestCase):
             self.assertIn(marker, self.index)
         self.assertNotIn("mean_IC", self.index)
         self.assertNotIn("%positive_months", self.index)
+
+    def test_api_payloads_are_bounded(self):
+        chat = (ROOT / "web" / "api" / "chat.js").read_text(encoding="utf-8")
+        unlock = (ROOT / "web" / "api" / "unlock.js").read_text(encoding="utf-8")
+        for marker in (
+            "MAX_QUESTION_CHARS",
+            "MAX_WATCHLIST_ITEMS",
+            "MAX_FILE_BASE64_CHARS",
+            "compactWatchlist",
+            "ALLOWED_FILE_TYPES",
+        ):
+            self.assertIn(marker, chat)
+        self.assertIn("SESSION_DAYS = 7", unlock)
+        self.assertIn("SameSite=Strict", unlock)
+        self.assertIn("Retry-After", unlock)
 
     def test_cockpit_has_three_vwap_lines_and_risk_context(self):
         for marker in (

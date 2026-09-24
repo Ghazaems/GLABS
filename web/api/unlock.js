@@ -6,7 +6,7 @@
 
 const crypto = require("crypto");
 
-const SESSION_DAYS = 30;
+const SESSION_DAYS = 7;
 
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -28,11 +28,19 @@ module.exports = async function handler(req, res) {
     try { body = JSON.parse(body); } catch (e) { body = {}; }
   }
   const given = body && typeof body.code === "string" ? body.code : "";
+  if (!given || given.length > 128) {
+    res.status(400).json({ ok: false });
+    return;
+  }
 
   // bandingkan lewat hash supaya waktu proses tidak membocorkan isi kode
   const a = crypto.createHash("sha256").update(given).digest();
   const b = crypto.createHash("sha256").update(accessCode).digest();
   if (!crypto.timingSafeEqual(a, b)) {
+    // Mitigasi dasar brute-force. Rate limit terdistribusi tetap harus
+    // dikonfigurasi pada edge/WAF Vercel.
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    res.setHeader("Retry-After", "2");
     res.status(401).json({ ok: false });
     return;
   }
@@ -41,7 +49,7 @@ module.exports = async function handler(req, res) {
   const sig = crypto.createHmac("sha256", secret).update(String(exp)).digest("hex");
   res.setHeader(
     "Set-Cookie",
-    `gk_session=${exp}.${sig}; Path=/; Max-Age=${SESSION_DAYS * 86400}; HttpOnly; Secure; SameSite=Lax`
+    `gk_session=${exp}.${sig}; Path=/; Max-Age=${SESSION_DAYS * 86400}; HttpOnly; Secure; SameSite=Strict`
   );
   res.status(200).json({ ok: true });
 };

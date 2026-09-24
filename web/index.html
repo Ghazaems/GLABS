@@ -732,7 +732,7 @@ html { overflow-x: hidden; }
       </div>
       <p class="loading-msg" style="margin-top:-18px; margin-bottom:22px">
         Toggle ini mengganti <b>Top pick, Sinyal breakdown, Watchlist, Trend structure,
-        Full VWAP, Wyckoff, Comparative strength,</b> serta <b>Support &amp; resistance</b>
+        Rolling VWAP, Wyckoff, Comparative strength,</b> serta <b>Support &amp; resistance</b>
         sesuai Daily, Weekly, atau Swing. Komponen yang belum dikalibrasi untuk Daily
         ditandai belum tersedia dan tidak diganti diam-diam dengan data Weekly.
       </p>
@@ -825,17 +825,17 @@ html { overflow-x: hidden; }
           <div class="card-foot"><span id="wyckoff-footer"></span><span class="link">Lihat detail</span></div>
         </div>
 
-        <div class="card vwap-card" id="vwap-card" tabindex="0" aria-label="Daftar analisis Full VWAP; arahkan pointer lalu gulir untuk melihat saham lain">
+        <div class="card vwap-card" id="vwap-card" tabindex="0" aria-label="Daftar analisis Rolling VWAP; arahkan pointer lalu gulir untuk melihat saham lain">
           <div class="card-head">
             <div class="label">
               <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
-              <span id="vwap-card-title">Full VWAP 5/20/60</span>
+              <span id="vwap-card-title">Rolling VWAP 5/20/60</span>
             </div>
           </div>
           <div class="card-body">
             <p id="vwap-text">Memuat keputusan VWAP...</p>
             <div class="vwap-signal-list" id="vwap-signal-list"></div>
-            <div class="vwap-meta" id="vwap-meta">Klik ticker untuk membuka detail Full VWAP 5/20/60.</div>
+            <div class="vwap-meta" id="vwap-meta">Klik ticker untuk membuka detail Rolling VWAP 5/20/60.</div>
           </div>
           <div class="card-foot"><span></span><span class="link">Lihat semua VWAP</span></div>
         </div>
@@ -1047,7 +1047,7 @@ html { overflow-x: hidden; }
                 <th class="num" style="cursor:pointer" onclick="sortScreener('last_close')">Harga</th>
                 <th style="cursor:pointer" onclick="sortScreener('trend')">Trend</th>
                 <th>Wyckoff</th>
-                <th style="cursor:pointer" onclick="sortScreener('vwap_signal')">VWAP 5/20/60</th>
+                <th style="cursor:pointer" onclick="sortScreener('vwap_signal')">Rolling VWAP 5/20/60</th>
                 <th>vs IHSG</th>
                 <th class="num" style="cursor:pointer" onclick="sortScreener('score')">Skor</th>
                 <th>Sinyal</th>
@@ -1398,7 +1398,7 @@ function renderWatchlistCards(rows) {
           <span class="badge ${wyckoffSig}">${SIGNAL_LABEL[wyckoffSig]}</span>
         </div>
         <div class="wl-comp-row">
-          <span class="wl-comp-name">VWAP 5/20/60</span>
+          <span class="wl-comp-name">Rolling VWAP 5/20/60</span>
           <span title="${escapeHtml(vwapReason)}">${vwapBadge(vwapSig)}</span>
         </div>
       </div>`;
@@ -2004,7 +2004,7 @@ function renderStyleDependent(style) {
     (weighted.length ? `${weighted.length} berbobot` : "konteks visual");
 
   const vwapTitleEl = document.getElementById("vwap-card-title");
-  if (vwapTitleEl) vwapTitleEl.textContent = `Full VWAP 5/20/60 · Fokus ${label} ${vwapFocus}`;
+  if (vwapTitleEl) vwapTitleEl.textContent = `Rolling VWAP 5/20/60 · Fokus ${label} ${vwapFocus}`;
   const counts = { BUY:0, HOLD:0, WAIT:0, REDUCE:0, EXIT:0, AVOID:0 };
   const validVwapRows = styleRows.filter(r =>
     r.vwap_analysis?.status === "ok" &&
@@ -2032,7 +2032,7 @@ function renderStyleDependent(style) {
       }).join("")
     : `<div class="vwap-meta">${waitingMessage}</div>`;
   document.getElementById("vwap-meta").textContent =
-    `Badge = keputusan Full VWAP 5/20/60; urutan difokuskan ke ${label} ${vwapFocus}.`;
+    `Badge = keputusan Rolling VWAP 5/20/60; urutan difokuskan ke ${label} ${vwapFocus}.`;
 
   const outperform = styleRows.filter(r => r[csKey]?.relative_strength_trend === "outperforming");
   const underperform = styleRows.filter(r => r[csKey]?.relative_strength_trend === "underperforming");
@@ -2408,7 +2408,7 @@ function renderVWAPICSummary(bodyId, data) {
   }
   document.getElementById(bodyId).innerHTML =
     `<div class="horizon-grid">${required.map(key => verdictCard(results[key])).join("")}</div>
-     <div class="note-card">Kesimpulan membandingkan ranking saham pada tanggal yang sama.
+     <div class="note-card">Kesimpulan membandingkan jarak harga terhadap Rolling VWAP pada tanggal yang sama.
        Tidak ada IC time-series per saham dan tidak ada penggabungan horizon.</div>`;
 }
 

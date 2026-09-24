@@ -7,6 +7,12 @@ on:
       - main
     paths:
       - ".github/workflows/weekly-ic-validation.yml"
+      - "analysis_contract.py"
+      - "backtest.py"
+      - "evaluate_ic.py"
+      - "evaluate_wyckoff.py"
+      - "screener/vwap.py"
+      - "screener/wyckoff.py"
   schedule:
     # Weekend watchdog, WIB 08:17/11:17/14:17/17:17.
     # Only the first slot with a stale report runs the expensive validation.
@@ -117,10 +123,14 @@ jobs:
           report = json.loads(Path("web/ic_data.json").read_text(encoding="utf-8"))
           assert report["methodology"]["type"] == "cross_sectional_per_date"
           assert report["methodology"]["no_time_series_per_stock"] is True
+          assert report["methodology"]["inference"] == "HAC/Newey-West intercept test"
+          assert "Benjamini-Hochberg" in report["methodology"]["multiple_testing"]
           assert set(report["horizon_results"]) == {"5", "20", "60"}
 
           wyckoff = json.loads(Path("web/wyckoff_ic_data.json").read_text(encoding="utf-8"))
           assert wyckoff["methodology"]["type"] == "cross_sectional_per_date_per_event"
+          assert wyckoff["methodology"]["inference"] == "HAC/Newey-West intercept test"
+          assert "Benjamini-Hochberg" in wyckoff["methodology"]["multiple_testing"]
           assert set(wyckoff["calibration"]) == {"daily", "weekly", "swing"}
           print("Valid: VWAP and Wyckoff cross-sectional IC 5D / 20D / 60D")
           PY

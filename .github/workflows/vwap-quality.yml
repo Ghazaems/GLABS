@@ -29,8 +29,12 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Compile Python
-        run: python -m compileall -q main.py backtest.py forward_test.py evaluate_ic.py screener data storage tests
+        run: python -m compileall -q analysis_contract.py main.py backtest.py forward_test.py evaluate_ic.py evaluate_wyckoff.py screener data storage tests
       - name: Validate dashboard JavaScript
-        run: node --check web/cockpit.js
+        run: |
+          node --check web/cockpit.js
+          node --check web/workspace.js
+          node --check web/api/chat.js
+          node --check web/api/unlock.js
       - name: Unit tests
         run: python -m unittest discover -s tests -v

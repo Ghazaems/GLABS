@@ -1,8 +1,8 @@
-yfinance
-pandas
-numpy
-requests
-beautifulsoup4
-scipy
-statsmodels
+yfinance>=0.2.66,<0.3
+pandas>=2.2,<3
+numpy>=1.26,<3
+requests>=2.32,<3
+beautifulsoup4>=4.12,<5
+scipy>=1.13,<2
+statsmodels>=0.14,<0.15
 arch>=7.2,<9
