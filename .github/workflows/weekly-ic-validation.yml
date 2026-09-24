@@ -66,7 +66,11 @@ jobs:
                       vwap_time.isocalendar()[:2] == current_week
                       and wyckoff_time.isocalendar()[:2] == current_week
                       and vwap.get("methodology", {}).get("type") == "cross_sectional_per_date"
+                      and vwap.get("methodology", {}).get("inference") == "HAC/Newey-West intercept test"
+                      and "Benjamini-Hochberg" in vwap.get("methodology", {}).get("multiple_testing", "")
                       and wyckoff.get("methodology", {}).get("type") == "cross_sectional_per_date_per_event"
+                      and wyckoff.get("methodology", {}).get("inference") == "HAC/Newey-West intercept test"
+                      and "Benjamini-Hochberg" in wyckoff.get("methodology", {}).get("multiple_testing", "")
                       and set(vwap.get("horizon_results", {})) == {"5", "20", "60"}
                       and set(wyckoff.get("calibration", {})) == {"daily", "weekly", "swing"}
                   )

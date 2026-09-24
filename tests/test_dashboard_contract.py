@@ -254,6 +254,7 @@ class DashboardContractTests(unittest.TestCase):
             '"wyckoffKey": "wyckoff_swing"',
         ):
             self.assertIn(marker, self.index)
+        self.assertNotIn('src="workspace.js"', self.index)
         self.assertNotIn("mean_IC", self.index)
         self.assertNotIn("%positive_months", self.index)
 

@@ -33,7 +33,6 @@ jobs:
       - name: Validate dashboard JavaScript
         run: |
           node --check web/cockpit.js
-          node --check web/workspace.js
           node --check web/api/chat.js
           node --check web/api/unlock.js
       - name: Unit tests
