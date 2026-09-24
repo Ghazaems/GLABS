@@ -148,6 +148,8 @@ class DashboardContractTests(unittest.TestCase):
             '"quality_gate": "passed"',
             '"indicator": "rolling_vwap_on_daily_bars"',
             "robust_report",
+            "ENABLE_RESEARCH_CALIBRATION",
+            '"research_calibration_enabled": ENABLE_RESEARCH_CALIBRATION',
         ):
             self.assertIn(marker, self.main)
 

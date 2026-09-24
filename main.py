@@ -52,6 +52,9 @@ MINIMUM_SUCCESS_COVERAGE_PCT = float(
 MINIMUM_DOMINANT_DATE_PCT = float(
     os.environ.get("MINIMUM_DOMINANT_DATE_PCT", "90")
 )
+ENABLE_RESEARCH_CALIBRATION = (
+    os.environ.get("ENABLE_RESEARCH_CALIBRATION", "0") == "1"
+)
 DEFAULT_WATCHLIST = IDX_TICKERS_500
 
 
@@ -68,6 +71,15 @@ def load_wyckoff_calibration(
         json.JSONDecodeError,
         OSError,
     ):
+        return {
+            "daily": {},
+            "weekly": {},
+            "swing": {},
+        }
+
+    if not ENABLE_RESEARCH_CALIBRATION:
+        # Backtest calibration is research-only until a frozen, genuinely
+        # out-of-sample report exists.
         return {
             "daily": {},
             "weekly": {},
@@ -658,6 +670,7 @@ def export_dashboard_json(
             "horizons": [5, 20, 60],
             "execution": "next_session_open",
             "signal_status": "experimental_decision_support",
+            "research_calibration_enabled": ENABLE_RESEARCH_CALIBRATION,
         },
         "watchlist": sorted_results,
         "summary": {
