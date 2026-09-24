@@ -661,6 +661,41 @@ html { overflow-x: hidden; }
 }
 ::-webkit-scrollbar-corner { background: transparent; }
 
+
+.trend-gauge {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 190px;
+  margin: auto 0 4px;
+}
+.trend-gauge svg {
+  display: block;
+  width: min(100%, 360px);
+  height: auto;
+  overflow: visible;
+}
+.trend-gauge .gauge-notch {
+  stroke-linecap: round;
+  transition: stroke .25s ease, opacity .25s ease;
+  animation: gauge-notch-in .45s ease both;
+}
+.trend-gauge .gauge-value {
+  fill: var(--text-primary);
+  font: 600 42px/1 Inter, sans-serif;
+  text-anchor: middle;
+}
+.trend-gauge .gauge-label {
+  fill: var(--text-secondary);
+  font: 500 13px/1 Inter, sans-serif;
+  text-anchor: middle;
+}
+@keyframes gauge-notch-in {
+  from { opacity: 0; transform: scale(.97); transform-origin: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trend-gauge .gauge-notch { animation: none; }
+}
 </style>
 </head>
 <body>
@@ -807,7 +842,7 @@ html { overflow-x: hidden; }
           <div class="card-body">
             <p id="trend-text">Memuat...</p>
           </div>
-          <div class="big-stat" id="trend-stat">-</div>
+          <div class="trend-gauge" id="trend-gauge" aria-live="polite"></div>
           <div class="card-foot"><span></span><span class="link">Lihat struktur</span></div>
         </div>
 
@@ -1125,6 +1160,37 @@ const VWAP_SIGNAL_DESCRIPTION = {
   EXIT: "Struktur bullish rusak.",
   AVOID: "Kondisi bearish; bukan berarti short sell."
 };
+
+function renderTrendGauge(value, healthy, total) {
+  const root = document.getElementById("trend-gauge");
+  if (!root) return;
+  const percent = Math.max(0, Math.min(100, Number(value) || 0));
+  const totalNotches = 40;
+  const activeNotches = Math.round((percent / 100) * totalNotches);
+  const tone = percent >= 70 ? "#34d399" : percent >= 50 ? "#facc15" : "#fb7185";
+  const startAngle = 135;
+  const endAngle = 405;
+  const centerX = 160;
+  const centerY = 145;
+  const innerRadius = 101;
+  const outerRadius = 119;
+  const notches = Array.from({ length: totalNotches }, (_, index) => {
+    const angle = startAngle + ((endAngle - startAngle) * index / (totalNotches - 1));
+    const radians = angle * Math.PI / 180;
+    const x1 = centerX + Math.cos(radians) * innerRadius;
+    const y1 = centerY + Math.sin(radians) * innerRadius;
+    const x2 = centerX + Math.cos(radians) * outerRadius;
+    const y2 = centerY + Math.sin(radians) * outerRadius;
+    const active = index < activeNotches;
+    return `<line class="gauge-notch" x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="${active ? tone : "rgba(245,245,242,.18)"}" stroke-width="6" opacity="${active ? 1 : .4}" style="animation-delay:${index * 8}ms" />`;
+  }).join("");
+  root.innerHTML = `
+    <svg viewBox="0 0 320 225" role="img" aria-label="${percent} persen, ${healthy} dari ${total} ticker sehat">
+      ${notches}
+      <text class="gauge-value" x="160" y="124">${percent}%</text>
+      <text class="gauge-label" x="160" y="149">${healthy} dari ${total} sehat</text>
+    </svg>`;
+}
 
 function vwapTone(signal) {
   return "vwap-" + String(signal || "WAIT").toLowerCase();
@@ -2006,9 +2072,12 @@ function renderStyleDependent(style) {
   document.getElementById("trend-text").textContent = hasStyleData
     ? `${marketTone} ${unhealthyCount} ticker berada dalam downtrend (${label}).`
     : waitingMessage;
-  document.getElementById("trend-stat").innerHTML = hasStyleData
-    ? `${healthyPct}%<span class="unit">${healthy} dari ${styleRows.length} sehat</span>`
-    : `-<span class="unit">${label}</span>`;
+  if (hasStyleData) {
+    renderTrendGauge(healthyPct, healthy, styleRows.length);
+  } else {
+    const gaugeRoot = document.getElementById("trend-gauge");
+    if (gaugeRoot) gaugeRoot.innerHTML = `<span class="loading-msg">${label}: menunggu data.</span>`;
+  }
 
   const accum = styleRows.filter(r => r[wyckoffKey]?.bias === "accumulation");
   const distrib = styleRows.filter(r => r[wyckoffKey]?.bias === "distribution");
