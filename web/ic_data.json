@@ -1,69 +1,79 @@
 {
-  "generated_at": "2026-09-24T14:33:03.616081+00:00",
+  "generated_at": "2026-09-26T06:42:06.013215+00:00",
   "source": "backtest_results.csv",
   "methodology": {
     "type": "cross_sectional_per_date",
-    "prediction": "horizon-specific VWAP position rank",
+    "prediction": "continuous distance from horizon-specific rolling VWAP",
     "realization": "net return from next-session open",
-    "minimum_tickers_per_date": 5,
-    "monthly_stability": "calendar-month mean of daily IC",
+    "minimum_tickers_per_date": 30,
+    "minimum_valid_dates": 12,
+    "inference": "HAC/Newey-West intercept test",
+    "multiple_testing": "Benjamini-Hochberg FDR across 5D/20D/60D",
+    "monthly_stability": "calendar-month mean of cross-sectional IC",
     "horizons": [
       5,
       20,
       60
     ],
-    "no_time_series_per_stock": true
+    "no_time_series_per_stock": true,
+    "universe_warning": "current static universe; survivorship bias not eliminated"
   },
   "horizon_results": {
     "5": {
       "horizon": "5D",
       "style": "Daily",
-      "status": "reversed",
-      "headline": "Arah sinyal terbalik",
-      "conclusion": "VWAP Daily menunjukkan hubungan yang konsisten tetapi berlawanan dengan hasil 5 hari. Logika arah sinyal perlu diperiksa sebelum dipakai sebagai dasar keputusan.",
-      "stability_summary": "Mayoritas bulan tidak menunjukkan hubungan positif.",
+      "status": "not_proven",
+      "headline": "Belum terbukti konsisten",
+      "conclusion": "Belum ada hubungan yang bertahan setelah koreksi FDR untuk Rolling VWAP Daily terhadap return 5D.",
+      "stability_summary": "Mayoritas bulan tidak positif.",
       "statistics": {
-        "mean_ic": -0.0228,
-        "std_ic": 0.1665,
-        "t_stat": -3.1521,
-        "p_value": 0.0017,
-        "positive_months_pct": 17.86,
-        "n_dates": 529,
-        "n_months": 28
+        "mean_ic": -0.0199,
+        "std_ic": 0.1746,
+        "t_stat_hac": -2.3592,
+        "p_value_raw": 0.018312,
+        "q_value_fdr": 0.054936,
+        "hac_lags": 1,
+        "positive_months_pct": 37.93,
+        "n_dates": 466,
+        "n_months": 29
       }
     },
     "20": {
       "horizon": "20D",
       "style": "Weekly",
-      "status": "reversed",
-      "headline": "Arah sinyal terbalik",
-      "conclusion": "VWAP Weekly menunjukkan hubungan yang konsisten tetapi berlawanan dengan hasil 20 hari. Logika arah sinyal perlu diperiksa sebelum dipakai sebagai dasar keputusan.",
-      "stability_summary": "Mayoritas bulan tidak menunjukkan hubungan positif.",
+      "status": "not_proven",
+      "headline": "Belum terbukti konsisten",
+      "conclusion": "Belum ada hubungan yang bertahan setelah koreksi FDR untuk Rolling VWAP Weekly terhadap return 20D.",
+      "stability_summary": "Mayoritas bulan positif.",
       "statistics": {
-        "mean_ic": -0.0166,
-        "std_ic": 0.1743,
-        "t_stat": -2.1861,
-        "p_value": 0.0292,
-        "positive_months_pct": 35.71,
-        "n_dates": 528,
-        "n_months": 28
+        "mean_ic": 0.0019,
+        "std_ic": 0.1877,
+        "t_stat_hac": 0.1458,
+        "p_value_raw": 0.88411,
+        "q_value_fdr": 0.88411,
+        "hac_lags": 3,
+        "positive_months_pct": 51.72,
+        "n_dates": 466,
+        "n_months": 29
       }
     },
     "60": {
       "horizon": "60D",
       "style": "Swing",
-      "status": "reversed",
-      "headline": "Arah sinyal terbalik",
-      "conclusion": "VWAP Swing menunjukkan hubungan yang konsisten tetapi berlawanan dengan hasil 60 hari. Logika arah sinyal perlu diperiksa sebelum dipakai sebagai dasar keputusan.",
-      "stability_summary": "Mayoritas bulan tidak menunjukkan hubungan positif.",
+      "status": "not_proven",
+      "headline": "Belum terbukti konsisten",
+      "conclusion": "Belum ada hubungan yang bertahan setelah koreksi FDR untuk Rolling VWAP Swing terhadap return 60D.",
+      "stability_summary": "Mayoritas bulan tidak positif.",
       "statistics": {
-        "mean_ic": -0.0231,
-        "std_ic": 0.1518,
-        "t_stat": -3.4959,
-        "p_value": 0.0005,
-        "positive_months_pct": 42.86,
-        "n_dates": 527,
-        "n_months": 28
+        "mean_ic": -0.0254,
+        "std_ic": 0.1617,
+        "t_stat_hac": -1.5799,
+        "p_value_raw": 0.114125,
+        "q_value_fdr": 0.171187,
+        "hac_lags": 11,
+        "positive_months_pct": 48.28,
+        "n_dates": 466,
+        "n_months": 29
       }
     }
   }
