@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-26T06:42:06.013215+00:00",
+  "generated_at": "2026-09-27T08:03:49.348894+00:00",
   "source": "backtest_results.csv",
   "methodology": {
     "type": "cross_sectional_per_date",
@@ -29,9 +29,9 @@
       "statistics": {
         "mean_ic": -0.0199,
         "std_ic": 0.1746,
-        "t_stat_hac": -2.3592,
-        "p_value_raw": 0.018312,
-        "q_value_fdr": 0.054936,
+        "t_stat_hac": -2.3595,
+        "p_value_raw": 0.0183,
+        "q_value_fdr": 0.0549,
         "hac_lags": 1,
         "positive_months_pct": 37.93,
         "n_dates": 466,
@@ -49,8 +49,8 @@
         "mean_ic": 0.0019,
         "std_ic": 0.1877,
         "t_stat_hac": 0.1458,
-        "p_value_raw": 0.88411,
-        "q_value_fdr": 0.88411,
+        "p_value_raw": 0.884066,
+        "q_value_fdr": 0.884066,
         "hac_lags": 3,
         "positive_months_pct": 51.72,
         "n_dates": 466,

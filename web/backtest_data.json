@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-26T06:42:03.173724+00:00",
+  "generated_at": "2026-09-27T08:03:45.711819+00:00",
   "period": "3y",
   "execution": "next_session_open",
   "price_adjustment": "auto_adjust_true",
@@ -22,28 +22,28 @@
     "5": [
       {
         "signal": "beli",
-        "jumlah_sampel": 4111,
-        "rata_rata_return_pct": 0.075,
+        "jumlah_sampel": 4130,
+        "rata_rata_return_pct": 0.076,
         "median_return_pct": -1.053,
-        "persen_untung": 40.33,
+        "persen_untung": 40.29,
         "return_terburuk": -51.784,
         "return_terbaik": 147.126
       },
       {
         "signal": "jual",
-        "jumlah_sampel": 4702,
-        "rata_rata_return_pct": -0.419,
-        "median_return_pct": -1.104,
-        "persen_untung": 38.88,
+        "jumlah_sampel": 4727,
+        "rata_rata_return_pct": -0.437,
+        "median_return_pct": -1.108,
+        "persen_untung": 38.84,
         "return_terburuk": -62.649,
         "return_terbaik": 122.737
       },
       {
         "signal": "pantau",
-        "jumlah_sampel": 35273,
-        "rata_rata_return_pct": -0.047,
+        "jumlah_sampel": 35229,
+        "rata_rata_return_pct": -0.044,
         "median_return_pct": -0.7,
-        "persen_untung": 37.85,
+        "persen_untung": 37.86,
         "return_terburuk": -81.251,
         "return_terbaik": 227.658
       }
@@ -51,28 +51,28 @@
     "20": [
       {
         "signal": "beli",
-        "jumlah_sampel": 4111,
-        "rata_rata_return_pct": 3.753,
-        "median_return_pct": -1.409,
-        "persen_untung": 44.32,
+        "jumlah_sampel": 4130,
+        "rata_rata_return_pct": 3.768,
+        "median_return_pct": -1.387,
+        "persen_untung": 44.31,
         "return_terburuk": -76.087,
         "return_terbaik": 1227.82
       },
       {
         "signal": "jual",
-        "jumlah_sampel": 4702,
-        "rata_rata_return_pct": 2.105,
+        "jumlah_sampel": 4727,
+        "rata_rata_return_pct": 2.034,
         "median_return_pct": -0.7,
-        "persen_untung": 46.43,
+        "persen_untung": 46.12,
         "return_terburuk": -81.001,
         "return_terbaik": 909.104
       },
       {
         "signal": "pantau",
-        "jumlah_sampel": 35273,
-        "rata_rata_return_pct": 3.21,
+        "jumlah_sampel": 35229,
+        "rata_rata_return_pct": 3.219,
         "median_return_pct": -0.7,
-        "persen_untung": 42.85,
+        "persen_untung": 42.89,
         "return_terburuk": -85.172,
         "return_terbaik": 1200.226
       }
@@ -80,28 +80,28 @@
     "60": [
       {
         "signal": "beli",
-        "jumlah_sampel": 4111,
-        "rata_rata_return_pct": 13.517,
+        "jumlah_sampel": 4130,
+        "rata_rata_return_pct": 13.621,
         "median_return_pct": -0.7,
-        "persen_untung": 48.04,
+        "persen_untung": 48.18,
         "return_terburuk": -92.757,
         "return_terbaik": 3326.129
       },
       {
         "signal": "jual",
-        "jumlah_sampel": 4702,
-        "rata_rata_return_pct": 13.441,
-        "median_return_pct": -0.7,
-        "persen_untung": 47.81,
+        "jumlah_sampel": 4727,
+        "rata_rata_return_pct": 13.234,
+        "median_return_pct": -1.031,
+        "persen_untung": 47.58,
         "return_terburuk": -91.869,
         "return_terbaik": 5316.731
       },
       {
         "signal": "pantau",
-        "jumlah_sampel": 35273,
-        "rata_rata_return_pct": 15.628,
+        "jumlah_sampel": 35229,
+        "rata_rata_return_pct": 15.646,
         "median_return_pct": -0.7,
-        "persen_untung": 48.87,
+        "persen_untung": 48.89,
         "return_terburuk": -95.319,
         "return_terbaik": 7004.563
       }
@@ -138,10 +138,10 @@
       },
       {
         "vwap_signal": "HOLD",
-        "jumlah_sampel": 5393,
+        "jumlah_sampel": 5394,
         "rata_rata_return_pct": 1.169,
         "median_return_pct": -0.7,
-        "persen_untung": 41.28,
+        "persen_untung": 41.27,
         "return_terburuk": -50.841,
         "return_terbaik": 154.657
       },
@@ -156,7 +156,7 @@
       },
       {
         "vwap_signal": "WAIT",
-        "jumlah_sampel": 4841,
+        "jumlah_sampel": 4840,
         "rata_rata_return_pct": 0.118,
         "median_return_pct": -0.7,
         "persen_untung": 37.27,
@@ -194,10 +194,10 @@
       },
       {
         "vwap_signal": "HOLD",
-        "jumlah_sampel": 5393,
-        "rata_rata_return_pct": 8.949,
+        "jumlah_sampel": 5394,
+        "rata_rata_return_pct": 8.95,
         "median_return_pct": -0.7,
-        "persen_untung": 46.39,
+        "persen_untung": 46.4,
         "return_terburuk": -74.685,
         "return_terbaik": 1227.82
       },
@@ -212,10 +212,10 @@
       },
       {
         "vwap_signal": "WAIT",
-        "jumlah_sampel": 4841,
-        "rata_rata_return_pct": 3.33,
-        "median_return_pct": -1.148,
-        "persen_untung": 43.05,
+        "jumlah_sampel": 4840,
+        "rata_rata_return_pct": 3.328,
+        "median_return_pct": -1.149,
+        "persen_untung": 43.04,
         "return_terburuk": -76.087,
         "return_terbaik": 707.996
       }
@@ -250,10 +250,10 @@
       },
       {
         "vwap_signal": "HOLD",
-        "jumlah_sampel": 5393,
-        "rata_rata_return_pct": 21.632,
-        "median_return_pct": 0.197,
-        "persen_untung": 50.49,
+        "jumlah_sampel": 5394,
+        "rata_rata_return_pct": 21.637,
+        "median_return_pct": 0.198,
+        "persen_untung": 50.5,
         "return_terburuk": -95.319,
         "return_terbaik": 4850.52
       },
@@ -268,10 +268,10 @@
       },
       {
         "vwap_signal": "WAIT",
-        "jumlah_sampel": 4841,
-        "rata_rata_return_pct": 14.228,
+        "jumlah_sampel": 4840,
+        "rata_rata_return_pct": 14.221,
         "median_return_pct": -0.7,
-        "persen_untung": 48.79,
+        "persen_untung": 48.78,
         "return_terburuk": -92.757,
         "return_terbaik": 2258.391
       }
@@ -281,7 +281,7 @@
     "5": [
       {
         "kelompok_skor": "(-30.0, 0.0]",
-        "jumlah_sampel": 13229,
+        "jumlah_sampel": 13197,
         "rata_rata_return_pct": -0.189,
         "median_return_pct": -0.7,
         "persen_untung": 37.61,
@@ -290,28 +290,28 @@
       },
       {
         "kelompok_skor": "(-65.001, -30.0]",
-        "jumlah_sampel": 13204,
-        "rata_rata_return_pct": -0.171,
+        "jumlah_sampel": 13198,
+        "rata_rata_return_pct": -0.165,
         "median_return_pct": -0.7,
-        "persen_untung": 39.37,
+        "persen_untung": 39.36,
         "return_terburuk": -64.303,
         "return_terbaik": 122.737
       },
       {
         "kelompok_skor": "(0.0, 30.0]",
-        "jumlah_sampel": 12698,
-        "rata_rata_return_pct": 0.127,
+        "jumlah_sampel": 12704,
+        "rata_rata_return_pct": 0.122,
         "median_return_pct": -0.7,
-        "persen_untung": 37.19,
+        "persen_untung": 37.24,
         "return_terburuk": -50.841,
         "return_terbaik": 201.596
       },
       {
         "kelompok_skor": "(30.0, 70.0]",
-        "jumlah_sampel": 4955,
-        "rata_rata_return_pct": -0.036,
+        "jumlah_sampel": 4987,
+        "rata_rata_return_pct": -0.038,
         "median_return_pct": -0.7,
-        "persen_untung": 39.17,
+        "persen_untung": 39.06,
         "return_terburuk": -51.784,
         "return_terbaik": 147.126
       }
@@ -319,37 +319,37 @@
     "20": [
       {
         "kelompok_skor": "(-30.0, 0.0]",
-        "jumlah_sampel": 13229,
-        "rata_rata_return_pct": 2.335,
+        "jumlah_sampel": 13197,
+        "rata_rata_return_pct": 2.377,
         "median_return_pct": -0.7,
-        "persen_untung": 42.15,
+        "persen_untung": 42.25,
         "return_terburuk": -85.172,
         "return_terbaik": 813.714
       },
       {
         "kelompok_skor": "(-65.001, -30.0]",
-        "jumlah_sampel": 13204,
-        "rata_rata_return_pct": 2.911,
+        "jumlah_sampel": 13198,
+        "rata_rata_return_pct": 2.902,
         "median_return_pct": -0.7,
-        "persen_untung": 45.48,
+        "persen_untung": 45.45,
         "return_terburuk": -84.294,
         "return_terbaik": 909.104
       },
       {
         "kelompok_skor": "(0.0, 30.0]",
-        "jumlah_sampel": 12698,
-        "rata_rata_return_pct": 4.195,
-        "median_return_pct": -1.013,
-        "persen_untung": 42.37,
+        "jumlah_sampel": 12704,
+        "rata_rata_return_pct": 4.152,
+        "median_return_pct": -1.036,
+        "persen_untung": 42.35,
         "return_terburuk": -82.895,
         "return_terbaik": 1200.226
       },
       {
         "kelompok_skor": "(30.0, 70.0]",
-        "jumlah_sampel": 4955,
-        "rata_rata_return_pct": 3.223,
-        "median_return_pct": -1.147,
-        "persen_untung": 43.55,
+        "jumlah_sampel": 4987,
+        "rata_rata_return_pct": 3.238,
+        "median_return_pct": -1.148,
+        "persen_untung": 43.39,
         "return_terburuk": -76.087,
         "return_terbaik": 1227.82
       }
@@ -357,37 +357,37 @@
     "60": [
       {
         "kelompok_skor": "(-30.0, 0.0]",
-        "jumlah_sampel": 13229,
-        "rata_rata_return_pct": 13.846,
+        "jumlah_sampel": 13197,
+        "rata_rata_return_pct": 13.951,
         "median_return_pct": -0.7,
-        "persen_untung": 47.82,
+        "persen_untung": 47.9,
         "return_terburuk": -92.391,
         "return_terbaik": 7004.563
       },
       {
         "kelompok_skor": "(-65.001, -30.0]",
-        "jumlah_sampel": 13204,
-        "rata_rata_return_pct": 16.609,
-        "median_return_pct": 0.3,
-        "persen_untung": 50.69,
+        "jumlah_sampel": 13198,
+        "rata_rata_return_pct": 16.568,
+        "median_return_pct": 0.273,
+        "persen_untung": 50.62,
         "return_terburuk": -92.777,
         "return_terbaik": 5316.731
       },
       {
         "kelompok_skor": "(0.0, 30.0]",
-        "jumlah_sampel": 12698,
-        "rata_rata_return_pct": 16.258,
+        "jumlah_sampel": 12704,
+        "rata_rata_return_pct": 16.197,
         "median_return_pct": -0.7,
-        "persen_untung": 47.58,
+        "persen_untung": 47.61,
         "return_terburuk": -95.319,
         "return_terbaik": 5329.856
       },
       {
         "kelompok_skor": "(30.0, 70.0]",
-        "jumlah_sampel": 4955,
-        "rata_rata_return_pct": 12.326,
+        "jumlah_sampel": 4987,
+        "rata_rata_return_pct": 12.324,
         "median_return_pct": -0.7,
-        "persen_untung": 48.46,
+        "persen_untung": 48.33,
         "return_terburuk": -92.757,
         "return_terbaik": 3326.129
       }
