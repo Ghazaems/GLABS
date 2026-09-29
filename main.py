@@ -730,6 +730,14 @@ def export_dashboard_json(
 
 
 
+def completed_session_frame(frame):
+    """Exclude still-open/future candles when recovering an earlier session."""
+    session = os.environ.get("SCREENING_SESSION_DATE")
+    if frame is None or not session:
+        return frame
+    return frame.loc[frame.index.strftime("%Y-%m-%d") <= session].copy()
+
+
 def validate_available_universe(price_data, tickers, previous_path=Path("web/dashboard_data.json")):
     """Retain 95% of previously published names; never infer delisting."""
     try:
@@ -766,6 +774,12 @@ def run_screening() -> None:
         period="1y",
     )
 
+    price_data = {
+        ticker: completed_session_frame(frame)
+        for ticker, frame in price_data.items()
+    }
+    price_data = {ticker: frame for ticker, frame in price_data.items() if not frame.empty}
+
     failed_fetch = [
         ticker
         for ticker in tickers
@@ -795,6 +809,7 @@ def run_screening() -> None:
         "^JKSE",
         period="1y",
     )
+    ihsg = completed_session_frame(ihsg)
     if ihsg is None or ihsg.empty:
         raise RuntimeError(
             "Data IHSG tidak tersedia; screening dibatalkan agar "
@@ -806,6 +821,8 @@ def run_screening() -> None:
         "^JKLQ45",
         period="1y",
     )
+
+    lq45 = completed_session_frame(lq45)
 
     volatility_items = [
         (ticker, dataframe)
