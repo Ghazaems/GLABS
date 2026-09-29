@@ -17,6 +17,9 @@ on:
       - main
     paths:
       - ".github/workflows/daily-screening.yml"
+      - "main.py"
+      - "data/**.py"
+      - "screener/**.py"
 
 permissions:
   contents: write
