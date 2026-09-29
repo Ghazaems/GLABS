@@ -1886,10 +1886,11 @@ document.addEventListener("visibilitychange", () => {
 async function loadDashboard() {
   let data;
   try {
-    const res = await fetch("dashboard_data.json");
+    const res = await fetch("dashboard_data.json", { cache: "no-store" });
+    if (!res.ok) throw new Error(`Dashboard HTTP ${res.status}`);
     data = await res.json();
   } catch (e) {
-    document.getElementById("greet-sub").textContent = "Gagal memuat data. Jalankan main.py dulu untuk generate dashboard_data.json.";
+    document.getElementById("greet-sub").textContent = "Data belum dapat dimuat. Coba muat ulang; pembaruan screening berjalan di server.";
     return;
   }
 
@@ -1901,7 +1902,7 @@ async function loadDashboard() {
 
   // Greeting
   document.getElementById("greet-sub").textContent =
-    `${wl.length} saham dipantau · digenerate ${new Date(data.generated_at).toLocaleString("id-ID")}`;
+    `${wl.length}/${data.universe_size || 500} saham · Harga terakhir ${data.market_data_date || "belum diketahui"} · Diperbarui ${new Date(data.generated_at).toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })} WIB`;
 
   // Ringkasan mingguan
   const sc = s.signal_counts || {};
