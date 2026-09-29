@@ -2,8 +2,11 @@
 import json
 import tempfile
 import unittest
+import os
+from unittest.mock import patch
+import pandas as pd
 from pathlib import Path
-from main import validate_available_universe
+from main import validate_available_universe, completed_session_frame
 
 class CoverageTests(unittest.TestCase):
     def test_stable_partial_universe_is_allowed(self):
@@ -24,3 +27,14 @@ class CoverageTests(unittest.TestCase):
     def test_missing_baseline_does_not_crash(self):
         with tempfile.TemporaryDirectory() as tmp:
             validate_available_universe({}, [], Path(tmp) / "missing.json")
+
+class CompletedSessionTests(unittest.TestCase):
+    def test_recovery_excludes_current_open_candle(self):
+        frame = pd.DataFrame({"Close": [100, 999]}, index=pd.to_datetime(["2026-09-28", "2026-09-29"]))
+        with patch.dict(os.environ, {"SCREENING_SESSION_DATE": "2026-09-28"}):
+            result = completed_session_frame(frame)
+        self.assertEqual(result["Close"].tolist(), [100])
+        self.assertEqual(len(frame), 2)
+
+    def test_missing_benchmark_remains_missing(self):
+        self.assertIsNone(completed_session_frame(None))
