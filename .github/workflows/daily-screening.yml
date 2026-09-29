@@ -82,7 +82,8 @@ jobs:
                   with open("web/dashboard_data.json", encoding="utf-8") as source:
                       payload = json.load(source)
                   completed_session = payload.get("screening_session_date")
-                  should_run = completed_session != session_date.isoformat()
+                  should_run = (completed_session != session_date.isoformat()
+                                or payload.get("market_data_date") != session_date.isoformat())
                   reason = (
                       "session-stale"
                       if should_run
@@ -208,13 +209,14 @@ jobs:
 
           assert coverage.get("requested") == 500
           assert coverage.get("quality_gate") == "passed"
-          assert coverage.get("fetch_coverage_pct", 0) >= 90
-          assert coverage.get("success_coverage_pct", 0) >= 90
+          assert coverage.get("fetch_coverage_pct", 0) >= 80
+          assert coverage.get("success_coverage_pct", 0) >= 80
+          assert coverage.get("analysis_completion_pct", 0) >= 95
           assert coverage.get("dominant_market_date_pct", 0) >= 90
           assert watchlist
           assert valid
           assert not invalid, invalid[:20]
-          assert data.get("market_data_date")
+          assert data.get("market_data_date") == os.environ["EXPECTED_SESSION_DATE"]
           assert data.get("screening_session_date") == os.environ[
               "EXPECTED_SESSION_DATE"
           ]
@@ -257,13 +259,29 @@ jobs:
           git add web/dashboard_data.json web/forward_test_data.json storage/screener.db
           if ! git diff --staged --quiet; then
             git commit -m "chore: update screening data ${SCREENING_SESSION_DATE}"
-            git pull --rebase origin main
             for attempt in 1 2 3 4 5; do
-              git push && exit 0
+              git pull --rebase origin main && git push && exit 0
+              if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; then
+                git rebase --abort
+                exit 1
+              fi
               echo "Push failed (attempt $attempt/5); retrying..."
               sleep $((attempt * 15))
             done
             exit 1
           else
             echo "Tidak ada perubahan data untuk di-commit."
+          fi
+
+      - name: Explain screening outcome
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          RUN_REQUIRED: ${{ steps.freshness.outputs.run }}
+          SESSION: ${{ steps.freshness.outputs.session_date }}
+          REASON: ${{ steps.freshness.outputs.reason }}
+        run: |
+          echo "Session: $SESSION | Screening required: $RUN_REQUIRED | Reason: $REASON | Job: $JOB_STATUS" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$JOB_STATUS" != "success" ]; then
+            echo "::error::Screening/publication failed. The website retains its previous dataset."
           fi

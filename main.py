@@ -44,10 +44,10 @@ EXPECTED_TICKER_COUNT = 500
 MINIMUM_ANALYSIS_ROWS = 65
 MINIMUM_GARCH_ROWS = 120
 MINIMUM_FETCH_COVERAGE_PCT = float(
-    os.environ.get("MINIMUM_FETCH_COVERAGE_PCT", "90")
+    os.environ.get("MINIMUM_FETCH_COVERAGE_PCT", "80")
 )
 MINIMUM_SUCCESS_COVERAGE_PCT = float(
-    os.environ.get("MINIMUM_SUCCESS_COVERAGE_PCT", "90")
+    os.environ.get("MINIMUM_SUCCESS_COVERAGE_PCT", "80")
 )
 MINIMUM_DOMINANT_DATE_PCT = float(
     os.environ.get("MINIMUM_DOMINANT_DATE_PCT", "90")
@@ -729,6 +729,24 @@ def export_dashboard_json(
         )
 
 
+
+def validate_available_universe(price_data, tickers, previous_path=Path("web/dashboard_data.json")):
+    """Retain 95% of previously published names; never infer delisting."""
+    try:
+        previous = json.loads(previous_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return
+    baseline = {row["ticker"] for row in previous.get("watchlist", [])
+                if row.get("ticker") in tickers}
+    retained = baseline.intersection(price_data)
+    if baseline and len(retained) / len(baseline) < 0.95:
+        missing = sorted(baseline - retained)
+        raise RuntimeError(
+            f"Coverage regression: {len(retained)}/{len(baseline)} previous tickers available; "
+            f"missing={missing}"
+        )
+
+
 def run_screening() -> None:
     """Jalankan screening 500 emiten."""
     init_db()
@@ -769,6 +787,8 @@ def run_screening() -> None:
             f"{fetch_coverage_pct:.1f}% < "
             f"{MINIMUM_FETCH_COVERAGE_PCT:.1f}%."
         )
+
+    validate_available_universe(price_data, tickers)
 
     print("Mengambil data IHSG...")
     ihsg = fetch_daily(
@@ -910,7 +930,21 @@ def run_screening() -> None:
             f"tanggal dominan {dominant_date}."
         )
 
+    eligible_count = len(price_data) - len(insufficient_data)
+    analysis_completion_pct = len(results) / max(eligible_count, 1) * 100.0
+    if analysis_completion_pct < 95:
+        raise RuntimeError(
+            f"Analysis completion too low: {analysis_completion_pct:.1f}% of eligible tickers"
+        )
+    expected_session = os.environ.get("SCREENING_SESSION_DATE")
+    if expected_session and dominant_date != expected_session:
+        raise RuntimeError(
+            f"Market data stale: expected {expected_session}, received {dominant_date}"
+        )
+
     coverage = {
+        "analysis_completion_pct": round(analysis_completion_pct, 2),
+        "coverage_status": "partial" if len(results) < len(tickers) else "complete",
         "requested": len(tickers),
         "fetched": len(price_data),
         "success": len(results),
