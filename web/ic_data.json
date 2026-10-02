@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-01T08:48:53.070660+00:00",
+  "generated_at": "2026-10-02T08:23:15.983474+00:00",
   "source": "backtest_results.csv",
   "methodology": {
     "type": "cross_sectional_per_date",
@@ -27,14 +27,14 @@
       "conclusion": "Belum ada hubungan yang bertahan setelah koreksi FDR untuk Rolling VWAP Daily terhadap return 5D.",
       "stability_summary": "Mayoritas bulan tidak positif.",
       "statistics": {
-        "mean_ic": -0.0193,
-        "std_ic": 0.1791,
-        "t_stat_hac": -2.1422,
-        "p_value_raw": 0.032179,
-        "q_value_fdr": 0.096537,
+        "mean_ic": -0.0195,
+        "std_ic": 0.179,
+        "t_stat_hac": -2.1582,
+        "p_value_raw": 0.030915,
+        "q_value_fdr": 0.092745,
         "hac_lags": 1,
         "positive_months_pct": 31.03,
-        "n_dates": 445,
+        "n_dates": 446,
         "n_months": 29
       }
     },
@@ -46,14 +46,14 @@
       "conclusion": "Belum ada hubungan yang bertahan setelah koreksi FDR untuk Rolling VWAP Weekly terhadap return 20D.",
       "stability_summary": "Mayoritas bulan tidak positif.",
       "statistics": {
-        "mean_ic": -0.0093,
-        "std_ic": 0.1914,
-        "t_stat_hac": -0.693,
-        "p_value_raw": 0.488324,
-        "q_value_fdr": 0.488324,
+        "mean_ic": -0.0092,
+        "std_ic": 0.191,
+        "t_stat_hac": -0.6877,
+        "p_value_raw": 0.491669,
+        "q_value_fdr": 0.491669,
         "hac_lags": 3,
         "positive_months_pct": 44.83,
-        "n_dates": 445,
+        "n_dates": 446,
         "n_months": 29
       }
     },
@@ -65,14 +65,14 @@
       "conclusion": "Belum ada hubungan yang bertahan setelah koreksi FDR untuk Rolling VWAP Swing terhadap return 60D.",
       "stability_summary": "Mayoritas bulan tidak positif.",
       "statistics": {
-        "mean_ic": -0.0289,
-        "std_ic": 0.1585,
-        "t_stat_hac": -1.7598,
-        "p_value_raw": 0.078434,
-        "q_value_fdr": 0.117651,
+        "mean_ic": -0.0288,
+        "std_ic": 0.1583,
+        "t_stat_hac": -1.7603,
+        "p_value_raw": 0.078349,
+        "q_value_fdr": 0.117524,
         "hac_lags": 11,
         "positive_months_pct": 37.93,
-        "n_dates": 445,
+        "n_dates": 446,
         "n_months": 29
       }
     }
