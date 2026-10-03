@@ -21,7 +21,7 @@ function fixture(data,ok=true){
   }});
   nodes["radar-root"]=make("radar-root");
   nodes["radar-home-body"]=make("radar-home-body");
-  const context={console,window:{dashboardData:{market_data_date:"2026-10-02",watchlist:[{ticker:"AAAA"}]}},
+  const context={console,window:{addEventListener(){},dashboardData:{market_data_date:"2026-10-02",watchlist:[{ticker:"AAAA"}]}},
     document:{getElementById:id=>{
       if(nodes[id])return nodes[id];
       if(!Object.values(nodes).some(n=>n.innerHTML.includes('id="'+id+'"')))return null;

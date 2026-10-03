@@ -1,4 +1,5 @@
 name: Signal Radar
+# Compare published market sessions; UI contracts are verified before publishing.
 
 on:
   workflow_run:
