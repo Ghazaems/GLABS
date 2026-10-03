@@ -1,0 +1,3838 @@
+{
+  "schema_version": 1,
+  "classification": "IDX-IC",
+  "as_of": "2026-02-03",
+  "source_url": "https://www.idx.co.id/primary/ListedCompany/GetCompanyProfiles?start=0&length=9999",
+  "mirror_url": "https://github.com/markusprap/idx-bei-stock-analysis/blob/6631bea72720c4451ec8486c1e2c002081f315f5/data/allCompanies.json",
+  "verification": "IDX company-profile snapshot mirrored by markusprap; not a claim of current classification",
+  "companies": {
+    "AADI": {
+      "name": "PT Adaro Andalan Indonesia Tbk",
+      "sector": "IDXENERGY"
+    },
+    "AALI": {
+      "name": "Astra Agro Lestari Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "ABBA": {
+      "name": "Mahaka Media Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "ABDA": {
+      "name": "Asuransi Bina Dana Arta Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "ABMM": {
+      "name": "ABM Investama Tbk",
+      "sector": "IDXENERGY"
+    },
+    "ACES": {
+      "name": "PT Aspirasi Hidup Indonesia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "ACRO": {
+      "name": "PT Samcro Hyosung Adilestari Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "ACST": {
+      "name": "PT Acset Indonusa Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "ADCP": {
+      "name": "PT Adhi Commuter Properti Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "ADES": {
+      "name": "Akasha Wira International Tbk  Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "ADHI": {
+      "name": "PT Adhi Karya (Persero) Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "ADMF": {
+      "name": "Adira Dinamika Multi Finance Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "ADMG": {
+      "name": "Polychem Indonesia Tbk",
+      "sector": "IDXBASIC"
+    },
+    "ADMR": {
+      "name": "PT Alamtri Minerals Indonesia Tbk",
+      "sector": "IDXENERGY"
+    },
+    "ADRO": {
+      "name": "Alamtri Resources Indonesia Tbk",
+      "sector": "IDXENERGY"
+    },
+    "AEGS": {
+      "name": "PT Anugerah Spareparts Sejahtera Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "AGAR": {
+      "name": "PT Asia Sejahtera Mina Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "AGII": {
+      "name": "PT Samator Indo Gas Tbk",
+      "sector": "IDXBASIC"
+    },
+    "AGRO": {
+      "name": "PT Bank Raya Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "AGRS": {
+      "name": "PT Bank IBK Indonesia Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "AHAP": {
+      "name": "Asuransi Harta Aman Pratama Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "AIMS": {
+      "name": "PT Artha Mahiya Investama Tbk",
+      "sector": "IDXENERGY"
+    },
+    "AISA": {
+      "name": "PT FKS Food Sejahtera Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "AKKU": {
+      "name": "PT Anugerah Kagum Karya Utama Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "AKPI": {
+      "name": "Argha Karya Prima Ind. Tbk",
+      "sector": "IDXBASIC"
+    },
+    "AKRA": {
+      "name": "PT AKR Corporindo Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "AKSI": {
+      "name": "PT Mineral Sumberdaya Mandiri Tbk",
+      "sector": "IDXTRANS"
+    },
+    "ALDO": {
+      "name": "Alkindo Naratama Tbk",
+      "sector": "IDXBASIC"
+    },
+    "ALII": {
+      "name": "PT Ancara Logistics Indonesia Tbk",
+      "sector": "IDXENERGY"
+    },
+    "ALKA": {
+      "name": "Alakasa Industrindo Tbk",
+      "sector": "IDXBASIC"
+    },
+    "ALMI": {
+      "name": "Alumindo Light Metal Industry Tbk",
+      "sector": "IDXBASIC"
+    },
+    "ALTO": {
+      "name": "Tri Banyan Tirta Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "AMAG": {
+      "name": "Asuransi Multi Artha Guna Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "AMAN": {
+      "name": "PT Makmur Berkah Amanda Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "AMAR": {
+      "name": "PT Bank Amar Indonesia Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "AMFG": {
+      "name": "Asahimas Flat Glass Tbk",
+      "sector": "IDXINDUST"
+    },
+    "AMIN": {
+      "name": "PT Ateliers Mecaniques D Indonesie Tbk.",
+      "sector": "IDXINDUST"
+    },
+    "AMMN": {
+      "name": "PT Amman Mineral Internasional Tbk.",
+      "sector": "IDXBASIC"
+    },
+    "AMMS": {
+      "name": "PT Agung Menjangan Mas Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "AMOR": {
+      "name": "PT Ashmore Asset Management Indonesia Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "AMRT": {
+      "name": "PT Sumber Alfaria Trijaya Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "ANDI": {
+      "name": "PT Andira Agro Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "ANJT": {
+      "name": "PT Austindo Nusantara Jaya Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "ANTM": {
+      "name": "Aneka Tambang Tbk.",
+      "sector": "IDXBASIC"
+    },
+    "APEX": {
+      "name": "Apexindo Pratama Duta Tbk",
+      "sector": "IDXENERGY"
+    },
+    "APIC": {
+      "name": "PACIFIC STRATEGIC FINANCIAL Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "APII": {
+      "name": "PT Arita Prima Indonesia Tbk.",
+      "sector": "IDXINDUST"
+    },
+    "APLI": {
+      "name": "Asiaplast Industries Tbk",
+      "sector": "IDXBASIC"
+    },
+    "APLN": {
+      "name": "PT Agung Podomoro Land Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "ARCI": {
+      "name": "PT Archi Indonesia Tbk",
+      "sector": "IDXBASIC"
+    },
+    "AREA": {
+      "name": "PT Dunia Virtual Online Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "ARGO": {
+      "name": "Argo Pantes Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "ARII": {
+      "name": "Atlas Resources Tbk",
+      "sector": "IDXENERGY"
+    },
+    "ARKA": {
+      "name": "PT Arkha Jayanti Persada Tbk.",
+      "sector": "IDXINDUST"
+    },
+    "ARKO": {
+      "name": "PT Arkora Hydro Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "ARMY": {
+      "name": "PT Armidian Karyatama Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "ARNA": {
+      "name": "Arwana Citramulia Tbk",
+      "sector": "IDXINDUST"
+    },
+    "ARTA": {
+      "name": "Arthavest Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "ARTI": {
+      "name": "Ratu Prabu Energi Tbk",
+      "sector": "IDXENERGY"
+    },
+    "ARTO": {
+      "name": "PT Bank Jago Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "ASBI": {
+      "name": "Asuransi Bintang Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "ASDM": {
+      "name": "Asuransi Dayin Mitra Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "ASGR": {
+      "name": "Astra Graphia Tbk",
+      "sector": "IDXINDUST"
+    },
+    "ASHA": {
+      "name": "PT Cilacap Samudera Fishing Industry Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "ASII": {
+      "name": "Astra International Tbk",
+      "sector": "IDXINDUST"
+    },
+    "ASJT": {
+      "name": "Asuransi Jasa Tania Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "ASLC": {
+      "name": "PT Autopedia Sukses Lestari Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "ASLI": {
+      "name": "PT Asri Karya Lestari Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "ASMI": {
+      "name": "PT Asuransi Maximus Graha Persada Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "ASPI": {
+      "name": "PT Andalan Sakti Primaindo Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "ASPR": {
+      "name": "PT Asia Pramulia Tbk",
+      "sector": "IDXBASIC"
+    },
+    "ASRI": {
+      "name": "ALAM SUTERA REALTY Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "ASRM": {
+      "name": "Asuransi Ramayana Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "ASSA": {
+      "name": "Adi Sarana Armada Tbk",
+      "sector": "IDXTRANS"
+    },
+    "ATAP": {
+      "name": "PT Trimitra Prawara Goldland Tbk ",
+      "sector": "IDXPROPERT"
+    },
+    "ATIC": {
+      "name": "PT Anabatic Technologies Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "ATLA": {
+      "name": "PT Atlantis Subsea Indonesia Tbk",
+      "sector": "IDXENERGY"
+    },
+    "AUTO": {
+      "name": "Astra Otoparts Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "AVIA": {
+      "name": "PT Avia Avian Tbk",
+      "sector": "IDXBASIC"
+    },
+    "AWAN": {
+      "name": "PT Era Digital Media Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "AXIO": {
+      "name": "PT Tera Data Indonusa Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "AYAM": {
+      "name": "PT Janu Putra Sejahtera Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "AYLS": {
+      "name": "PT Agro Yasa Lestari Tbk",
+      "sector": "IDXBASIC"
+    },
+    "BABP": {
+      "name": "PT Bank MNC Internasional Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "BABY": {
+      "name": "PT Multitrend Indo Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "BACA": {
+      "name": "PT Bank Capital Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BAIK": {
+      "name": "PT Bersama Mencapai Puncak Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "BAJA": {
+      "name": "Saranacentral Bajatama Tbk",
+      "sector": "IDXBASIC"
+    },
+    "BALI": {
+      "name": "PT Bali Towerindo Sentra Tbk. ",
+      "sector": "IDXINFRA"
+    },
+    "BANK": {
+      "name": "PT Bank Aladin Syariah Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BAPA": {
+      "name": "Bekasi Asri Pemula Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "BAPI": {
+      "name": "PT Bhakti Agung Propertindo Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "BATA": {
+      "name": "Sepatu Bata Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "BATR": {
+      "name": "PT Benteng Api Technic Tbk",
+      "sector": "IDXBASIC"
+    },
+    "BAUT": {
+      "name": "PT Mitra Angkasa Sejahtera Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "BAYU": {
+      "name": "Bayu Buana Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "BBCA": {
+      "name": "PT Bank Central Asia Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "BBHI": {
+      "name": "PT Allo Bank Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BBKP": {
+      "name": "PT Bank KB Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BBLD": {
+      "name": "Buana Finance Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BBMD": {
+      "name": "PT Bank Mestika Dharma Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "BBNI": {
+      "name": "PT Bank Negara Indonesia (Persero) Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BBRI": {
+      "name": "PT Bank Rakyat Indonesia (Persero) Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BBRM": {
+      "name": "Pelayaran Nasional Bina Buana Raya Tbk",
+      "sector": "IDXENERGY"
+    },
+    "BBSI": {
+      "name": "PT Krom Bank Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BBSS": {
+      "name": "PT Bumi Benowo Sukses Sejahtera Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "BBTN": {
+      "name": "PT Bank Tabungan Negara (Persero) Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BBYB": {
+      "name": "PT Bank Neo Commerce Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "BCAP": {
+      "name": "MNC Kapital Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BCIC": {
+      "name": "PT Bank JTrust Indonesia Tbk. ",
+      "sector": "IDXFINANCE"
+    },
+    "BCIP": {
+      "name": "Bumi Citra Permai Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "BDKR": {
+      "name": "PT Berdikari Pondasi Perkasa Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "BDMN": {
+      "name": "PT Bank Danamon Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BEBS": {
+      "name": "PT Berkah Beton Sadaya Tbk",
+      "sector": "IDXBASIC"
+    },
+    "BEEF": {
+      "name": "PT Estika Tata Tiara Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "BEER": {
+      "name": "PT Jobubu Jarum Minahasa Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "BEKS": {
+      "name": "PT Bank Pembangunan Daerah Banten Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "BELI": {
+      "name": "PT Global Digital Niaga Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "BELL": {
+      "name": "PT Trisula Textile Industries Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "BESS": {
+      "name": "PT Batulicin Nusantara Maritim Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "BEST": {
+      "name": "Bekasi Fajar Industrial Estate Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "BFIN": {
+      "name": "BFI Finance Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BGTG": {
+      "name": "PT Bank Ganesha Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "BHAT": {
+      "name": "PT Bhakti Multi Artha Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "BHIT": {
+      "name": "PT MNC Asia Holding Tbk",
+      "sector": "IDXINDUST"
+    },
+    "BIKA": {
+      "name": "PT Binakarya Jaya Abadi Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "BIKE": {
+      "name": "PT Sepeda Bersama Indonesia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "BIMA": {
+      "name": "Primarindo Asia Infrastructure Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "BINA": {
+      "name": "PT Bank Ina Perdana Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "BINO": {
+      "name": "PT Perma Plasindo Tbk ",
+      "sector": "IDXINDUST"
+    },
+    "BIPI": {
+      "name": "PT Astrindo Nusantara Infrastruktur Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "BIPP": {
+      "name": "Bhuwanatala Indah Permai Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "BIRD": {
+      "name": "PT Blue Bird Tbk",
+      "sector": "IDXTRANS"
+    },
+    "BISI": {
+      "name": "BISI INTERNATIONAL Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "BJBR": {
+      "name": "Bank Pembangunan Daerah Jawa Barat dan Banten Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BJTM": {
+      "name": "Bank Pembangunan Daerah Jawa Timur Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BKDP": {
+      "name": "Bukit Darmo Property Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "BKSL": {
+      "name": "Sentul City Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "BKSW": {
+      "name": "PT Bank QNB Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BLES": {
+      "name": "PT Superior Prima Sukses Tbk",
+      "sector": "IDXBASIC"
+    },
+    "BLOG": {
+      "name": "PT Trimitra Trans Persada Tbk",
+      "sector": "IDXTRANS"
+    },
+    "BLTA": {
+      "name": "Berlian Laju Tanker Tbk",
+      "sector": "IDXTRANS"
+    },
+    "BLTZ": {
+      "name": "PT Graha Layar Prima Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "BLUE": {
+      "name": "PT Berkah Prima Perkasa Tbk",
+      "sector": "IDXINDUST"
+    },
+    "BMAS": {
+      "name": "PT Bank Maspion Indonesia Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "BMBL": {
+      "name": "PT Lavender Bina Cendikia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "BMHS": {
+      "name": "PT Bundamedik Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "BMRI": {
+      "name": "PT Bank Mandiri (Persero) Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BMSR": {
+      "name": "Bintang Mitra Semestaraya Tbk",
+      "sector": "IDXBASIC"
+    },
+    "BMTR": {
+      "name": "PT Global Mediacom Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "BNBA": {
+      "name": "Bank Bumi Arta Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BNBR": {
+      "name": "Bakrie & Brothers Tbk",
+      "sector": "IDXINDUST"
+    },
+    "BNGA": {
+      "name": "PT Bank CIMB Niaga Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BNII": {
+      "name": "PT Bank Maybank Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BNLI": {
+      "name": "Bank Permata Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BOAT": {
+      "name": "PT Newport Marine Services Tbk",
+      "sector": "IDXENERGY"
+    },
+    "BOBA": {
+      "name": "PT Formosa Ingredient Factory Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "BOGA": {
+      "name": "PT Bintang Oto Global Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "BOLA": {
+      "name": "PT Bali Bintang Sejahtera Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "BOLT": {
+      "name": "PT Garuda Metalindo Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "BOSS": {
+      "name": "PT Borneo Olah Sarana Sukses Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "BPFI": {
+      "name": "PT Woori Finance Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BPII": {
+      "name": "PT Batavia Prosperindo Internasional Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "BPTR": {
+      "name": "PT Batavia Prosperindo Trans Tbk.",
+      "sector": "IDXTRANS"
+    },
+    "BRAM": {
+      "name": "Indo Kordsa Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "BREN": {
+      "name": "PT Barito Renewables Energy Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "BRIS": {
+      "name": "PT Bank Syariah Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BRMS": {
+      "name": "Bumi Resources Minerals Tbk",
+      "sector": "IDXBASIC"
+    },
+    "BRNA": {
+      "name": "Berlina Tbk",
+      "sector": "IDXBASIC"
+    },
+    "BRPT": {
+      "name": "Barito Pacific Tbk",
+      "sector": "IDXBASIC"
+    },
+    "BRRC": {
+      "name": "PT Raja Roti Cemerlang Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "BSBK": {
+      "name": "PT Wulandari Bangun Laksana Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "BSDE": {
+      "name": "PT Bumi Serpong Damai Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "BSIM": {
+      "name": "Bank Sinarmas Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BSML": {
+      "name": "PT Bintang Samudera Mandiri Lines Tbk",
+      "sector": "IDXENERGY"
+    },
+    "BSSR": {
+      "name": "Baramulti Suksessarana Tbk",
+      "sector": "IDXENERGY"
+    },
+    "BSWD": {
+      "name": "Bank of India Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BTEK": {
+      "name": "Bumi Teknokultura Unggul Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "BTEL": {
+      "name": "Bakrie Telecom Tbk",
+      "sector": "IDXINFRA"
+    },
+    "BTON": {
+      "name": "Betonjaya Manunggal Tbk",
+      "sector": "IDXBASIC"
+    },
+    "BTPN": {
+      "name": "PT Bank SMBC Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BTPS": {
+      "name": "PT Bank BTPN Syariah Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "BUAH": {
+      "name": "PT Segar Kumala Indonesia Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "BUDI": {
+      "name": "PT Budi Starch & Sweetener Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "BUKA": {
+      "name": "PT Bukalapak.com Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "BUKK": {
+      "name": "Bukaka Teknik Utama Tbk",
+      "sector": "IDXINFRA"
+    },
+    "BULL": {
+      "name": "PT Buana Lintas Lautan Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "BUMI": {
+      "name": "Bumi Resources Tbk",
+      "sector": "IDXENERGY"
+    },
+    "BUVA": {
+      "name": "PT Bukit Uluwatu Villa Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "BVIC": {
+      "name": "Bank Victoria International Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "BWPT": {
+      "name": "Eagle High Plantations Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "BYAN": {
+      "name": "Bayan Resources Tbk",
+      "sector": "IDXENERGY"
+    },
+    "CAKK": {
+      "name": "PT Cahayaputra Asa Keramik Tbk.",
+      "sector": "IDXINDUST"
+    },
+    "CAMP": {
+      "name": "PT Campina Ice Cream Industry Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "CANI": {
+      "name": "PT Capitol Nusantara Indonesia Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "CARE": {
+      "name": "PT Metro Healthcare Indonesia Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "CARS": {
+      "name": "PT Industri dan Perdagangan Bintraco Dharma Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "CASA": {
+      "name": "PT Capital Financial Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "CASH": {
+      "name": "PT Cashlez Worldwide Indonesia Tbk.",
+      "sector": "IDXTECHNO"
+    },
+    "CASS": {
+      "name": "Cahaya Aero Services Tbk",
+      "sector": "IDXINFRA"
+    },
+    "CBDK": {
+      "name": "PT Bangun Kosambi Sukses Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "CBMF": {
+      "name": "PT Cahaya Bintang Medan Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "CBPE": {
+      "name": "PT Citra Buana Prasida Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "CBRE": {
+      "name": "PT Cakra Buana Resources Energi Tbk",
+      "sector": "IDXENERGY"
+    },
+    "CBUT": {
+      "name": "PT Citra Borneo Utama Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "CCSI": {
+      "name": "PT Communication Cable Systems Indonesia Tbk.",
+      "sector": "IDXINDUST"
+    },
+    "CDIA": {
+      "name": "PT Chandra Daya Investasi Tbk",
+      "sector": "IDXINFRA"
+    },
+    "CEKA": {
+      "name": "PT Wilmar Cahaya Indonesia Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "CENT": {
+      "name": "PT Centratama Telekomunikasi Indonesia Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "CFIN": {
+      "name": "Clipan Finance Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "CGAS": {
+      "name": "PT Citra Nusantara Gemilang Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "CHEK": {
+      "name": "PT Diastika Biotekindo Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "CHEM": {
+      "name": "PT Chemstar Indonesia Tbk",
+      "sector": "IDXBASIC"
+    },
+    "CHIP": {
+      "name": "PT Pelita Teknologi Global Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "CINT": {
+      "name": "PT Chitose Internasional Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "CITA": {
+      "name": "Cita Mineral Investindo Tbk",
+      "sector": "IDXBASIC"
+    },
+    "CITY": {
+      "name": "PT Natura City Developments Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "CLAY": {
+      "name": "PT Citra Putra Realty Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "CLEO": {
+      "name": "PT Sariguna Primatirta Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "CLPI": {
+      "name": "Colorpak Indonesia Tbk",
+      "sector": "IDXBASIC"
+    },
+    "CMNP": {
+      "name": "Citra Marga Nusaphala Persada Tbk",
+      "sector": "IDXINFRA"
+    },
+    "CMNT": {
+      "name": "PT Cemindo Gemilang Tbk",
+      "sector": "IDXBASIC"
+    },
+    "CMPP": {
+      "name": "PT AirAsia Indonesia Tbk",
+      "sector": "IDXTRANS"
+    },
+    "CMRY": {
+      "name": "PT Cisarua Mountain Dairy Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "CNKO": {
+      "name": "Exploitasi Energi Indonesia Tbk",
+      "sector": "IDXENERGY"
+    },
+    "CNMA": {
+      "name": "PT Nusantara Sejahtera Raya Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "CNTX": {
+      "name": "PT Century Textile Industry Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "COAL": {
+      "name": "PT Black Diamond Resources Tbk",
+      "sector": "IDXENERGY"
+    },
+    "COCO": {
+      "name": "PT Wahana Interfood Nusantara Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "COIN": {
+      "name": "PT Indokripto Koin Semesta Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "COWL": {
+      "name": "COWELL DEVELOPMENT Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "CPIN": {
+      "name": "Charoen Pokphand Indonesia Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "CPRI": {
+      "name": "PT Capri Nusa Satu Properti Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "CPRO": {
+      "name": "Central Proteina Prima Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "CRAB": {
+      "name": "PT Toba Surimi Industries Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "CRSN": {
+      "name": "PT Carsurin Tbk",
+      "sector": "IDXINDUST"
+    },
+    "CSAP": {
+      "name": "Catur Sentosa Adiprana Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "CSIS": {
+      "name": "PT Cahayasakti Investindo Sukses Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "CSMI": {
+      "name": "PT Cipta Selera Murni Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "CSRA": {
+      "name": "PT Cisadane Sawit Raya Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "CTBN": {
+      "name": "Citra Tubindo Tbk",
+      "sector": "IDXBASIC"
+    },
+    "CTRA": {
+      "name": "Ciputra Development Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "CTTH": {
+      "name": "Citatah Tbk",
+      "sector": "IDXINDUST"
+    },
+    "CUAN": {
+      "name": "PT Petrindo Jaya Kreasi Tbk",
+      "sector": "IDXENERGY"
+    },
+    "CYBR": {
+      "name": "PT ITSEC Asia Tbk.",
+      "sector": "IDXTECHNO"
+    },
+    "DAAZ": {
+      "name": "PT Daaz Bara Lestari Tbk",
+      "sector": "IDXBASIC"
+    },
+    "DADA": {
+      "name": "PT Diamond Citra Propertindo Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "DART": {
+      "name": "Duta Anggada Realty Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "DATA": {
+      "name": "PT Remala Abadi Tbk",
+      "sector": "IDXINFRA"
+    },
+    "DAYA": {
+      "name": "PT Duta Intidaya Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "DCII": {
+      "name": "PT DCI Indonesia Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "DEAL": {
+      "name": "PT Dewata Freightinternational Tbk.",
+      "sector": "IDXTRANS"
+    },
+    "DEFI": {
+      "name": "Danasupra Erapacific Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "DEPO": {
+      "name": "PT Caturkarda Depo Bangunan Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "DEWA": {
+      "name": "Darma Henwa Tbk",
+      "sector": "IDXENERGY"
+    },
+    "DEWI": {
+      "name": "PT Dewi Shri Farmindo Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "DFAM": {
+      "name": "PT Dafam Property Indonesia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "DGIK": {
+      "name": "Nusa Konstruksi Enjiniring  Tbk",
+      "sector": "IDXINFRA"
+    },
+    "DGNS": {
+      "name": "PT Diagnos Laboratorium Utama Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "DGWG": {
+      "name": "PT Delta Giri Wacana Tbk",
+      "sector": "IDXBASIC"
+    },
+    "DIGI": {
+      "name": "PT Arkadia Digital Media Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "DILD": {
+      "name": "Intiland Development Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "DIVA": {
+      "name": "PT Distribusi Voucher Nusantara Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "DKFT": {
+      "name": "Central Omega Resources Tbk",
+      "sector": "IDXBASIC"
+    },
+    "DKHH": {
+      "name": "PT Cipta Sarana Medika Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "DLTA": {
+      "name": "Delta Djakarta Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "DMAS": {
+      "name": "PT Puradelta Lestari Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "DMMX": {
+      "name": "PT Digital Mediatama Maxima Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "DMND": {
+      "name": "PT Diamond Food Indonesia Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "DNAR": {
+      "name": "PT Bank Oke Indonesia Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "DNET": {
+      "name": "PT Indoritel Makmur Internasional Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "DOID": {
+      "name": "PT BUMA Internasional Grup Tbk",
+      "sector": "IDXENERGY"
+    },
+    "DOOH": {
+      "name": "PT Era Media Sejahtera Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "DOSS": {
+      "name": "PT Global Sukses Digital Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "DPNS": {
+      "name": "Duta Pertiwi Nusantara Tbk",
+      "sector": "IDXBASIC"
+    },
+    "DPUM": {
+      "name": "PT Dua Putra Utama Makmur Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "DRMA": {
+      "name": "PT Dharma Polimetal Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "DSFI": {
+      "name": "Dharma Samudera Fishing Ind. Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "DSNG": {
+      "name": "PT Dharma Satya Nusantara Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "DSSA": {
+      "name": "Dian Swastatika Sentosa Tbk",
+      "sector": "IDXENERGY"
+    },
+    "DUCK": {
+      "name": "PT Jaya Bersama Indo Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "DUTI": {
+      "name": "Duta Pertiwi Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "DVLA": {
+      "name": "Darya-Varia Laboratoria Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "DWGL": {
+      "name": "PT Dwi Guna Laksana Tbk",
+      "sector": "IDXENERGY"
+    },
+    "DYAN": {
+      "name": "PT Dyandra Media International Tbk.",
+      "sector": "IDXINDUST"
+    },
+    "EAST": {
+      "name": "PT Eastparc Hotel Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "ECII": {
+      "name": "PT Electronic City Indonesia Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "EDGE": {
+      "name": "PT Indointernet Tbk.",
+      "sector": "IDXTECHNO"
+    },
+    "EKAD": {
+      "name": "Ekadharma International Tbk",
+      "sector": "IDXBASIC"
+    },
+    "ELIT": {
+      "name": "PT Data Sinergitama Jaya Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "ELPI": {
+      "name": "PT Pelayaran Nasional Ekalya Purnamasari Tbk",
+      "sector": "IDXTRANS"
+    },
+    "ELSA": {
+      "name": "Elnusa Tbk",
+      "sector": "IDXENERGY"
+    },
+    "ELTY": {
+      "name": "Bakrieland Development Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "EMAS": {
+      "name": "PT Merdeka Gold Resources Tbk",
+      "sector": "IDXBASIC"
+    },
+    "EMDE": {
+      "name": "Megapolitan Developments Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "EMTK": {
+      "name": "Elang Mahkota Teknologi Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "ENAK": {
+      "name": "PT Champ Resto Indonesia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "ENRG": {
+      "name": "Energi Mega Persada Tbk",
+      "sector": "IDXENERGY"
+    },
+    "ENVY": {
+      "name": "PT Envy Technologies Indonesia Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "ENZO": {
+      "name": "PT Morenzo Abadi Perkasa Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "EPAC": {
+      "name": "PT Megalestari Epack Sentosaraya Tbk.",
+      "sector": "IDXBASIC"
+    },
+    "EPMT": {
+      "name": "Enseval Putera Megatrading Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "ERAA": {
+      "name": "Erajaya Swasembada Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "ERAL": {
+      "name": "PT Sinar Eka Selaras Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "ERTX": {
+      "name": "Eratex Djaja Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "ESIP": {
+      "name": "PT Sinergi Inti Plastindo Tbk.",
+      "sector": "IDXBASIC"
+    },
+    "ESSA": {
+      "name": "ESSA Industries Indonesia Tbk",
+      "sector": "IDXBASIC"
+    },
+    "ESTA": {
+      "name": "PT Esta Multi Usaha Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "ESTI": {
+      "name": "Ever Shine Textile Industry Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "ETWA": {
+      "name": "Eterindo Wahanatama Tbk",
+      "sector": "IDXBASIC"
+    },
+    "EURO": {
+      "name": "PT Estee Gold Feet Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "EXCL": {
+      "name": "PT XLSMART Telecom Sejahtera Tbk",
+      "sector": "IDXINFRA"
+    },
+    "FAPA": {
+      "name": "PT FAP Agri Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "FAST": {
+      "name": "PT Fast Food Indonesia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "FASW": {
+      "name": "Fajar Surya Wisesa Tbk",
+      "sector": "IDXBASIC"
+    },
+    "FILM": {
+      "name": "PT MD Entertainment Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "FIMP": {
+      "name": "PT Fimperkasa Utama Tbk",
+      "sector": "IDXINFRA"
+    },
+    "FIRE": {
+      "name": "PT Alfa Energi Investama Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "FISH": {
+      "name": "FKS Multi Agro Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "FITT": {
+      "name": "PT Hotel Fitra International Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "FLMC": {
+      "name": "PT Falmaco Nonwoven Industri Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "FMII": {
+      "name": "Fortune Mate Indonesia Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "FOLK": {
+      "name": "PT Multi Garam Utama Tbk.",
+      "sector": "IDXINDUST"
+    },
+    "FOOD": {
+      "name": "PT Sentra Food Indonesia Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "FORE": {
+      "name": "PT Fore Kopi Indonesia Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "FORU": {
+      "name": "Fortune Indonesia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "FPNI": {
+      "name": "PT Lotte Chemical Titan Tbk.",
+      "sector": "IDXBASIC"
+    },
+    "FUJI": {
+      "name": "PT Fuji Finance Indonesia Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "FUTR": {
+      "name": "PT Futura Energi Global Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "FWCT": {
+      "name": "PT Wijaya Cahaya Timber Tbk",
+      "sector": "IDXBASIC"
+    },
+    "GAMA": {
+      "name": "Aksara Global Development Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "GDST": {
+      "name": "Gunawan Dianjaya Steel Tbk",
+      "sector": "IDXBASIC"
+    },
+    "GDYR": {
+      "name": "Goodyear Indonesia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "GEMA": {
+      "name": "Gema Grahasarana Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "GEMS": {
+      "name": "Golden Energy Mines Tbk",
+      "sector": "IDXENERGY"
+    },
+    "GGRM": {
+      "name": "Gudang Garam Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "GGRP": {
+      "name": "PT Gunung Raja Paksi Tbk.",
+      "sector": "IDXBASIC"
+    },
+    "GHON": {
+      "name": "PT Gihon Telekomunikasi Indonesia Tbk",
+      "sector": "IDXINFRA"
+    },
+    "GIAA": {
+      "name": "Garuda Indonesia (Persero) Tbk",
+      "sector": "IDXTRANS"
+    },
+    "GJTL": {
+      "name": "Gajah Tunggal Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "GLOB": {
+      "name": "PT Globe Kita Terang Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "GLVA": {
+      "name": "PT Galva Technologies Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "GMFI": {
+      "name": "PT Garuda Maintenance Facility Aero Asia Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "GMTD": {
+      "name": "Gowa Makassar Tourism Development Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "GOLD": {
+      "name": "PT Visi Telekomunikasi Infrastruktur Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "GOLF": {
+      "name": "PT Intra GolfLink Resorts Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "GOLL": {
+      "name": "PT Golden Plantation Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "GOOD": {
+      "name": "PT Garudafood Putra Putri Jaya Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "GOTO": {
+      "name": "PT GoTo Gojek Tokopedia Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "GPRA": {
+      "name": "Perdana Gapura Prima Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "GPSO": {
+      "name": "PT Geoprima Solusi Tbk",
+      "sector": "IDXINDUST"
+    },
+    "GRIA": {
+      "name": "PT Ingria Pratama Capitalindo Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "GRPH": {
+      "name": "PT Griptha Putra Persada Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "GRPM": {
+      "name": "PT Graha Prima Mentari Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "GSMF": {
+      "name": "Equity Development Investment Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "GTBO": {
+      "name": "Garda Tujuh Buana Tbk",
+      "sector": "IDXENERGY"
+    },
+    "GTRA": {
+      "name": "PT Grahaprima Suksesmandiri Tbk",
+      "sector": "IDXTRANS"
+    },
+    "GTSI": {
+      "name": "PT GTS Internasional Tbk",
+      "sector": "IDXENERGY"
+    },
+    "GULA": {
+      "name": "PT Aman Agrindo Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "GUNA": {
+      "name": "PT Gunanusa Eramandiri Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "GWSA": {
+      "name": "PT Greenwood Sejahtera Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "GZCO": {
+      "name": "Gozco Plantations Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "HADE": {
+      "name": "PT Himalaya Energi Perkasa Tbk",
+      "sector": "IDXINFRA"
+    },
+    "HAIS": {
+      "name": "PT Hasnur Internasional Shipping Tbk",
+      "sector": "IDXTRANS"
+    },
+    "HAJJ": {
+      "name": "PT Arsy Buana Travelindo Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "HALO": {
+      "name": "PT Haloni Jane Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "HATM": {
+      "name": "PT Habco Trans Maritima Tbk",
+      "sector": "IDXTRANS"
+    },
+    "HBAT": {
+      "name": "PT Minahasa Membangun Hebat Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "HDFA": {
+      "name": "Radana Bhaskara Finance Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "HDIT": {
+      "name": "PT Hensel Davest Indonesia Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "HEAL": {
+      "name": "PT Medikaloka Hermina Tbk.",
+      "sector": "IDXHEALTH"
+    },
+    "HELI": {
+      "name": "PT Jaya Trishindo Tbk",
+      "sector": "IDXTRANS"
+    },
+    "HERO": {
+      "name": "PT DFI Retail Nusantara Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "HEXA": {
+      "name": "Hexindo Adiperkasa Tbk",
+      "sector": "IDXINDUST"
+    },
+    "HGII": {
+      "name": "PT Hero Global Investment Tbk",
+      "sector": "IDXINFRA"
+    },
+    "HILL": {
+      "name": "PT Hillcon Tbk",
+      "sector": "IDXENERGY"
+    },
+    "HITS": {
+      "name": "Humpuss Intermoda Transportasi Tbk",
+      "sector": "IDXENERGY"
+    },
+    "HKMU": {
+      "name": "PT HK Metals Utama Tbk",
+      "sector": "IDXBASIC"
+    },
+    "HMSP": {
+      "name": "HM Sampoerna Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "HOKI": {
+      "name": "PT Buyung Poetra Sembada Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "HOME": {
+      "name": "Hotel Mandarine Regency Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "HOMI": {
+      "name": "PT Grand House Mulia Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "HOPE": {
+      "name": "PT Harapan Duta Pertiwi Tbk.",
+      "sector": "IDXINDUST"
+    },
+    "HOTL": {
+      "name": "Saraswati Griya Lestari Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "HRME": {
+      "name": "PT Menteng Heritage Realty Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "HRTA": {
+      "name": "PT Hartadinata Abadi Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "HRUM": {
+      "name": "Harum Energy Tbk",
+      "sector": "IDXENERGY"
+    },
+    "HUMI": {
+      "name": "PT Humpuss Maritim Internasional Tbk",
+      "sector": "IDXENERGY"
+    },
+    "HYGN": {
+      "name": "PT Ecocare Indo Pasifik Tbk.",
+      "sector": "IDXINDUST"
+    },
+    "IATA": {
+      "name": "PT MNC Energy Investments Tbk",
+      "sector": "IDXENERGY"
+    },
+    "IBFN": {
+      "name": "PT Intan Baru Prana Tbk",
+      "sector": "IDXINDUST"
+    },
+    "IBOS": {
+      "name": "PT Indo Boga Sukses Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "IBST": {
+      "name": "Inti Bangun Sejahtera Tbk",
+      "sector": "IDXINFRA"
+    },
+    "ICBP": {
+      "name": "Indofood CBP Sukses Makmur Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "ICON": {
+      "name": "Island Concepts Indonesia Tbk",
+      "sector": "IDXINDUST"
+    },
+    "IDEA": {
+      "name": "PT Idea Indonesia Akademi Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "IDPR": {
+      "name": "PT Indonesia Pondasi Raya Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "IFII": {
+      "name": "PT Indonesia Fibreboard Industry Tbk",
+      "sector": "IDXBASIC"
+    },
+    "IFSH": {
+      "name": "PT Ifishdeco Tbk.",
+      "sector": "IDXBASIC"
+    },
+    "IGAR": {
+      "name": "Champion Pacific Indonesia Tbk",
+      "sector": "IDXBASIC"
+    },
+    "IIKP": {
+      "name": "Inti Agri Resources Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "IKAI": {
+      "name": "Intikeramik Alamasri Industri Tbk",
+      "sector": "IDXINDUST"
+    },
+    "IKAN": {
+      "name": "PT Era Mandiri Cemerlang Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "IKBI": {
+      "name": "Sumi Indo Kabel Tbk",
+      "sector": "IDXINDUST"
+    },
+    "IKPM": {
+      "name": "PT Ikapharmindo Putramas Tbk.",
+      "sector": "IDXHEALTH"
+    },
+    "IMAS": {
+      "name": "Indomobil Sukses Internasional Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "IMJS": {
+      "name": "PT Indomobil Multi Jasa Tbk.",
+      "sector": "IDXTRANS"
+    },
+    "IMPC": {
+      "name": "PT Impack Pratama Industri Tbk",
+      "sector": "IDXINDUST"
+    },
+    "INAF": {
+      "name": "Indofarma Tbk.",
+      "sector": "IDXHEALTH"
+    },
+    "INAI": {
+      "name": "Indal Aluminium Industry Tbk",
+      "sector": "IDXBASIC"
+    },
+    "INCF": {
+      "name": "PT Indo Komoditi Korpora Tbk",
+      "sector": "IDXBASIC"
+    },
+    "INCI": {
+      "name": "Intanwijaya Internasional Tbk",
+      "sector": "IDXBASIC"
+    },
+    "INCO": {
+      "name": "Vale Indonesia Tbk",
+      "sector": "IDXBASIC"
+    },
+    "INDF": {
+      "name": "Indofood Sukses Makmur Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "INDO": {
+      "name": "PT Royalindo Investa Wijaya Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "INDR": {
+      "name": "PT Indo-Rama Synthetics Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "INDS": {
+      "name": "Indospring Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "INDX": {
+      "name": "Tanah Laut Tbk",
+      "sector": "IDXINDUST"
+    },
+    "INDY": {
+      "name": "Indika Energy Tbk",
+      "sector": "IDXENERGY"
+    },
+    "INET": {
+      "name": "PT Sinergi Inti Andalan Prima Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "INKP": {
+      "name": "Indah Kiat Pulp & Paper Tbk",
+      "sector": "IDXBASIC"
+    },
+    "INOV": {
+      "name": "PT Inocycle Technology Group Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "INPC": {
+      "name": "Bank Artha Graha Internasional Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "INPP": {
+      "name": "Indonesian Paradise Property Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "INPS": {
+      "name": "PT Indah Prakasa Sentosa Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "INRU": {
+      "name": "Toba Pulp Lestari Tbk",
+      "sector": "IDXBASIC"
+    },
+    "INTA": {
+      "name": "Intraco Penta Tbk",
+      "sector": "IDXINDUST"
+    },
+    "INTD": {
+      "name": "Inter-Delta Tbk",
+      "sector": "IDXBASIC"
+    },
+    "INTP": {
+      "name": "Indocement Tunggal Prakarsa Tbk",
+      "sector": "IDXBASIC"
+    },
+    "IOTF": {
+      "name": "PT Sumber Sinergi Makmur Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "IPAC": {
+      "name": "PT Era Graharealty Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "IPCC": {
+      "name": "PT Indonesia Kendaraan Terminal Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "IPCM": {
+      "name": "PT Jasa Armada Indonesia Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "IPOL": {
+      "name": "Indopoly Swakarsa Industry Tbk",
+      "sector": "IDXBASIC"
+    },
+    "IPPE": {
+      "name": "PT Indo Pureco Pratama Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "IPTV": {
+      "name": "PT MNC Vision Networks Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "IRRA": {
+      "name": "PT Itama Ranoraya Tbk.",
+      "sector": "IDXHEALTH"
+    },
+    "IRSX": {
+      "name": "PT Folago Global Nusantara Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "ISAP": {
+      "name": "PT Isra Presisi Indonesia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "ISAT": {
+      "name": "PT Indosat Tbk",
+      "sector": "IDXINFRA"
+    },
+    "ISEA": {
+      "name": "PT Indo American Seafoods Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "ISSP": {
+      "name": "PT Steel Pipe Industry of Indonesia Tbk",
+      "sector": "IDXBASIC"
+    },
+    "ITIC": {
+      "name": "PT Indonesian Tobacco Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "ITMA": {
+      "name": "SUMBER ENERGI ANDALAN Tbk",
+      "sector": "IDXENERGY"
+    },
+    "ITMG": {
+      "name": "Indo Tambangraya Megah Tbk",
+      "sector": "IDXENERGY"
+    },
+    "JARR": {
+      "name": "PT Jhonlin Agro Raya Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "JAST": {
+      "name": "PT Jasnita Telekomindo Tbk. ",
+      "sector": "IDXINFRA"
+    },
+    "JATI": {
+      "name": "PT Informasi Teknologi Indonesia Tbk.",
+      "sector": "IDXTECHNO"
+    },
+    "JAWA": {
+      "name": "Jaya Agra Wattie Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "JAYA": {
+      "name": "PT Armada Berjaya Trans Tbk.",
+      "sector": "IDXTRANS"
+    },
+    "JECC": {
+      "name": "Jembo Cable Company Tbk",
+      "sector": "IDXINDUST"
+    },
+    "JGLE": {
+      "name": "PT Graha Andrasentra Propertindo Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "JIHD": {
+      "name": "Jakarta International Hotels & Development Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "JKON": {
+      "name": "Jaya Konstruksi Manggala Pratama Tbk",
+      "sector": "IDXINFRA"
+    },
+    "JMAS": {
+      "name": "PT Asuransi Jiwa Syariah Jasa Mitra Abadi Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "JPFA": {
+      "name": "JAPFA Comfeed Indonesia Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "JRPT": {
+      "name": "Jaya Real Property Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "JSKY": {
+      "name": "PT Sky Energy Indonesia Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "JSMR": {
+      "name": "PT Jasa Marga Tbk",
+      "sector": "IDXINFRA"
+    },
+    "JSPT": {
+      "name": "Jakarta Setiabudi Internasional Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "JTPE": {
+      "name": "Jasuindo Tiga Perkasa Tbk",
+      "sector": "IDXINDUST"
+    },
+    "KAEF": {
+      "name": "Kimia Farma Tbk.",
+      "sector": "IDXHEALTH"
+    },
+    "KAQI": {
+      "name": "PT Jantra Grupo Indonesia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "KARW": {
+      "name": "Meratus Jasa Prima Tbk",
+      "sector": "IDXINFRA"
+    },
+    "KAYU": {
+      "name": "PT Darmi Bersaudara Tbk.",
+      "sector": "IDXBASIC"
+    },
+    "KBAG": {
+      "name": "PT Karya Bersama Anugerah Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "KBLI": {
+      "name": "KMI Wire and Cable Tbk",
+      "sector": "IDXINDUST"
+    },
+    "KBLM": {
+      "name": "Kabelindo Murni Tbk",
+      "sector": "IDXINDUST"
+    },
+    "KBLV": {
+      "name": "First Media Tbk",
+      "sector": "IDXINFRA"
+    },
+    "KBRI": {
+      "name": "Kertas Basuki Rachmat Indonesia Tbk",
+      "sector": "IDXBASIC"
+    },
+    "KDSI": {
+      "name": "Kedawung Setia Industrial Tbk",
+      "sector": "IDXBASIC"
+    },
+    "KDTN": {
+      "name": "PT Puri Sentul Permai Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "KEEN": {
+      "name": "PT Kencana Energi Lestari Tbk. ",
+      "sector": "IDXINFRA"
+    },
+    "KEJU": {
+      "name": "PT Mulia Boga Raya Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "KETR": {
+      "name": "PT Ketrosden Triasmitra Tbk",
+      "sector": "IDXINFRA"
+    },
+    "KIAS": {
+      "name": "Keramika Indonesia Assosiasi Tbk",
+      "sector": "IDXINDUST"
+    },
+    "KICI": {
+      "name": "Kedaung Indah Can Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "KIJA": {
+      "name": "Kawasan Industri Jababeka Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "KING": {
+      "name": "PT Hoffmen Cleanindo Tbk",
+      "sector": "IDXINDUST"
+    },
+    "KINO": {
+      "name": "PT Kino Indonesia Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "KIOS": {
+      "name": "PT Kioson Komersial Indonesia Tbk.",
+      "sector": "IDXTECHNO"
+    },
+    "KJEN": {
+      "name": "PT Krida Jaringan Nusantara Tbk.",
+      "sector": "IDXTRANS"
+    },
+    "KKES": {
+      "name": "PT Kusuma Kemindo Sentosa Tbk",
+      "sector": "IDXBASIC"
+    },
+    "KKGI": {
+      "name": "Resource Alam Indonesia Tbk",
+      "sector": "IDXENERGY"
+    },
+    "KLAS": {
+      "name": "PT Pelayaran Kurnia Lautan Semesta Tbk",
+      "sector": "IDXTRANS"
+    },
+    "KLBF": {
+      "name": "Kalbe Farma Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "KLIN": {
+      "name": "PT Klinko Karya Imaji Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "KMDS": {
+      "name": "PT Kurniamitra Duta Sentosa Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "KMTR": {
+      "name": "PT Kirana Megatara Tbk.",
+      "sector": "IDXBASIC"
+    },
+    "KOBX": {
+      "name": "Kobexindo Tractors Tbk",
+      "sector": "IDXINDUST"
+    },
+    "KOCI": {
+      "name": "PT Kokoh Exa Nusantara",
+      "sector": "IDXPROPERT"
+    },
+    "KOIN": {
+      "name": "Kokoh Inti Arebama Tbk",
+      "sector": "IDXINDUST"
+    },
+    "KOKA": {
+      "name": "PT Koka Indonesia Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "KONI": {
+      "name": "Perdana Bangun Pusaka Tbk",
+      "sector": "IDXINDUST"
+    },
+    "KOPI": {
+      "name": "PT Mitra Energi Persada Tbk",
+      "sector": "IDXENERGY"
+    },
+    "KOTA": {
+      "name": "PT DMS Propertindo Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "KPIG": {
+      "name": "MNC Tourism Indonesia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "KRAS": {
+      "name": "Krakatau Steel (Persero) Tbk",
+      "sector": "IDXBASIC"
+    },
+    "KREN": {
+      "name": "PT Quantum Clovera Investama Tbk.",
+      "sector": "IDXTECHNO"
+    },
+    "KRYA": {
+      "name": "PT Bangun Karya Perkasa Jaya Tbk",
+      "sector": "IDXINFRA"
+    },
+    "KSIX": {
+      "name": "PT Kentanix Supra International Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "KUAS": {
+      "name": "PT Ace Oldfields Tbk",
+      "sector": "IDXINDUST"
+    },
+    "LABA": {
+      "name": "PT Green Power Group Tbk",
+      "sector": "IDXINDUST"
+    },
+    "LABS": {
+      "name": "PT UBC Medical Indonesia Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "LAJU": {
+      "name": "PT Jasa Berdikari Logistics Tbk",
+      "sector": "IDXTRANS"
+    },
+    "LAND": {
+      "name": "PT Trimitra Propertindo Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "LAPD": {
+      "name": "Leyand International Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "LCGP": {
+      "name": "PT Eureka Prima Jakarta Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "LCKM": {
+      "name": "PT LCK Global Kedaton Tbk",
+      "sector": "IDXINFRA"
+    },
+    "LEAD": {
+      "name": "PT Logindo Samudramakmur Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "LFLO": {
+      "name": "PT Imago Mulia Persada Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "LIFE": {
+      "name": "PT MSIG Life Insurance Indonesia Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "LINK": {
+      "name": "PT Link Net Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "LION": {
+      "name": "Lion Metal Works Tbk",
+      "sector": "IDXINDUST"
+    },
+    "LIVE": {
+      "name": "PT Homeco Victoria Makmur Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "LMAS": {
+      "name": "Limas Indonesia Makmur Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "LMAX": {
+      "name": "PT Lupromax Pelumas Indonesia Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "LMPI": {
+      "name": "Langgeng Makmur Industri Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "LMSH": {
+      "name": "Lionmesh Prima Tbk",
+      "sector": "IDXBASIC"
+    },
+    "LOPI": {
+      "name": "PT Logisticsplus International Tbk",
+      "sector": "IDXTRANS"
+    },
+    "LPCK": {
+      "name": "Lippo Cikarang Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "LPGI": {
+      "name": "Lippo General Insurance Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "LPIN": {
+      "name": "Multi Prima Sejahtera Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "LPKR": {
+      "name": "Lippo Karawaci Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "LPLI": {
+      "name": "Star Pacific Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "LPPF": {
+      "name": "Matahari Department Store Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "LPPS": {
+      "name": "PT Lenox Pasifik Investama Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "LRNA": {
+      "name": "PT Eka Sari Lorena Transport Tbk.",
+      "sector": "IDXTRANS"
+    },
+    "LSIP": {
+      "name": "PP London Sumatra Indonesia Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "LTLS": {
+      "name": "PT Lautan Luas Tbk",
+      "sector": "IDXBASIC"
+    },
+    "LUCK": {
+      "name": "PT Sentral Mitra Informatika Tbk.",
+      "sector": "IDXTECHNO"
+    },
+    "LUCY": {
+      "name": "PT Lima Dua Lima Tiga Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "MABA": {
+      "name": "PT Marga Abhinaya Abadi Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "MAGP": {
+      "name": "Multi Agro Gemilang Plantation Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "MAHA": {
+      "name": "PT Mandiri Herindo Adiperkasa Tbk",
+      "sector": "IDXENERGY"
+    },
+    "MAIN": {
+      "name": "Malindo Feedmill Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "MANG": {
+      "name": "PT Manggung Polahraya Tbk",
+      "sector": "IDXINFRA"
+    },
+    "MAPA": {
+      "name": "PT Map Aktif Adiperkasa Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "MAPB": {
+      "name": "PT Map Boga Adiperkasa Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "MAPI": {
+      "name": "PT Mitra Adiperkasa Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "MARI": {
+      "name": "PT Mahaka Radio Integra Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "MARK": {
+      "name": "PT Mark Dynamics Indonesia Tbk.",
+      "sector": "IDXINDUST"
+    },
+    "MASB": {
+      "name": "PT Bank Multiarta Sentosa Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "MAXI": {
+      "name": "PT Maxindo Karya Anugerah Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "MAYA": {
+      "name": "PT Bank Mayapada Internasional Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "MBAP": {
+      "name": "PT Mitrabara Adiperdana Tbk",
+      "sector": "IDXENERGY"
+    },
+    "MBMA": {
+      "name": "PT Merdeka Battery Materials Tbk",
+      "sector": "IDXBASIC"
+    },
+    "MBSS": {
+      "name": "Mitrabahtera Segara Sejati Tbk",
+      "sector": "IDXENERGY"
+    },
+    "MBTO": {
+      "name": "Martina Berto Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "MCAS": {
+      "name": "PT M Cash Integrasi Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "MCOL": {
+      "name": "PT Prima Andalan Mandiri Tbk",
+      "sector": "IDXENERGY"
+    },
+    "MCOR": {
+      "name": "PT Bank China Construction Bank Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "MDIA": {
+      "name": "PT Intermedia Capital Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "MDIY": {
+      "name": "PT Daya Intiguna Yasa Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "MDKA": {
+      "name": "PT Merdeka Copper Gold Tbk.",
+      "sector": "IDXBASIC"
+    },
+    "MDKI": {
+      "name": "PT Emdeki Utama Tbk",
+      "sector": "IDXBASIC"
+    },
+    "MDLA": {
+      "name": "PT Medela Potentia Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "MDLN": {
+      "name": "PT Modernland Realty Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "MDRN": {
+      "name": "Modern Internasional Tbk",
+      "sector": "IDXINDUST"
+    },
+    "MEDC": {
+      "name": "PT Medco Energi Internasional Tbk",
+      "sector": "IDXENERGY"
+    },
+    "MEDS": {
+      "name": "PT Hetzer Medical Indonesia Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "MEGA": {
+      "name": "Bank Mega Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "MEJA": {
+      "name": "PT Harta Djaya Karya Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "MENN": {
+      "name": "PT Menn Teknologi Indonesia Tbk.",
+      "sector": "IDXTECHNO"
+    },
+    "MERI": {
+      "name": "PT Merry Riana Edukasi Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "MERK": {
+      "name": "Merck Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "META": {
+      "name": "Nusantara Infrastructure Tbk",
+      "sector": "IDXINFRA"
+    },
+    "MFIN": {
+      "name": "PT Adira Dinamika Multi Finance Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "MFMI": {
+      "name": "Multifiling Mitra Indonesia Tbk",
+      "sector": "IDXINDUST"
+    },
+    "MGLV": {
+      "name": "PT Panca Anugrah Wisesa Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "MGNA": {
+      "name": "PT Magna Investama Mandiri Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "MGRO": {
+      "name": "PT Mahkota Group Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "MHKI": {
+      "name": "PT Multi Hanna Kreasindo Tbk",
+      "sector": "IDXINDUST"
+    },
+    "MICE": {
+      "name": "Multi Indocitra Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "MIDI": {
+      "name": "Midi Utama Indonesia Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "MIKA": {
+      "name": "PT Mitra Keluarga Karyasehat Tbk.",
+      "sector": "IDXHEALTH"
+    },
+    "MINA": {
+      "name": "PT Sanurhasta Mitra Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "MINE": {
+      "name": "PT Sinar Terang Mandiri Tbk",
+      "sector": "IDXBASIC"
+    },
+    "MIRA": {
+      "name": "Mitra International Resources Tbk",
+      "sector": "IDXTRANS"
+    },
+    "MITI": {
+      "name": "Mitra Investindo Tbk",
+      "sector": "IDXTRANS"
+    },
+    "MKAP": {
+      "name": "PT Multikarya Asia Pasifik Raya Tbk",
+      "sector": "IDXENERGY"
+    },
+    "MKNT": {
+      "name": "PT Mitra Komunikasi Nusantara Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "MKPI": {
+      "name": "Metropolitan Kentjana Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "MKTR": {
+      "name": "PT Menthobi Karyatama Raya Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "MLBI": {
+      "name": "Multi Bintang Indonesia Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "MLIA": {
+      "name": "Mulia Industrindo Tbk",
+      "sector": "IDXINDUST"
+    },
+    "MLPL": {
+      "name": "Multipolar Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "MLPT": {
+      "name": "PT Multipolar Technology Tbk.",
+      "sector": "IDXTECHNO"
+    },
+    "MMIX": {
+      "name": "PT Multi Medika Internasional Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "MMLP": {
+      "name": "PT Mega Manunggal Property Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "MNCN": {
+      "name": "Media Nusantara Citra Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "MOLI": {
+      "name": "PT Madusari Murni Indah Tbk.",
+      "sector": "IDXBASIC"
+    },
+    "MORA": {
+      "name": "PT Mora Telematika Indonesia Tbk",
+      "sector": "IDXINFRA"
+    },
+    "MPIX": {
+      "name": "PT Mitra Pedagang Indonesia Tbk.",
+      "sector": "IDXTECHNO"
+    },
+    "MPMX": {
+      "name": "PT Mitra Pinasthika Mustika Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "MPOW": {
+      "name": "PT Megapower Makmur Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "MPPA": {
+      "name": "Matahari Putra Prima Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "MPRO": {
+      "name": "PT Maha Properti Indonesia Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "MPXL": {
+      "name": "PT MPX Logistics International Tbk",
+      "sector": "IDXTRANS"
+    },
+    "MRAT": {
+      "name": "Mustika Ratu Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "MREI": {
+      "name": "Maskapai Reasuransi Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "MSIE": {
+      "name": "PT Multisarana Intan Eduka Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "MSIN": {
+      "name": "PT MNC Digital Entertainment Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "MSJA": {
+      "name": "PT Multi Spunindo Jaya Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "MSKY": {
+      "name": "MNC Sky Vision Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "MSTI": {
+      "name": "PT Mastersystem Infotama Tbk.",
+      "sector": "IDXTECHNO"
+    },
+    "MTDL": {
+      "name": "Metrodata Electronics Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "MTEL": {
+      "name": "PT Dayamitra Telekomunikasi Tbk",
+      "sector": "IDXINFRA"
+    },
+    "MTFN": {
+      "name": "Capitalinc Investment Tbk",
+      "sector": "IDXENERGY"
+    },
+    "MTLA": {
+      "name": "Metropolitan Land Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "MTMH": {
+      "name": "PT Murni Sadar Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "MTPS": {
+      "name": "PT Meta Epsi Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "MTRA": {
+      "name": "PT Mitra Pemuda Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "MTSM": {
+      "name": "Metro Realty Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "MTWI": {
+      "name": "PT Malacca Trust Wuwungan Insurance Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "MUTU": {
+      "name": "PT Mutuagung Lestari Tbk",
+      "sector": "IDXINDUST"
+    },
+    "MYOH": {
+      "name": "Samindo Resources Tbk",
+      "sector": "IDXENERGY"
+    },
+    "MYOR": {
+      "name": "Mayora Indah Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "MYTX": {
+      "name": "PT Asia Pacific Investama Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "NAIK": {
+      "name": "PT Adiwarna Anugerah Abadi Tbk",
+      "sector": "IDXINDUST"
+    },
+    "NANO": {
+      "name": "PT Nanotech Indonesia Global Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "NASA": {
+      "name": "PT Andalan Perkasa Abadi Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "NASI": {
+      "name": "PT Wahana Inti Makmur Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "NATO": {
+      "name": "PT Surya Permata Andalan Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "NAYZ": {
+      "name": "PT Hassana Boga Sejahtera Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "NCKL": {
+      "name": "PT Trimegah Bangun Persada Tbk.",
+      "sector": "IDXBASIC"
+    },
+    "NELY": {
+      "name": "Pelayaran Nelly Dwi Putri Tbk",
+      "sector": "IDXTRANS"
+    },
+    "NEST": {
+      "name": "PT Esta Indonesia Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "NETV": {
+      "name": "PT MDTV Media Technologies Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "NFCX": {
+      "name": "PT NFC Indonesia Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "NICE": {
+      "name": "PT Adhi Kartiko Pratama Tbk",
+      "sector": "IDXBASIC"
+    },
+    "NICK": {
+      "name": "PT Charnic Capital Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "NICL": {
+      "name": "PT PAM Mineral Tbk",
+      "sector": "IDXBASIC"
+    },
+    "NIKL": {
+      "name": "Pelat Timah Nusantara Tbk",
+      "sector": "IDXBASIC"
+    },
+    "NINE": {
+      "name": "PT Techno9 Indonesia Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "NIRO": {
+      "name": "City Retail Developments Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "NISP": {
+      "name": "PT Bank OCBC NISP Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "NOBU": {
+      "name": "PT Bank Nationalnobu Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "NPGF": {
+      "name": "PT Nusa Palapa Gemilang Tbk",
+      "sector": "IDXBASIC"
+    },
+    "NRCA": {
+      "name": "PT Nusa Raya Cipta Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "NSSS": {
+      "name": "PT Nusantara Sawit Sejahtera Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "NTBK": {
+      "name": "PT Nusatama Berkah Tbk",
+      "sector": "IDXINDUST"
+    },
+    "NUSA": {
+      "name": "PT Sinergi Megah Internusa Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "NZIA": {
+      "name": "PT Nusantara Almazia, Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "OASA": {
+      "name": "PT Maharaksa Biru Energi Tbk",
+      "sector": "IDXINFRA"
+    },
+    "OBAT": {
+      "name": "PT Brigit Biofarmaka Teknologi Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "OBMD": {
+      "name": "PT OBM Drilchem Tbk",
+      "sector": "IDXBASIC"
+    },
+    "OCAP": {
+      "name": "ONIX CAPITAL Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "OILS": {
+      "name": "PT Indo Oil Perkasa Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "OKAS": {
+      "name": "Ancora Indonesia Resources Tbk",
+      "sector": "IDXBASIC"
+    },
+    "OLIV": {
+      "name": "PT Oscar Mitra Sukses Sejahtera Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "OMED": {
+      "name": "PT Jayamas Medica Industri Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "OMRE": {
+      "name": "Indonesia Prima Property Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "OPMS": {
+      "name": "PT Optima Prima Metal Sinergi Tbk.",
+      "sector": "IDXBASIC"
+    },
+    "PACK": {
+      "name": "PT Abadi Nusantara Hijau Investama Tbk",
+      "sector": "IDXBASIC"
+    },
+    "PADA": {
+      "name": "PT Personel Alih Daya Tbk",
+      "sector": "IDXINDUST"
+    },
+    "PADI": {
+      "name": "Minna Padi Investama Sekuritas Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "PALM": {
+      "name": "PT Provident Investasi Bersama Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "PAMG": {
+      "name": "PT Bima Sakti Pertiwi Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "PANI": {
+      "name": "PT Pantai Indah Kapuk Dua Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "PANR": {
+      "name": "Panorama Sentrawisata Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "PANS": {
+      "name": "Panin Sekuritas Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "PART": {
+      "name": "PT Cipta Perdana Lancar Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "PBID": {
+      "name": "PT Panca Budi Idaman Tbk",
+      "sector": "IDXBASIC"
+    },
+    "PBRX": {
+      "name": "Pan Brothers Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "PBSA": {
+      "name": "PT Paramita Bangun Sarana Tbk",
+      "sector": "IDXINFRA"
+    },
+    "PCAR": {
+      "name": "PT Prima Cakrawala Abadi Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "PDES": {
+      "name": "Destinasi Tirta Nusantara Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "PDPP": {
+      "name": "PT Primadaya Plastisindo Tbk",
+      "sector": "IDXBASIC"
+    },
+    "PEGE": {
+      "name": "PT Panca Global Kapital Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "PEHA": {
+      "name": "PT Phapros Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "PEVE": {
+      "name": "PT Penta Valent Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "PGAS": {
+      "name": "PT Perusahaan Gas Negara Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "PGEO": {
+      "name": "PT Pertamina Geothermal Energy Tbk",
+      "sector": "IDXINFRA"
+    },
+    "PGJO": {
+      "name": "PT Bahtera Bumi Raya Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "PGLI": {
+      "name": "Pembangunan Graha Lestari Indah Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "PGUN": {
+      "name": "PT Pradiksi Gunatama Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "PICO": {
+      "name": "Pelangi Indah Canindo Tbk",
+      "sector": "IDXBASIC"
+    },
+    "PIPA": {
+      "name": "PT Multi Makmur Lemindo Tbk.",
+      "sector": "IDXINDUST"
+    },
+    "PJAA": {
+      "name": "Pembangunan Jaya Ancol Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "PJHB": {
+      "name": "PT Pelayaran Jaya Hidup Baru Tbk",
+      "sector": "IDXTRANS"
+    },
+    "PKPK": {
+      "name": "Paragon Karya Perkasa Tbk",
+      "sector": "IDXENERGY"
+    },
+    "PLAN": {
+      "name": "PT Planet Properindo Jaya Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "PLAS": {
+      "name": "Polaris Investama Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "PLIN": {
+      "name": "Plaza Indonesia Realty Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "PMJS": {
+      "name": "PT Putra Mandiri Jembar Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "PMMP": {
+      "name": "PT Panca Mitra Multiperdana Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "PMUI": {
+      "name": "PT Prima Multi Usaha Indonesia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "PNBN": {
+      "name": "Bank Pan Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "PNBS": {
+      "name": "PT Bank Panin Dubai Syariah Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "PNGO": {
+      "name": "PT Pinago Utama Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "PNIN": {
+      "name": "Paninvest Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "PNLF": {
+      "name": "Panin Financial Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "PNSE": {
+      "name": "Pudjiadi & Sons Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "POLA": {
+      "name": "PT Pool Advista Finance Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "POLI": {
+      "name": "PT Pollux Hotels Group Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "POLL": {
+      "name": "PT Pollux Properties Indonesia Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "POLU": {
+      "name": "PT Golden Flower Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "POLY": {
+      "name": "Asia Pacific Fibers Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "POOL": {
+      "name": "Pool Advista Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "PORT": {
+      "name": "PT Nusantara Pelabuhan Handal Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "POSA": {
+      "name": "PT Bliss Properti Indonesia Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "POWR": {
+      "name": "PT Cikarang Listrindo Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "PPGL": {
+      "name": "PT Prima Globalindo Logistik Tbk.",
+      "sector": "IDXTRANS"
+    },
+    "PPRE": {
+      "name": "PT PP Presisi Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "PPRI": {
+      "name": "PT Paperocks Indonesia Tbk.",
+      "sector": "IDXBASIC"
+    },
+    "PPRO": {
+      "name": "PT PP Properti Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "PRAY": {
+      "name": "PT Famon Awal Bros Sedaya Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "PRDA": {
+      "name": "PT Prodia Widyahusada Tbk.",
+      "sector": "IDXHEALTH"
+    },
+    "PRIM": {
+      "name": "PT Royal Prima Tbk.",
+      "sector": "IDXHEALTH"
+    },
+    "PSAB": {
+      "name": "J RESOURCES ASIA PASIFIK Tbk",
+      "sector": "IDXBASIC"
+    },
+    "PSAT": {
+      "name": "PT Pancaran Samudera Transport Tbk",
+      "sector": "IDXENERGY"
+    },
+    "PSDN": {
+      "name": "Prasidha Aneka Niaga Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "PSGO": {
+      "name": "PT Palma Serasih Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "PSKT": {
+      "name": "PT Red Planet Indonesia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "PSSI": {
+      "name": "PT IMC Pelita Logistik Tbk",
+      "sector": "IDXENERGY"
+    },
+    "PTBA": {
+      "name": "Bukit Asam Tbk",
+      "sector": "IDXENERGY"
+    },
+    "PTDU": {
+      "name": "PT Djasa Ubersakti Tbk",
+      "sector": "IDXINFRA"
+    },
+    "PTIS": {
+      "name": "Indo Straits Tbk",
+      "sector": "IDXENERGY"
+    },
+    "PTMP": {
+      "name": "PT Mitra Pack Tbk.",
+      "sector": "IDXINDUST"
+    },
+    "PTMR": {
+      "name": "PT Master Print Tbk",
+      "sector": "IDXBASIC"
+    },
+    "PTPP": {
+      "name": "PP (Persero) Tbk",
+      "sector": "IDXINFRA"
+    },
+    "PTPS": {
+      "name": "PT Pulau Subur Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "PTPW": {
+      "name": "PT Pratama Widya Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "PTRO": {
+      "name": "Petrosea Tbk",
+      "sector": "IDXENERGY"
+    },
+    "PTSN": {
+      "name": "Sat Nusapersada Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "PTSP": {
+      "name": "Pioneerindo Gourmet International Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "PUDP": {
+      "name": "Pudjiadi Prestige Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "PURA": {
+      "name": "PT Putra Rajawali Kencana Tbk.",
+      "sector": "IDXTRANS"
+    },
+    "PURE": {
+      "name": "PT Trinitan Metals and Minerals Tbk",
+      "sector": "IDXBASIC"
+    },
+    "PURI": {
+      "name": "PT Puri Global Sukses Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "PWON": {
+      "name": "Pakuwon Jati Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "PYFA": {
+      "name": "PT Pyridam Farma Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "PZZA": {
+      "name": "PT Sarimelati Kencana Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "RAAM": {
+      "name": "PT Tripar Multivision Plus Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "RAFI": {
+      "name": "PT Sari Kreasi Boga Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "RAJA": {
+      "name": "Rukun Raharja Tbk",
+      "sector": "IDXENERGY"
+    },
+    "RALS": {
+      "name": "Ramayana Lestari Sentosa Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "RANC": {
+      "name": "Supra Boga Lestari Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "RATU": {
+      "name": "PT Raharja Energi Cepu Tbk",
+      "sector": "IDXENERGY"
+    },
+    "RBMS": {
+      "name": "Ristia Bintang Mahkotasejati Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "RCCC": {
+      "name": "PT Utama Radar Cahaya Tbk",
+      "sector": "IDXTRANS"
+    },
+    "RDTX": {
+      "name": "Roda Vivatex Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "REAL": {
+      "name": "PT Repower Asia Indonesia Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "RELF": {
+      "name": "PT Graha Mitra Asia Tbk. ",
+      "sector": "IDXPROPERT"
+    },
+    "RELI": {
+      "name": "Reliance Sekuritas Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "RGAS": {
+      "name": "PT Kian Santang Muliatama Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "RICY": {
+      "name": "Ricky Putra Globalindo Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "RIGS": {
+      "name": "Rig Tenders Tbk",
+      "sector": "IDXENERGY"
+    },
+    "RIMO": {
+      "name": "PT Rimo International Lestari Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "RISE": {
+      "name": "PT Jaya Sukses Makmur Sentosa Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "RLCO": {
+      "name": "PT Abadi Lestari Indonesia Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "RMKE": {
+      "name": "PT RMK Energy Tbk",
+      "sector": "IDXENERGY"
+    },
+    "RMKO": {
+      "name": "PT Royaltama Mulia Kontraktorindo Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "ROCK": {
+      "name": "PT Rockfields Properti Indonesia Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "RODA": {
+      "name": "Pikko Land Development Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "RONY": {
+      "name": "PT Aracord Nusantara Group Tbk",
+      "sector": "IDXINFRA"
+    },
+    "ROTI": {
+      "name": "PT Nippon Indosari Corpindo Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "RSCH": {
+      "name": "PT Charlie Hospital Semarang Tbk.",
+      "sector": "IDXHEALTH"
+    },
+    "RSGK": {
+      "name": "PT Kedoya Adyaraya Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "RUIS": {
+      "name": "Radiant Utama Interinsco Tbk",
+      "sector": "IDXENERGY"
+    },
+    "RUNS": {
+      "name": "PT Global Sukses Solusi Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "SAFE": {
+      "name": "Steady Safe Tbk",
+      "sector": "IDXTRANS"
+    },
+    "SAGE": {
+      "name": "PT Saptausaha Gemilangindah Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "SAME": {
+      "name": "Sarana Meditama Metropolitan Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "SAMF": {
+      "name": "PT Saraswanti Anugerah Makmur Tbk.",
+      "sector": "IDXBASIC"
+    },
+    "SAPX": {
+      "name": "PT Satria Antaran Prima Tbk.",
+      "sector": "IDXTRANS"
+    },
+    "SATU": {
+      "name": "PT Kota Satu Properti Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "SBAT": {
+      "name": "PT Sejahtera Bintang Abadi Textile Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "SBMA": {
+      "name": "PT Surya Biru Murni Acetylene Tbk",
+      "sector": "IDXBASIC"
+    },
+    "SCCO": {
+      "name": "PT Supreme Cable Manufacturing & Commerce Tbk",
+      "sector": "IDXINDUST"
+    },
+    "SCMA": {
+      "name": "Surya Citra Media Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "SCNP": {
+      "name": "PT Selaras Citra Nusantara Perkasa Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "SCPI": {
+      "name": "PT Organon Pharma Indonesia Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "SDMU": {
+      "name": "Sidomulyo Selaras Tbk",
+      "sector": "IDXTRANS"
+    },
+    "SDPC": {
+      "name": "Millennium Pharmacon International Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "SDRA": {
+      "name": "PT Bank Woori Saudara Indonesia 1906 Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "SEMA": {
+      "name": "PT Semacom Integrated Tbk",
+      "sector": "IDXENERGY"
+    },
+    "SFAN": {
+      "name": "PT Surya Fajar Capital Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "SGER": {
+      "name": "PT Sumber Global Energy Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "SGRO": {
+      "name": "PT Prime Agri Resources Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "SHID": {
+      "name": "Hotel Sahid Jaya Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "SHIP": {
+      "name": "PT Sillo Maritime Perdana Tbk",
+      "sector": "IDXENERGY"
+    },
+    "SICO": {
+      "name": "PT Sigma Energy Compressindo Tbk",
+      "sector": "IDXENERGY"
+    },
+    "SIDO": {
+      "name": "PT Industri Jamu Dan Farmasi Sido Muncul Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "SILO": {
+      "name": "PT Siloam International Hospitals Tbk.",
+      "sector": "IDXHEALTH"
+    },
+    "SIMA": {
+      "name": "Siwani Makmur Tbk",
+      "sector": "IDXBASIC"
+    },
+    "SIMP": {
+      "name": "Salim Ivomas Pratama Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "SINI": {
+      "name": "PT Singaraja Putra Tbk.",
+      "sector": "IDXINDUST"
+    },
+    "SIPD": {
+      "name": "PT Sreeya Sewu Indonesia Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "SKBM": {
+      "name": "Sekar Bumi Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "SKLT": {
+      "name": "Sekar Laut Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "SKRN": {
+      "name": "PT Superkrane Mitra Utama Tbk",
+      "sector": "IDXINDUST"
+    },
+    "SKYB": {
+      "name": "PT Northcliff Citranusa Indonesia Tbk.",
+      "sector": "IDXTECHNO"
+    },
+    "SLIS": {
+      "name": "PT Gaya Abadi Sempurna Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "SMAR": {
+      "name": "PT Sinar Mas Agro Resources and Technology Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "SMBR": {
+      "name": "PT Semen Baturaja (Persero) Tbk",
+      "sector": "IDXBASIC"
+    },
+    "SMCB": {
+      "name": "PT Solusi Bangun Indonesia Tbk",
+      "sector": "IDXBASIC"
+    },
+    "SMDM": {
+      "name": "Suryamas Dutamakmur Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "SMDR": {
+      "name": "Samudera Indonesia Tbk",
+      "sector": "IDXTRANS"
+    },
+    "SMGA": {
+      "name": "PT Sumber Mineral Global Abadi Tbk",
+      "sector": "IDXBASIC"
+    },
+    "SMGR": {
+      "name": "Semen Indonesia (Persero) Tbk",
+      "sector": "IDXBASIC"
+    },
+    "SMIL": {
+      "name": "PT Sarana Mitra Luas Tbk",
+      "sector": "IDXINDUST"
+    },
+    "SMKL": {
+      "name": "PT Satyamitra Kemas Lestari Tbk",
+      "sector": "IDXBASIC"
+    },
+    "SMKM": {
+      "name": "PT Sumber Mas Konstruksi Tbk",
+      "sector": "IDXINFRA"
+    },
+    "SMLE": {
+      "name": "PT Sinergi Multi Lestarindo Tbk",
+      "sector": "IDXBASIC"
+    },
+    "SMMA": {
+      "name": "PT Sinar Mas Multiartha Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "SMMT": {
+      "name": "GOLDEN EAGLE ENERGY Tbk",
+      "sector": "IDXENERGY"
+    },
+    "SMRA": {
+      "name": "PT Summarecon Agung Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "SMRU": {
+      "name": "SMR Utama Tbk",
+      "sector": "IDXENERGY"
+    },
+    "SMSM": {
+      "name": "Selamat Sempurna Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "SNLK": {
+      "name": "PT Sunter Lakeside Hotel Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "SOCI": {
+      "name": "PT Soechi Lines Tbk. ",
+      "sector": "IDXENERGY"
+    },
+    "SOFA": {
+      "name": "PT Solusi Environment Asia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "SOHO": {
+      "name": "PT Soho Global Health Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "SOLA": {
+      "name": "PT Xolare RCR Energy Tbk",
+      "sector": "IDXBASIC"
+    },
+    "SONA": {
+      "name": "Sona Topas Tourism Industry Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "SOSS": {
+      "name": "PT Shield On Service Tbk.",
+      "sector": "IDXINDUST"
+    },
+    "SOTS": {
+      "name": "PT Satria Mega Kencana Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "SOUL": {
+      "name": "PT Mitra Tirta Buwana Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "SPMA": {
+      "name": "Suparma Tbk",
+      "sector": "IDXBASIC"
+    },
+    "SPRE": {
+      "name": "PT Soraya Berjaya Indonesia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "SPTO": {
+      "name": "PT Surya Pertiwi Tbk",
+      "sector": "IDXINDUST"
+    },
+    "SQMI": {
+      "name": "Wilton Makmur Indonesia Tbk",
+      "sector": "IDXBASIC"
+    },
+    "SRAJ": {
+      "name": "Sejahteraraya Anugrahjaya Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "SRIL": {
+      "name": "PT Sri Rejeki Isman Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "SRSN": {
+      "name": "Indo Acidatama Tbk",
+      "sector": "IDXBASIC"
+    },
+    "SRTG": {
+      "name": "PT Saratoga Investama Sedaya Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "SSIA": {
+      "name": "PT Surya Semesta Internusa Tbk",
+      "sector": "IDXINFRA"
+    },
+    "SSMS": {
+      "name": "PT Sawit Sumbermas Sarana Tbk. ",
+      "sector": "IDXNONCYC"
+    },
+    "SSTM": {
+      "name": "Sunson Textile Manufacturer Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "STAA": {
+      "name": "PT Sumber Tani Agung Resources Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "STAR": {
+      "name": "PT Buana Artha Anugerah Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "STRK": {
+      "name": "PT Lovina Beach Brewery Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "STTP": {
+      "name": "PT Siantar Top Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "SUGI": {
+      "name": "Sugih Energy Tbk",
+      "sector": "IDXENERGY"
+    },
+    "SULI": {
+      "name": "PT SLJ Global Tbk",
+      "sector": "IDXBASIC"
+    },
+    "SUNI": {
+      "name": "PT Sunindo Pratama Tbk",
+      "sector": "IDXENERGY"
+    },
+    "SUPA": {
+      "name": "PT Super Bank Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "SUPR": {
+      "name": "Solusi Tunas Pratama Tbk",
+      "sector": "IDXINFRA"
+    },
+    "SURE": {
+      "name": "PT Super Energy Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "SURI": {
+      "name": "PT Maja Agung Latexindo Tbk.",
+      "sector": "IDXHEALTH"
+    },
+    "SWAT": {
+      "name": "PT Sriwahana Adityakarta Tbk.",
+      "sector": "IDXBASIC"
+    },
+    "SWID": {
+      "name": "PT Saraswanti Indoland Development Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "TALF": {
+      "name": "PT Tunas Alfin Tbk",
+      "sector": "IDXBASIC"
+    },
+    "TAMA": {
+      "name": "PT Lancartama Sejati Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "TAMU": {
+      "name": "PT Pelayaran Tamarin Samudra Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "TAPG": {
+      "name": "PT Triputra Agro Persada Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "TARA": {
+      "name": "PT Agung Semesta Sejahtera Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "TAXI": {
+      "name": "Express Transindo Utama Tbk",
+      "sector": "IDXTRANS"
+    },
+    "TAYS": {
+      "name": "PT Jaya Swarasa Agung Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "TBIG": {
+      "name": "PT Tower Bersama Infrastructure Tbk",
+      "sector": "IDXINFRA"
+    },
+    "TBLA": {
+      "name": "Tunas Baru Lampung Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "TBMS": {
+      "name": "Tembaga Mulia Semanan Tbk",
+      "sector": "IDXBASIC"
+    },
+    "TCID": {
+      "name": "Mandom Indonesia Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "TCPI": {
+      "name": "PT Transcoal Pacific Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "TDPM": {
+      "name": "PT Tianrong Chemicals Industry Tbk",
+      "sector": "IDXBASIC"
+    },
+    "TEBE": {
+      "name": "PT Dana Brata Luhur Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "TECH": {
+      "name": "PT Indosterling Technomedia Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "TELE": {
+      "name": "PT Omni Inovasi Indonesia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "TFAS": {
+      "name": "PT Telefast Indonesia Tbk.",
+      "sector": "IDXTECHNO"
+    },
+    "TFCO": {
+      "name": "Tifico Fiber Indonesia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "TGKA": {
+      "name": "Tigaraksa Satria Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "TGRA": {
+      "name": "PT Terregra Asia Energy",
+      "sector": "IDXINFRA"
+    },
+    "TGUK": {
+      "name": "PT Platinum Wahab Nusantara Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "TIFA": {
+      "name": "KDB Tifa Finance Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "TINS": {
+      "name": "PT Timah Tbk. ",
+      "sector": "IDXBASIC"
+    },
+    "TIRA": {
+      "name": "Tira Austenite Tbk",
+      "sector": "IDXINDUST"
+    },
+    "TIRT": {
+      "name": "Tirta Mahakam Resources Tbk",
+      "sector": "IDXBASIC"
+    },
+    "TKIM": {
+      "name": "Pabrik Kertas Tjiwi Kimia Tbk",
+      "sector": "IDXBASIC"
+    },
+    "TLDN": {
+      "name": "PT Teladan Prima Agro Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "TLKM": {
+      "name": "PT Telkom Indonesia (Persero) Tbk",
+      "sector": "IDXINFRA"
+    },
+    "TMAS": {
+      "name": "PT Temas Tbk.",
+      "sector": "IDXTRANS"
+    },
+    "TMPO": {
+      "name": "Tempo Inti Media Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "TNCA": {
+      "name": "PT Trimuda Nuansa Citra Tbk.",
+      "sector": "IDXTRANS"
+    },
+    "TOBA": {
+      "name": "PT TBS Energi Utama Tbk",
+      "sector": "IDXENERGY"
+    },
+    "TOOL": {
+      "name": "PT Rohartindo Nusantara Luas Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "TOPS": {
+      "name": "PT Totalindo Eka Persada Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "TOSK": {
+      "name": "PT Topindo Solusi Komunika Tbk.",
+      "sector": "IDXTECHNO"
+    },
+    "TOTL": {
+      "name": "Total Bangun Persada Tbk",
+      "sector": "IDXINFRA"
+    },
+    "TOTO": {
+      "name": "Surya Toto Indonesia Tbk",
+      "sector": "IDXINDUST"
+    },
+    "TOWR": {
+      "name": "Sarana Menara Nusantara Tbk",
+      "sector": "IDXINFRA"
+    },
+    "TOYS": {
+      "name": "PT Sunindo Adipersada Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "TPIA": {
+      "name": "PT Chandra Asri Pacific Tbk",
+      "sector": "IDXBASIC"
+    },
+    "TPMA": {
+      "name": "Trans Power Marine Tbk",
+      "sector": "IDXENERGY"
+    },
+    "TRAM": {
+      "name": "Trada Alam Minera Tbk.",
+      "sector": "IDXENERGY"
+    },
+    "TRGU": {
+      "name": "PT Cerestar Indonesia Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "TRIL": {
+      "name": "Triwira Insanlestari Tbk",
+      "sector": "IDXINDUST"
+    },
+    "TRIM": {
+      "name": "PT Trimegah Sekuritas Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "TRIN": {
+      "name": "PT Perintis Triniti Properti Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "TRIO": {
+      "name": "Trikomsel Oke Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "TRIS": {
+      "name": "Trisula International Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "TRJA": {
+      "name": "PT Transkon Jaya Tbk.",
+      "sector": "IDXTRANS"
+    },
+    "TRON": {
+      "name": "PT Teknologi Karya Digital Nusa Tbk.",
+      "sector": "IDXTECHNO"
+    },
+    "TRST": {
+      "name": "Trias Sentosa Tbk",
+      "sector": "IDXBASIC"
+    },
+    "TRUE": {
+      "name": "PT Triniti Dinamik Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "TRUK": {
+      "name": "PT Guna Timur Raya Tbk.",
+      "sector": "IDXTRANS"
+    },
+    "TRUS": {
+      "name": "Trust Finance Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "TSPC": {
+      "name": "Tempo Scan Pacific Tbk",
+      "sector": "IDXHEALTH"
+    },
+    "TUGU": {
+      "name": "PT Asuransi Tugu Pratama Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "TYRE": {
+      "name": "PT King Tire Indonesia Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "UANG": {
+      "name": "PT Pakuan Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "UCID": {
+      "name": "PT Uni-Charm Indonesia Tbk.",
+      "sector": "IDXNONCYC"
+    },
+    "UDNG": {
+      "name": "PT Agro Bahari Nusantara Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "UFOE": {
+      "name": "PT Damai Sejahtera Abadi Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "ULTJ": {
+      "name": "PT Ultrajaya Milk Industry & Trading Company Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "UNIC": {
+      "name": "Unggul Indah Cahaya Tbk",
+      "sector": "IDXBASIC"
+    },
+    "UNIQ": {
+      "name": "PT Ulima Nitra Tbk",
+      "sector": "IDXENERGY"
+    },
+    "UNIT": {
+      "name": "Nusantara Inti Corpora Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "UNSP": {
+      "name": "Bakrie Sumatera Plantations Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "UNTD": {
+      "name": "PT Terang Dunia Internusa Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "UNTR": {
+      "name": "United Tractors Tbk",
+      "sector": "IDXINDUST"
+    },
+    "UNVR": {
+      "name": "Unilever Indonesia Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "URBN": {
+      "name": "PT Urban Jakarta Propertindo Tbk.",
+      "sector": "IDXPROPERT"
+    },
+    "UVCR": {
+      "name": "PT Trimegah Karya Pratama Tbk.",
+      "sector": "IDXTECHNO"
+    },
+    "VAST": {
+      "name": "PT Vastland Indonesia Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "VERN": {
+      "name": "PT Verona Indah Pictures Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "VICI": {
+      "name": "PT Victoria Care Indonesia Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "VICO": {
+      "name": "PT Victoria Investama Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "VINS": {
+      "name": "PT Victoria Insurance Tbk.",
+      "sector": "IDXFINANCE"
+    },
+    "VISI": {
+      "name": "PT Satu Visi Putra Tbk.",
+      "sector": "IDXINDUST"
+    },
+    "VIVA": {
+      "name": "PT Visi Media Asia Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "VKTR": {
+      "name": "PT VKTR Teknologi Mobilitas Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "VOKS": {
+      "name": "Voksel Electric Tbk",
+      "sector": "IDXINDUST"
+    },
+    "VRNA": {
+      "name": "PT Mizuho Leasing Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "VTNY": {
+      "name": "PT Venteny Fortuna International Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "WAPO": {
+      "name": "Wahana Pronatural Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "WEGE": {
+      "name": "PT Wijaya Karya Bangunan Gedung Tbk.",
+      "sector": "IDXINFRA"
+    },
+    "WEHA": {
+      "name": "PT WEHA Transportasi Indonesia Tbk",
+      "sector": "IDXTRANS"
+    },
+    "WGSH": {
+      "name": "PT Wira Global Solusi Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "WICO": {
+      "name": "Wicaksana Overseas International Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "WIDI": {
+      "name": "PT Widiant Jaya Krenindo Tbk.",
+      "sector": "IDXINDUST"
+    },
+    "WIFI": {
+      "name": "PT Solusi Sinergi Digital Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "WIIM": {
+      "name": "Wismilak Inti Makmur Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "WIKA": {
+      "name": "PT Wijaya Karya (Persero) Tbk",
+      "sector": "IDXINFRA"
+    },
+    "WINE": {
+      "name": "PT Hatten Bali Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "WINR": {
+      "name": "PT Winner Nusantara Jaya Tbk",
+      "sector": "IDXPROPERT"
+    },
+    "WINS": {
+      "name": "Wintermar Offshore Marine Tbk",
+      "sector": "IDXENERGY"
+    },
+    "WIRG": {
+      "name": "PT WIR ASIA Tbk",
+      "sector": "IDXTECHNO"
+    },
+    "WMPP": {
+      "name": "PT Widodo Makmur Perkasa Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "WMUU": {
+      "name": "PT Widodo Makmur Unggas Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "WOMF": {
+      "name": "PT Wahana Ottomitra Multiartha Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "WOOD": {
+      "name": "PT Integra Indocabinet Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "WOWS": {
+      "name": "PT Ginting Jaya Energi Tbk",
+      "sector": "IDXENERGY"
+    },
+    "WSBP": {
+      "name": "PT Waskita Beton Precast Tbk.",
+      "sector": "IDXBASIC"
+    },
+    "WSKT": {
+      "name": "PT Waskita Karya (Persero) Tbk",
+      "sector": "IDXINFRA"
+    },
+    "WTON": {
+      "name": "Wijaya Karya Beton",
+      "sector": "IDXBASIC"
+    },
+    "YELO": {
+      "name": "PT Yelooo Integra Datanet Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "YOII": {
+      "name": "PT Asuransi Digital Bersama Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "YPAS": {
+      "name": "Yanaprima Hastapersada Tbk",
+      "sector": "IDXBASIC"
+    },
+    "YULE": {
+      "name": "Yulie Sekuritas Indonesia Tbk",
+      "sector": "IDXFINANCE"
+    },
+    "YUPI": {
+      "name": "PT Yupi Indo Jelly Gum Tbk",
+      "sector": "IDXNONCYC"
+    },
+    "ZATA": {
+      "name": "PT Bersama Zatta Jaya Tbk",
+      "sector": "IDXCYCLIC"
+    },
+    "ZBRA": {
+      "name": "PT Dosni Roha Indonesia Tbk",
+      "sector": "IDXINDUST"
+    },
+    "ZINC": {
+      "name": "PT Kapuas Prima Coal Tbk",
+      "sector": "IDXBASIC"
+    },
+    "ZONE": {
+      "name": "PT Mega Perintis Tbk.",
+      "sector": "IDXCYCLIC"
+    },
+    "ZYRX": {
+      "name": "PT Zyrexindo Mandiri Buana Tbk",
+      "sector": "IDXTECHNO"
+    }
+  }
+}

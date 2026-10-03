@@ -32,8 +32,22 @@ jobs:
         run: python -m compileall -q analysis_contract.py main.py backtest.py forward_test.py evaluate_ic.py evaluate_wyckoff.py screener data storage tests
       - name: Validate dashboard JavaScript
         run: |
+          node --check web/rotation.js
+          node tests/test_rotation_ui.js
           node --check web/cockpit.js
           node --check web/api/chat.js
           node --check web/api/unlock.js
+      - name: Validate inline JavaScript and rotation wiring
+        run: |
+          node - <<'JS'
+          const fs = require('fs'), html = fs.readFileSync('web/index.html', 'utf8');
+          for (const match of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)) {
+            if (match[1].trim()) new Function(match[1]);
+          }
+          if (!html.includes('id="nav-rotation"') || !html.includes('id="view-rotation"'))
+            throw new Error('Rotation navigation missing');
+          if (html.indexOf('id="nav-rotation"') < html.indexOf('id="nav-laporan"'))
+            throw new Error('Rotation must be below Laporan');
+          JS
       - name: Unit tests
         run: python -m unittest discover -s tests -v

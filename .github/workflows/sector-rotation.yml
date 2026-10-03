@@ -1,0 +1,115 @@
+name: Sector Rotation
+
+on:
+  workflow_run:
+    workflows: ["Daily Stock Screening (500 Emiten IDX)"]
+    types: [completed]
+  schedule:
+    # Independent recovery after close; no manual run required.
+    - cron: "47 13 * * 1-5"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/sector-rotation.yml"
+      - "screener/rotation.py"
+      - "data/idx_sector_classification.json"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: generated-data-writer
+  cancel-in-progress: false
+
+jobs:
+  rotation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Check rotation freshness
+        id: freshness
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          current = hashlib.sha256(Path("web/dashboard_data.json").read_bytes()).hexdigest()
+          try:
+              report = json.loads(Path("web/sector_rotation_data.json").read_text())
+              needed = (report.get("dashboard_sha256") != current or
+                        report.get("schema_version") != 1 or report.get("status") != "ok")
+          except (OSError, ValueError):
+              needed = True
+          needed = needed or os.environ["EVENT_NAME"] in {"push", "workflow_dispatch"}
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              print(f"run={str(needed).lower()}", file=out)
+          print(f"Rotation generation required: {needed}")
+          PY
+      - uses: actions/setup-python@v5
+        if: steps.freshness.outputs.run == 'true'
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install rotation dependencies
+        if: steps.freshness.outputs.run == 'true'
+        run: pip install numpy pandas requests yfinance
+      - name: Rotation regression tests
+        if: steps.freshness.outputs.run == 'true'
+        run: python -m unittest discover -s tests -p test_rotation.py -v
+      - name: Generate rotation
+        if: steps.freshness.outputs.run == 'true'
+        run: |
+          for attempt in 1 2; do
+            python -m screener.rotation && exit 0
+            if [ "$attempt" -eq 2 ]; then exit 1; fi
+            sleep 20
+          done
+      - name: Validate publication contract
+        if: steps.freshness.outputs.run == 'true'
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("web/sector_rotation_data.json").read_text())
+          dashboard = json.loads(Path("web/dashboard_data.json").read_text())
+          assert data["market_data_date"] == dashboard["market_data_date"]
+          assert data["status"] == "ok"
+          for mode in data["modes"].values():
+              assert len(mode["sectors"]) == 11
+              assert mode["stocks"]
+              for row in mode["stocks"]:
+                  assert row["date"] == data["market_data_date"]
+                  assert row["sector"] in {s["symbol"] for s in mode["sectors"]}
+          print(f"Validated {data['coverage']['valid']} stocks across 11 sector definitions")
+          PY
+      - name: Publish generated rotation
+        if: steps.freshness.outputs.run == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/sector_rotation_data.json data/idx_sector_classification.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "chore: publish sector rotation results"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main && git push && exit 0
+            if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; then
+              git rebase --abort
+              exit 1
+            fi
+            sleep 15
+          done
+          exit 1
+      - name: Report status
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          echo "Sector rotation: $JOB_STATUS. Uses the completed dashboard session, not wall-clock date." >> "$GITHUB_STEP_SUMMARY"
+          if [ "$JOB_STATUS" != "success" ]; then
+            echo "::error::Rotation failed; last valid dataset retained."
+          fi
