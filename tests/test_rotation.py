@@ -2,7 +2,7 @@ import json
 import unittest
 import numpy as np
 import pandas as pd
-from screener.rotation import build_rotation, entity, quadrant, rotation_series
+from screener.rotation import build_rotation, entity, quadrant, rotation_series, screening_session
 
 
 class RotationTests(unittest.TestCase):
@@ -13,6 +13,34 @@ class RotationTests(unittest.TestCase):
                        for i, t in enumerate(["AAAA", "BBBB", "CCCC"])}
         self.classification = {t: {"name": t, "sector": "IDXFINANCE"} for t in self.prices}
         self.session = self.dates[-1].strftime("%Y-%m-%d")
+
+    def test_last_screening_not_wall_clock_date(self):
+        self.assertEqual(screening_session({
+            "market_data_date": "2026-10-02",
+            "screening_session_date": "2026-10-02",
+            "generated_at": "2026-10-03T16:44:35+00:00",
+        }), "2026-10-02")
+        # Holidays keep the last successful published session too.
+        self.assertEqual(screening_session({"market_data_date": "2026-09-30",
+                                           "generated_at": "2026-10-03"}), "2026-09-30")
+
+    def test_weekend_and_mismatched_screening_rejected(self):
+        for day in ["2026-10-03", "2026-10-04"]:
+            with self.assertRaises(ValueError):
+                screening_session({"market_data_date": day})
+            with self.assertRaises(ValueError):
+                build_rotation(self.prices,self.market,self.classification,day)
+        with self.assertRaises(ValueError):
+            screening_session({"market_data_date":"2026-10-02",
+                               "screening_session_date":"2026-10-03"})
+
+    def test_weekend_benchmark_candles_are_ignored(self):
+        # Even spurious historic weekend bars cannot enter a rotation window.
+        original = build_rotation(self.prices,self.market,self.classification,self.session)
+        weekend = self.dates[10] + pd.offsets.Week(weekday=5)
+        corrupt = pd.concat([self.market, pd.Series([999999.0],index=[weekend])])
+        result = build_rotation(self.prices,corrupt,self.classification,self.session)
+        self.assertEqual(original["modes"], result["modes"])
 
     def test_quadrants_and_boundary(self):
         for x, y, q in [(101,101,"Leading"),(99,101,"Improving"),

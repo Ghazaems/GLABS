@@ -102,11 +102,27 @@ def entity(symbol, name, close, benchmark, style):
     }
 
 
+def screening_session(dashboard):
+    """Use the last published market session, NEVER today's generation date."""
+    session = dashboard.get("market_data_date")
+    if not session:
+        raise ValueError("Dashboard has no last screened market session")
+    parsed = pd.Timestamp(session)
+    if pd.isna(parsed) or parsed.weekday() >= 5:
+        raise ValueError("Screening session must be Monday-Friday")
+    requested = dashboard.get("screening_session_date")
+    if requested and requested != session:
+        raise ValueError("Dashboard screening and market dates do not match")
+    return session
+
+
 def build_rotation(prices, benchmark, classification, session):
+    if pd.Timestamp(session).weekday() >= 5:
+        raise ValueError("Rotation cannot publish a Saturday/Sunday session")
     benchmark = pd.to_numeric(benchmark, errors="coerce")
     benchmark.index = pd.DatetimeIndex(benchmark.index).tz_localize(None).normalize()
     benchmark = benchmark[~benchmark.index.duplicated(keep="last")].sort_index()
-    benchmark = benchmark.loc[benchmark.index <= pd.Timestamp(session)]
+    benchmark = benchmark.loc[(benchmark.index <= pd.Timestamp(session)) & (benchmark.index.weekday < 5)]
     benchmark = benchmark.where(np.isfinite(benchmark) & (benchmark > 0)).dropna().tail(HISTORY)
     if len(benchmark) < HISTORY or benchmark.index[-1].strftime("%Y-%m-%d") != session:
         raise ValueError("IHSG stale or fewer than 100 completed trading sessions")
@@ -208,9 +224,7 @@ def run():
     from data.yfinance_fetcher import fetch_daily
     source = Path("web/dashboard_data.json").read_bytes()
     dashboard = json.loads(source)
-    session = dashboard.get("market_data_date")
-    if not session:
-        raise ValueError("Dashboard has no market_data_date")
+    session = screening_session(dashboard)
     prices = {}
     for stock in dashboard["watchlist"]:
         history = stock.get("price_history", [])
