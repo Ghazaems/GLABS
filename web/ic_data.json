@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-02T08:23:15.983474+00:00",
+  "generated_at": "2026-10-03T07:49:23.875625+00:00",
   "source": "backtest_results.csv",
   "methodology": {
     "type": "cross_sectional_per_date",
@@ -30,8 +30,8 @@
         "mean_ic": -0.0195,
         "std_ic": 0.179,
         "t_stat_hac": -2.1582,
-        "p_value_raw": 0.030915,
-        "q_value_fdr": 0.092745,
+        "p_value_raw": 0.030916,
+        "q_value_fdr": 0.092748,
         "hac_lags": 1,
         "positive_months_pct": 31.03,
         "n_dates": 446,
@@ -48,9 +48,9 @@
       "statistics": {
         "mean_ic": -0.0092,
         "std_ic": 0.191,
-        "t_stat_hac": -0.6877,
-        "p_value_raw": 0.491669,
-        "q_value_fdr": 0.491669,
+        "t_stat_hac": -0.688,
+        "p_value_raw": 0.491448,
+        "q_value_fdr": 0.491448,
         "hac_lags": 3,
         "positive_months_pct": 44.83,
         "n_dates": 446,
@@ -67,9 +67,9 @@
       "statistics": {
         "mean_ic": -0.0288,
         "std_ic": 0.1583,
-        "t_stat_hac": -1.7603,
-        "p_value_raw": 0.078349,
-        "q_value_fdr": 0.117524,
+        "t_stat_hac": -1.7601,
+        "p_value_raw": 0.078395,
+        "q_value_fdr": 0.117593,
         "hac_lags": 11,
         "positive_months_pct": 37.93,
         "n_dates": 446,
