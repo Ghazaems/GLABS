@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="cockpit.css">
 <link rel="stylesheet" href="rotation.css">
+<link rel="stylesheet" href="radar.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js"></script>
 <style>
@@ -732,6 +733,10 @@ html { overflow-x: hidden; }
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7a9 9 0 0 0-15-2L2 8m0-5v5h5M4 17a9 9 0 0 0 15 2l3-3m0 5v-5h-5"/></svg>
         <span class="tip">Rotasi Sektor</span>
       </button>
+      <button class="icon-btn" id="nav-radar" onclick="showView('radar')" aria-label="Radar Sinyal">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l7-7"/><circle cx="9" cy="15" r="1"/></svg>
+        <span class="tip">Radar Sinyal</span>
+      </button>
     </nav>
     <div class="foot">
       <div class="icon-btn">
@@ -749,7 +754,8 @@ html { overflow-x: hidden; }
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
         <input id="ticker-search" type="search" placeholder="Cari ticker..." autocomplete="off" />
       </label>
-      <button class="rotation-control rotation-shortcut" onclick="showView(\'rotation\')">Rotasi Sektor</button>
+      <button class="rotation-control rotation-shortcut" onclick="showView('rotation')">Rotasi Sektor</button>
+      <button class="radar-control radar-shortcut" onclick="showView('radar')">Radar</button>
       <div class="avatar"></div>
     </div>
 
@@ -835,6 +841,11 @@ html { overflow-x: hidden; }
           <div class="card-foot"><span></span><span class="link">Kelola watchlist</span></div>
         </div>
       </div>
+
+      <section class="radar-home" aria-label="Perubahan sinyal terbaru">
+        <div class="radar-home-head"><h2>Perubahan terbaru</h2><button class="radar-action" onclick="showView('radar')">Lihat Radar →</button></div>
+        <div id="radar-home-body"><p class="radar-note">Memuat perubahan screening…</p></div>
+      </section>
 
       <!-- ROW 2 -->
       <div class="grid overview-analysis-grid">
@@ -961,6 +972,7 @@ html { overflow-x: hidden; }
       </div>
       </div><!-- /view-overview -->
 
+      <div id="view-radar" style="display:none"><div id="radar-root"></div></div>
       <div id="view-rotation" style="display:none"><div id="rotation-root"></div></div>
       <div id="view-laporan" style="display:none">
         <div class="greet-row">
@@ -1992,6 +2004,7 @@ const STYLE_CONFIG = {
 let currentStyle = "daily";
 
 function renderStyleDependent(style) {
+  window.GLABSRadar?.home(style);
   const wl = (window.dashboardData && window.dashboardData.watchlist) || [];
   const config = STYLE_CONFIG[style] || STYLE_CONFIG.daily;
   const {
@@ -2202,6 +2215,9 @@ function fmtPct(n) {
 }
 
 function showView(name) {
+  document.getElementById("view-radar").style.display = name === "radar" ? "" : "none";
+  document.getElementById("nav-radar").classList.toggle("active", name === "radar");
+  if (name === "radar") window.GLABSRadar?.open(currentStyle);
   document.getElementById("view-rotation").style.display = name === "rotation" ? "" : "none";
   document.getElementById("nav-rotation").classList.toggle("active", name === "rotation");
   if (name === "rotation") window.GLABSRotation?.open(currentStyle);
@@ -2617,5 +2633,6 @@ async function loadICReport() {
 <div class="toast" id="toast" role="status"></div>
 <script src="cockpit.js"></script>
 <script src="rotation.js"></script>
+<script src="radar.js"></script>
 </body>
 </html>

@@ -1,0 +1,101 @@
+name: Signal Radar
+
+on:
+  workflow_run:
+    workflows: ["Daily Stock Screening (500 Emiten IDX)", "Sector Rotation"]
+    types: [completed]
+  schedule:
+    # Retry independently after the EOD jobs; comparisons use published sessions only.
+    - cron: "17 14 * * 1-5"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "radar_signals.py"
+      - ".github/workflows/radar-signals.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: signal-radar-writer
+  cancel-in-progress: false
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 40
+      - name: Check radar freshness
+        id: freshness
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          from radar_signals import digest
+          dashboard = hashlib.sha256(Path("web/dashboard_data.json").read_bytes()).hexdigest()
+          path = Path("web/sector_rotation_data.json")
+          rotation = digest(json.loads(path.read_bytes())) if path.exists() else None
+          try:
+              report = json.loads(Path("web/radar_data.json").read_bytes())
+              needed = (report.get("dashboard_sha256") != dashboard or
+                        report.get("rotation_sha256") != rotation or
+                        report.get("schema_version") != 1 or report.get("status") != "ok")
+          except (OSError, ValueError):
+              needed = True
+          needed = needed or os.environ["EVENT_NAME"] in {"push", "workflow_dispatch"}
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              print(f"run={str(needed).lower()}", file=out)
+          PY
+      - uses: actions/setup-python@v5
+        if: steps.freshness.outputs.run == 'true'
+        with:
+          python-version: "3.11"
+      - name: Test radar comparisons
+        if: steps.freshness.outputs.run == 'true'
+        run: |
+          python -m unittest discover -s tests -p test_radar.py -v
+          node --check web/radar.js
+          node tests/test_radar_ui.js
+      - name: Generate from last published screening
+        if: steps.freshness.outputs.run == 'true'
+        run: python radar_signals.py
+      - name: Publish radar
+        if: steps.freshness.outputs.run == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/radar_data.json web/radar_snapshot.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "chore: publish latest signal radar"
+          # Working tree is clean before rebase; reject data computed from stale inputs.
+          git pull --rebase origin main
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          from radar_signals import digest,valid_session
+          report=json.loads(Path("web/radar_data.json").read_bytes())
+          source=Path("web/dashboard_data.json").read_bytes()
+          dashboard=json.loads(source)
+          assert report["dashboard_sha256"]==hashlib.sha256(source).hexdigest(), "Screening changed during generation"
+          assert report["market_data_date"]==valid_session(dashboard["market_data_date"])
+          path=Path("web/sector_rotation_data.json")
+          rotation=digest(json.loads(path.read_bytes())) if path.exists() else None
+          assert report["rotation_sha256"]==rotation, "Rotation changed during generation"
+          if report["previous_session"]:
+              assert valid_session(report["previous_session"]) < report["market_data_date"]
+          PY
+          # Avoid rebasing a computed snapshot onto newer source data.
+          git push
+      - name: Report result
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          echo "Signal radar: $JOB_STATUS. No weekend session or invented baseline." >> "$GITHUB_STEP_SUMMARY"
