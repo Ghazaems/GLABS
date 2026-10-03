@@ -73,7 +73,8 @@ jobs:
               eligible = os.environ.get("EVENT_NAME") != "schedule"
               timing_reason = "market-not-closed"
           else:
-              session_date = now_wib.date()
+              session_date = (now_wib.date() if now_wib.weekday() < 5
+                              else previous_weekday(now_wib.date()))
               eligible = True
               timing_reason = "after-market-close"
 

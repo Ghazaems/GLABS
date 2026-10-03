@@ -19,7 +19,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: generated-data-writer
+  group: sector-rotation-writer
   cancel-in-progress: false
 
 jobs:
