@@ -3,7 +3,7 @@
   const state={data:null,loading:null,style:"daily",scope:"timeframe",filter:"all",query:"",limit:30};
   const styles={daily:"Daily · 5D",weekly:"Weekly · 20D",swing:"Swing · 60D"};
   const colors={risk:"#ff453a",opportunity:"#32d74b",watch:"#ffd60a"};
-  const labels={risk:"Risiko meningkat",opportunity:"Membaik",watch:"Pantau"};
+  const labels={risk:"Evaluasi risiko",opportunity:"Membaik",watch:"Pantau"};
   const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const root=()=>document.getElementById("radar-root");
   function groups(events) {

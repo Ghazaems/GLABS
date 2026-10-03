@@ -159,6 +159,10 @@ def compare(current, previous):
             a, b = old.get("full_vwap"), now.get("full_vwap")
             if a in ALLOWED and b in ALLOWED and a != b and old.get("settings") == now.get("settings"):
                 title, meaning, priority, group = meanings[b]
+                if b == "EXIT" and a in {"AVOID", "WAIT"}:
+                    title = "Full VWAP kini EXIT"
+                if b == "REDUCE" and a in {"AVOID", "EXIT", "WAIT"}:
+                    title = "Full VWAP kini REDUCE"
                 full.append(event(ticker,"full_vwap",a,b,title,meaning,priority,group))
     full.sort(key=lambda e:(e["priority"],e["ticker"]))
     return {"schema_version": VERSION, "status": "ok", "market_data_date": current["session"],

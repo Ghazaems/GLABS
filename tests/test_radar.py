@@ -111,6 +111,11 @@ class RadarTests(unittest.TestCase):
         self.assertEqual(result["full_vwap_events"][0]["group"],"risk")
         self.assertEqual(result["full_vwap_events"][0]["priority"],0)
 
+    def test_bearish_baseline_not_claimed_bullish(self):
+        old=snapshot(dashboard("2026-10-01",vwap="AVOID"))
+        result=compare(snapshot(dashboard(vwap="EXIT")),old)
+        self.assertEqual(result["full_vwap_events"][0]["title"],"Full VWAP kini EXIT")
+
     def test_missing_vwap_not_wait(self):
         old=snapshot(dashboard("2026-10-01"))
         d=dashboard(vwap="BUY")
