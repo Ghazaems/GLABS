@@ -43,3 +43,71 @@
 @media(prefers-reduced-motion:reduce){.rotation-map .rotation-track{transition:none}}
 
 #nav-rotation{border:0;background:transparent}#nav-rotation.active{background:rgba(255,255,255,.12)}
+
+/* Reference flow, GLABS glass theme. */
+.rotation-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.rotation-header-actions{display:flex;gap:8px;flex-wrap:wrap}
+.rotation-main-toolbar{position:relative;padding-bottom:18px;border-bottom:1px solid var(--border-soft)}
+#rotation-universe{min-width:300px;border-radius:999px}
+.rotation-control{cursor:pointer}
+.rotation-control:disabled{cursor:not-allowed;opacity:.5}
+.rotation-control:focus-visible,.rotation-legend-item:focus-visible{outline:2px solid #60a5fa;outline-offset:3px}
+.rotation-settings{position:absolute;left:310px;top:52px;width:min(430px,calc(100vw - 64px));background:#191919;border:1px solid var(--border);border-radius:20px;padding:24px;z-index:20;box-shadow:0 18px 50px #0008}
+.rotation-settings[hidden]{display:none}
+.rotation-setting-row{padding:0 0 20px;margin-bottom:20px;border-bottom:1px solid var(--border-soft)}
+.rotation-setting-row label{display:block;font-size:15px;margin-bottom:12px}
+.rotation-setting-row label select{display:block;margin-top:12px;width:100%}
+.rotation-setting-row .rotation-tabs{width:max-content}
+.rotation-setting-row output{float:right;color:var(--text-secondary);font-size:13px}
+#rotation-tail{width:100%;accent-color:#32d74b;cursor:pointer}
+.rotation-adjustments{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding-top:16px}
+.rotation-adjustments label{font-size:12px;color:var(--text-secondary)}
+.rotation-adjustments input{display:block;width:100%;box-sizing:border-box;margin-top:8px}
+.rotation-advanced summary{cursor:pointer}
+.rotation-source-note{font-size:12px;color:var(--text-secondary);line-height:1.7;margin:10px 0 22px}
+.rotation-panel{margin-bottom:20px;padding:26px}
+.rotation-panel h2{font-size:19px;font-weight:600;margin:0}
+.rotation-quadrant strong{font-size:25px}
+.rotation-quadrant-symbols{font-size:11px;line-height:1.8;min-height:38px;color:var(--text-secondary)}
+.rotation-compare{border:1px solid var(--border-soft);padding:18px;border-radius:18px;margin:16px 0 22px}
+.rotation-compare>label{font-weight:500;font-size:14px}
+#rotation-compare{width:100%;box-sizing:border-box}
+.rotation-picks{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+#rotation-suggestions{display:flex;gap:6px;flex-wrap:wrap;padding-top:6px;max-height:200px;overflow:auto}
+#rotation-map-body{background:rgba(255,255,255,.015);border-radius:18px;padding:12px}
+.rotation-map .rotation-track:hover{opacity:unset!important}
+.rotation-map [data-line],.rotation-movement-track{transition:opacity .18s ease}
+.rotation-track.is-muted,.rotation-movement-track.is-muted{opacity:.15}
+.rotation-track.is-focused,.rotation-movement-track.is-focused{opacity:1}
+.is-focused .rotation-visible-line{stroke-width:3.2}
+.rotation-head-label{opacity:0;pointer-events:none}
+.is-focused .rotation-head-label{opacity:1}
+.rotation-map-legend,.rotation-movement-legend{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:18px 0}
+.rotation-legend-item{display:inline-flex;gap:9px;align-items:center;background:none;border:1px solid transparent;border-radius:999px;padding:8px 12px;color:var(--text-secondary);font:inherit;font-size:12px;cursor:pointer;text-align:left}
+.rotation-legend-item i{width:20px;height:3px;border-radius:4px;display:inline-block;flex-shrink:0}
+.rotation-legend-item[aria-pressed="true"],.rotation-legend-item.active{background:rgba(255,255,255,.065);border-color:var(--border);color:var(--text-primary)}
+.rotation-legend-item b{white-space:nowrap;color:var(--text-primary)}
+.rotation-legend-item:disabled{cursor:default}
+#rotation-inspector{border-top:1px solid var(--border-soft);padding-top:18px}
+.rotation-detail-head{display:flex;align-items:center;gap:15px;flex-wrap:wrap}
+.rotation-detail-head>div{flex:1}
+.rotation-detail-head>div>b{font-size:20px;display:block;margin-bottom:6px}
+.rotation-detail-metrics{display:flex;gap:20px;flex-wrap:wrap;padding:12px 0;font-size:12px;color:var(--text-secondary)}
+.rotation-detail-metrics b{color:var(--text-primary);display:block;font-size:16px;margin-top:7px}
+.rotation-phase-filters{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.rotation-phase-filters .rotation-control{border-radius:999px;font-size:11px;padding:7px 10px}
+.rotation-control.active{background:var(--bg-hover);border-color:#555}
+.rotation-table th button{font:inherit;color:var(--text-secondary)}
+.rotation-table td{font-size:12px}
+.rotation-movement-controls{display:flex;gap:10px;flex-wrap:wrap}
+.rotation-movement-svg{display:block;width:100%;height:auto;overflow:visible}
+.rotation-movement-title{text-align:center;padding:20px 0 14px}
+.rotation-movement-title h3{font-size:20px;font-weight:500;line-height:1.4;margin:0 0 8px}
+.rotation-movement-title p{font-size:13px;color:var(--text-secondary)}
+.rotation-movement-track{cursor:pointer}
+.rotation-end-label{display:none;pointer-events:none}
+.rotation-movement-track.is-focused .rotation-end-label{display:block}
+.rotation-movement-legend .rotation-legend-item{font-size:13px;padding:9px 12px}
+@media(max-width:900px){.rotation-settings{left:0}.rotation-header-actions .rotation-control{font-size:12px}.rotation-movement-controls .rotation-tabs button{padding:8px 10px}}
+@media(max-width:600px){#rotation-universe{min-width:0;flex:1}.rotation-panel{padding:16px}.rotation-header .greet h1{font-size:32px}.rotation-adjustments{grid-template-columns:1fr}.rotation-legend-item{font-size:10px;padding:6px}.rotation-map-legend .rotation-muted{display:none}.rotation-settings{padding:18px}.rotation-quadrant-symbols{font-size:10px}.rotation-movement-title h3{font-size:16px}.rotation-movement-legend .rotation-legend-item{font-size:11px}.rotation-detail-metrics{gap:14px}}
+@media(prefers-reduced-motion:reduce){.rotation-map [data-line],.rotation-movement-track{transition:none}}

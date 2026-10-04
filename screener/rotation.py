@@ -102,6 +102,13 @@ def entity(symbol, name, close, benchmark, style):
     }
 
 
+def price_history(close, benchmark):
+    """Export actual matching sessions only; no padding and no future dates."""
+    return [{"date": date.strftime("%Y-%m-%d"), "close": round(float(value), 6),
+             "benchmark": round(float(benchmark.loc[date]), 6)}
+            for date, value in close.items()]
+
+
 def screening_session(dashboard):
     """Use the last published market session, NEVER today's generation date."""
     session = dashboard.get("market_data_date")
@@ -123,21 +130,30 @@ def build_rotation(prices, benchmark, classification, session):
     benchmark.index = pd.DatetimeIndex(benchmark.index).tz_localize(None).normalize()
     benchmark = benchmark[~benchmark.index.duplicated(keep="last")].sort_index()
     benchmark = benchmark.loc[(benchmark.index <= pd.Timestamp(session)) & (benchmark.index.weekday < 5)]
-    benchmark = benchmark.where(np.isfinite(benchmark) & (benchmark > 0)).dropna().tail(HISTORY)
+    display_benchmark = benchmark.where(np.isfinite(benchmark) & (benchmark > 0)).dropna().tail(300)
+    benchmark = display_benchmark.tail(HISTORY)
     if len(benchmark) < HISTORY or benchmark.index[-1].strftime("%Y-%m-%d") != session:
         raise ValueError("IHSG stale or fewer than 100 completed trading sessions")
-    clean, excluded = {}, []
+    clean, display_prices, excluded = {}, {}, []
     for ticker, series in prices.items():
         if ticker not in classification:
             excluded.append({"symbol": ticker, "reason": "Klasifikasi sektor belum terverifikasi"})
             continue
         series = pd.to_numeric(series, errors="coerce").copy()
         series.index = pd.DatetimeIndex(series.index).tz_localize(None).normalize()
-        series = series[~series.index.duplicated(keep="last")].reindex(benchmark.index)
+        series = series[~series.index.duplicated(keep="last")]
+        display_series = series.reindex(display_benchmark.index)
+        series = series.reindex(benchmark.index)
         if series.isna().any() or (series <= 0).any() or not np.isfinite(series).all():
             excluded.append({"symbol": ticker, "reason": "Harga tidak lengkap dalam 100 sesi IHSG terakhir"})
             continue
         clean[ticker] = series
+        invalid = display_series.isna() | (display_series <= 0) | ~np.isfinite(display_series)
+        bad_dates = display_series.index[invalid]
+        # Retain only a contiguous valid suffix; never bridge an internal missing session.
+        display_prices[ticker] = (display_series.loc[display_series.index > bad_dates[-1]]
+                                  if len(bad_dates) else display_series)
+
     modes = {}
     for style in WINDOWS:
         stocks, sector_rows = [], []
@@ -148,6 +164,8 @@ def build_rotation(prices, benchmark, classification, session):
                 row = entity(ticker, classification[ticker]["name"], clean[ticker], benchmark, style)
                 if row:
                     row["sector"] = code
+                    row["chart_history"] = price_history(display_prices[ticker], display_benchmark)
+
                     stocks.append(row)
                     rows.append(row)
             if len(members) < 3:
@@ -159,6 +177,13 @@ def build_rotation(prices, benchmark, classification, session):
             basket = 100 * (1 + returns.iloc[1:].mean(axis=1)).cumprod()
             basket = pd.concat([pd.Series([100.0], index=benchmark.index[:1]), basket])
             row = entity(code, name, basket, benchmark, style)
+            common_start = max(display_prices[t].index[0] for t in members)
+            display_index = display_benchmark.index[display_benchmark.index >= common_start]
+            display_returns = pd.concat([display_prices[t].reindex(display_index).pct_change(fill_method=None)
+                                         for t in members], axis=1)
+            display_basket = 100 * (1 + display_returns.iloc[1:].mean(axis=1)).cumprod()
+            display_basket = pd.concat([pd.Series([100.0], index=display_index[:1]), display_basket])
+            row["chart_history"] = price_history(display_basket, display_benchmark)
             row.update({"status": "ok", "members": len(members),
                         "breadth_pct": round(sum(r["relative_return_pct"] > 0 for r in rows) /
                                              len(rows) * 100, 2)})
@@ -182,7 +207,7 @@ def build_rotation(prices, benchmark, classification, session):
             "strength": "S = SMA3(100 × (harga/IHSG)t ÷ (harga/IHSG)t-L)",
             "momentum": "M = 100 × S(t) ÷ S(t-m)",
             "sector": "Basket saham GLABS: equal-weight return harian, rebalance harian; bukan indeks IDX resmi",
-            "history": "100 sesi IHSG lengkap; tanpa forward fill; harga adjusted",
+            "history": "Minimal 100 sesi IHSG lengkap; chart memakai suffix lengkap yang tersedia, maksimal 300 sesi; tanpa forward fill; harga adjusted",
             "limitation": "Konstituen saat ini, bukan point-in-time; bukan backtest atau sinyal beli/jual",
             "note": "Bukan JdK RS-Ratio / RS-Momentum proprietary",
         },

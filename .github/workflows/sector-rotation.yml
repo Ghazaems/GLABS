@@ -60,7 +60,11 @@ jobs:
         run: pip install numpy pandas requests yfinance
       - name: Rotation regression tests
         if: steps.freshness.outputs.run == 'true'
-        run: python -m unittest discover -s tests -p test_rotation.py -v
+        run: |
+          python -m unittest discover -s tests -p test_rotation.py -v
+          node --check web/rotation-core.js
+          node --check web/rotation.js
+          node tests/test_rotation_ui.js
       - name: Generate rotation
         if: steps.freshness.outputs.run == 'true'
         run: |
@@ -96,7 +100,16 @@ jobs:
           if git diff --cached --quiet; then exit 0; fi
           git commit -m "chore: publish sector rotation results"
           for attempt in 1 2 3; do
-            git pull --rebase origin main && git push && exit 0
+            if git pull --rebase origin main; then
+              python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          data = json.loads(Path("web/sector_rotation_data.json").read_bytes())
+          current = hashlib.sha256(Path("web/dashboard_data.json").read_bytes()).hexdigest()
+          assert data["dashboard_sha256"] == current, "Dashboard advanced during rotation; retry on next automatic trigger"
+          PY
+              git push && exit 0
+            fi
             if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; then
               git rebase --abort
               exit 1

@@ -1,138 +1,124 @@
-(() => {
-  "use strict";
-  const Q = {Leading:"#32d74b",Improving:"#60a5fa",Weakening:"#ffd60a",Lagging:"#ff453a",Neutral:"#a1a1aa"};
-  const INFO = {Leading:"Kuat · momentum naik",Improving:"Relatif lemah · momentum pulih",Weakening:"Kuat · momentum melemah",Lagging:"Lemah · momentum turun"};
-  const LABEL = {daily:"Daily · 5D",weekly:"Weekly · 20D",swing:"Swing · 60D"};
-  const state = {data:null,loading:null,style:"weekly",scope:"sectors",sector:"",filter:"",query:"",sort:"rank",selected:"",tail:5};
-  const root = () => document.getElementById("rotation-root");
-  const esc = v => String(v ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-  const num = (v,d=2) => Number.isFinite(v)?v.toLocaleString("id-ID",{maximumFractionDigits:d,minimumFractionDigits:d}):"—";
-  const pct = v => (v>0?"+":"")+num(v)+"%";
-  const badge = q => '<span class="rotation-badge" style="--q-color:'+ (Q[q]||Q.Neutral)+'">'+esc(q)+'</span>';
-  const mode = () => state.data.modes[state.style];
-  const scopeRows = () => state.scope==="sectors"?mode().sectors.filter(r=>r.status==="ok"):mode().stocks.filter(r=>r.sector===state.sector);
-  function rows() {
-    const result = scopeRows().filter(r=>(!state.filter||r.quadrant===state.filter)&&
-      (!state.query||(r.symbol+" "+r.name).toLowerCase().includes(state.query.toLowerCase())));
-    if(state.sort!=="rank") result.sort((a,b)=>(b[state.sort]??-Infinity)-(a[state.sort]??-Infinity)||a.symbol.localeCompare(b.symbol));
-    return result;
-  }
-  function picked() { return scopeRows().find(r=>r.symbol===state.selected)||null; }
-  function mapMarkup(list) {
-    if(!list.length) return '<p class="rotation-muted">Tidak ada hasil valid untuk pilihan ini.</p>';
-    const all=list.flatMap(r=>r.trail.slice(-state.tail));
-    const sx=Math.max(2,...all.map(p=>Math.abs(p.strength-100)))*1.18;
-    const sy=Math.max(2,...all.map(p=>Math.abs(p.momentum-100)))*1.18;
-    const x=v=>60+(v-(100-sx))/(2*sx)*560, y=v=>34+(100+sy-v)/(2*sy)*350;
-    let svg='<svg class="rotation-map" viewBox="0 0 680 440" role="img" aria-label="Peta kekuatan relatif dan momentum terhadap IHSG">';
-    svg+='<rect x="60" y="34" width="280" height="175" fill="#60a5fa" opacity=".04"/><rect x="340" y="34" width="280" height="175" fill="#32d74b" opacity=".04"/><rect x="60" y="209" width="280" height="175" fill="#ff453a" opacity=".04"/><rect x="340" y="209" width="280" height="175" fill="#ffd60a" opacity=".04"/>';
-    for(let i=0;i<=4;i++){
-      const px=60+i*140,py=34+i*87.5;
-      svg+='<path d="M'+px+' 34V384 M60 '+py+'H620" stroke="rgba(255,255,255,'+(i===2?".23":".06")+')" stroke-dasharray="'+(i===2?"0":"3 5")+'"/>';
-      svg+='<text x="'+px+'" y="404" text-anchor="middle" fill="#858585" font-size="10">'+num(100-sx+i*sx/2,1)+'</text>';
-      svg+='<text x="51" y="'+(py+4)+'" text-anchor="end" fill="#858585" font-size="10">'+num(100+sy-i*sy/2,1)+'</text>';
-    }
-    svg+='<text x="75" y="53" fill="#60a5fa" opacity=".7" font-size="11">IMPROVING</text><text x="607" y="53" text-anchor="end" fill="#32d74b" opacity=".7" font-size="11">LEADING</text><text x="75" y="375" fill="#ff453a" opacity=".7" font-size="11">LAGGING</text><text x="607" y="375" text-anchor="end" fill="#ffd60a" opacity=".7" font-size="11">WEAKENING</text>';
-    svg+='<text x="340" y="430" text-anchor="middle" fill="#999" font-size="11">Kekuatan relatif vs IHSG →</text><text x="14" y="209" transform="rotate(-90 14 209)" text-anchor="middle" fill="#999" font-size="11">Momentum relatif →</text>';
-    for(const r of list){
-      const tail=r.trail.slice(-state.tail),p=tail[tail.length-1],chosen=state.selected===r.symbol;
-      const color=Q[r.quadrant]||Q.Neutral;
-      svg+='<g class="rotation-track" data-symbol="'+esc(r.symbol)+'" tabindex="0" role="button" aria-label="'+esc(r.symbol+" "+r.quadrant)+'" opacity="'+(state.selected&&!chosen?".35":".85")+'"><title>'+esc(r.name+" · "+r.quadrant+" · "+r.phase)+'</title>';
-      svg+='<polyline points="'+tail.map(t=>x(t.strength).toFixed(2)+","+y(t.momentum).toFixed(2)).join(" ")+'" fill="none" stroke="'+color+'" stroke-width="'+(chosen?2.7:1.5)+'" stroke-linecap="round" stroke-linejoin="round"/>';
-      tail.slice(0,-1).forEach((t,i)=>{svg+='<circle cx="'+x(t.strength)+'" cy="'+y(t.momentum)+'" r="1.8" fill="'+color+'" opacity="'+(.25+.6*i/tail.length)+'"/>';});
-      svg+='<circle cx="'+x(p.strength)+'" cy="'+y(p.momentum)+'" r="'+(chosen?6:4)+'" fill="'+color+'" stroke="#111" stroke-width="1.5"/>';
-      if(chosen) svg+='<circle cx="'+x(p.strength)+'" cy="'+y(p.momentum)+'" r="10" fill="none" stroke="'+color+'" opacity=".4"/>';
-      if(state.scope==="sectors"||chosen) svg+='<text x="'+Math.min(595,x(p.strength)+9)+'" y="'+(y(p.momentum)-8)+'" fill="'+color+'" font-size="10">'+esc(r.symbol)+'</text>';
-      svg+='</g>';
-    }
-    return svg+'</svg>';
-  }
-  function movement(r) {
-    const hist=r.history.slice(-40); if(hist.length<2)return "";
-    const values=hist.map(p=>[100*p.close/hist[0].close,100*p.benchmark/hist[0].benchmark]);
-    const lo=Math.min(...values.flat())*.99,hi=Math.max(...values.flat())*1.01,span=hi-lo||1;
-    const x=i=>8+i*254/(hist.length-1),y=v=>12+(hi-v)/span*96;
-    const line=k=>values.map((p,i)=>x(i).toFixed(2)+","+y(p[k]).toFixed(2)).join(" ");
-    return '<svg viewBox="0 0 270 140" role="img" aria-label="Performa ternormalisasi 40 sesi, titik awal 100"><path d="M8 108H262" stroke="#333"/><polyline points="'+line(1)+'" fill="none" stroke="#777" stroke-dasharray="3 4" stroke-width="1.5"/><polyline points="'+line(0)+'" fill="none" stroke="'+(Q[r.quadrant]||Q.Neutral)+'" stroke-width="2"/><text x="8" y="132" fill="#858585" font-size="9">'+esc(hist[0].date)+'</text><text x="262" y="132" text-anchor="end" fill="#858585" font-size="9">'+esc(hist.at(-1).date)+'</text></svg><p class="rotation-muted">Garis warna: pilihan · abu-abu: IHSG<br>40 sesi · dinormalisasi dari 100</p>';
-  }
-  function inspectorMarkup() {
-    const r=picked();
-    if(!r)return '<h2>Detail rotasi</h2><p class="rotation-muted">Klik titik atau baris untuk melihat arah rotasi dan performanya.</p>';
-    const positive=r.relative_return_pct>0;
-    const conclusion=r.quadrant==="Leading"?"Mengungguli IHSG dan momentum relatif menguat.":r.quadrant==="Improving"?"Masih tertinggal IHSG, tetapi momentum relatif mulai pulih.":r.quadrant==="Weakening"?"Masih unggul terhadap IHSG, tetapi momentumnya melemah.":r.quadrant==="Lagging"?"Tertinggal IHSG dengan momentum relatif melemah.":"Berada pada batas; belum ada arah relatif yang jelas.";
-    return '<h2>'+esc(r.symbol)+'</h2><div class="rotation-big">'+esc(r.name)+'</div>'+badge(r.quadrant)+'<p class="rotation-muted">'+conclusion+'</p><div class="rotation-metric"><span>Perubahan fase</span><b>'+esc(r.phase)+'</b></div><div class="rotation-metric"><span>Return '+mode().lookback+'D</span><b>'+pct(r.return_pct)+'</b></div><div class="rotation-metric"><span>Relatif vs IHSG</span><b style="color:'+(positive?Q.Leading:Q.Lagging)+'">'+pct(r.relative_return_pct)+'</b></div>'+
-      (r.members?'<div class="rotation-metric"><span>Cakupan basket</span><b>'+r.members+' saham</b></div><div class="rotation-metric"><span>Mengungguli IHSG</span><b>'+num(r.breadth_pct,0)+'%</b></div>':'')+movement(r)+'<p class="rotation-muted">Kondisi relatif, bukan instruksi BUY/SELL. Leading tetap bisa turun jika IHSG turun lebih dalam.</p>'+
-      (state.scope==="sectors"?'<button class="rotation-control" id="rotation-drill">Lihat saham sektor ini →</button>':'');
-  }
-  function tableMarkup(list) {
-    if(!list.length)return '<p class="rotation-muted">Tidak ada hasil sesuai filter.</p>';
-    return '<div class="rotation-table-wrap"><table class="rotation-table"><thead><tr><th>'+(state.scope==="sectors"?"Sektor":"Saham")+'</th><th>Kondisi</th><th class="numeric">Kekuatan</th><th class="numeric">Momentum</th><th class="numeric">vs IHSG '+mode().lookback+'D</th><th>Arah</th></tr></thead><tbody>'+list.map(r=>'<tr class="'+(state.selected===r.symbol?"selected":"")+'"><td><button data-symbol="'+esc(r.symbol)+'"><b>'+esc(r.symbol)+'</b><br><span class="rotation-muted">'+esc(r.name)+'</span></button></td><td>'+badge(r.quadrant)+'</td><td class="numeric">'+num(r.strength)+'</td><td class="numeric">'+num(r.momentum)+'</td><td class="numeric" style="color:'+(r.relative_return_pct>0?Q.Leading:Q.Lagging)+'">'+pct(r.relative_return_pct)+'</td><td>'+esc(r.phase)+'</td></tr>').join("")+'</tbody></table></div>';
-  }
-  function choose(symbol) {
-    state.selected=symbol;render();
-  }
-  function render() {
-    const data=state.data;if(!data||!root())return;
-    const list=rows(),all=scopeRows(),sectors=mode().sectors;
-    if(!sectors.some(r=>r.symbol===state.sector))state.sector=sectors.find(r=>r.status==="ok")?.symbol||sectors[0]?.symbol||"";
-    const leading=mode().sectors.filter(r=>r.quadrant==="Leading").slice(0,3);
-    const improving=mode().sectors.filter(r=>r.quadrant==="Improving").slice(0,3);
-    const summary=leading.length?'<b>'+esc(leading.map(r=>r.name).join(", "))+'</b> sedang memimpin relatif terhadap IHSG.':improving.length?'<b>'+esc(improving.map(r=>r.name).join(", "))+'</b> menunjukkan pemulihan momentum relatif.':"Belum ada sektor Leading atau Improving pada horizon ini.";
-    const oldDate=window.dashboardData?.market_data_date;
-    const stale=oldDate&&oldDate!==data.market_data_date;
-    const classification=data.classification||{};
-    root().innerHTML='<div class="greet-row"><div class="greet"><h1>Rotasi <em>Sektor</em></h1><p>'+esc(LABEL[state.style])+' · penutupan '+esc(data.market_data_date)+' · benchmark IHSG</p></div></div>'+
-      (stale?'<div class="rotation-status rotation-error">Data rotasi belum menyamai screening terbaru ('+esc(oldDate)+'). Hasil di bawah masih bertanggal '+esc(data.market_data_date)+'. Pembaruan otomatis sedang diperlukan.</div>':'')+
-      (classification.refresh_status==="cached_refresh_failed"?'<div class="rotation-status">Harga: '+esc(data.market_data_date)+' · klasifikasi sektor: '+esc(classification.as_of)+'. Sumber IDX menolak pembaruan (403); pengelompokan memakai snapshot bertanggal, bukan klasifikasi terbaru yang sudah diverifikasi.</div>':'')+
-      '<p class="rotation-summary">'+summary+'</p><p class="rotation-muted">Membaca kepemimpinan relatif, bukan aliran dana atau kepastian harga naik. Basket sektor mencakup saham GLABS, bukan indeks sektoral IDX resmi.</p>'+
-      '<div class="rotation-toolbar"><div class="rotation-tabs" aria-label="Horizon rotasi">'+Object.keys(LABEL).map(s=>'<button data-style="'+s+'" class="'+(state.style===s?"active":"")+'" aria-pressed="'+(state.style===s)+'">'+s[0].toUpperCase()+s.slice(1)+'</button>').join("")+'</div>'+
-      '<div class="rotation-tabs" aria-label="Jenis peta"><button data-scope="sectors" class="'+(state.scope==="sectors"?"active":"")+'">Peta sektor</button><button data-scope="stocks" class="'+(state.scope==="stocks"?"active":"")+'">Saham per sektor</button></div><select class="rotation-control" id="rotation-sector" aria-label="Pilih sektor">'+sectors.map(r=>'<option value="'+esc(r.symbol)+'" '+(state.sector===r.symbol?"selected":"")+'>'+esc(r.name)+' ('+r.members+')</option>').join("")+'</select></div>'+
-      '<div class="rotation-quadrants">'+Object.keys(INFO).map(q=>'<button data-quadrant="'+q+'" class="rotation-quadrant '+(state.filter===q?"active":"")+'" style="--q-color:'+Q[q]+'" aria-pressed="'+(state.filter===q)+'">'+q+'<strong>'+all.filter(r=>r.quadrant===q).length+'</strong><small>'+INFO[q]+'</small></button>').join("")+'</div>'+
-      '<p class="rotation-muted">'+list.length+' / '+all.length+' '+(state.scope==="sectors"?"sektor":"saham")+' ditampilkan'+(all.some(r=>r.quadrant==="Neutral")?" · "+all.filter(r=>r.quadrant==="Neutral").length+" netral":"")+(state.filter?' · klik kondisi aktif untuk hapus filter':'')+'</p>'+
-      '<div class="rotation-layout"><section class="rotation-panel"><div class="rotation-table-toolbar"><h2>'+ (state.scope==="sectors"?"Peta rotasi sektor":"Rotasi saham · "+esc(sectors.find(r=>r.symbol===state.sector)?.name||""))+'</h2><label class="rotation-muted">Jejak <select class="rotation-control" id="rotation-tail" aria-label="Panjang jejak">'+[5,10,20].map(v=>'<option value="'+v+'" '+(state.tail===v?"selected":"")+'>'+v+' sesi</option>').join("")+'</select></label></div>'+ '<div id="rotation-map-body">'+mapMarkup(list)+'</div>'+'<p class="rotation-muted">Titik = penutupan terakhir · jejak = sesi sebelumnya. Garis 100 memisahkan empat kondisi.</p></section><aside class="rotation-panel rotation-inspector">'+inspectorMarkup()+'</aside></div>'+
-      '<section class="rotation-panel"><div class="rotation-table-toolbar"><h2>'+ (state.scope==="sectors"?"Ranking sektor":"Saham dalam sektor terpilih")+'</h2><input class="rotation-control" id="rotation-search" aria-label="Cari di daftar rotasi" placeholder="Cari nama atau kode…" value="'+esc(state.query)+'"><select class="rotation-control" id="rotation-sort" aria-label="Urutkan rotasi">'+[["rank","Kondisi → momentum"],["momentum","Momentum tertinggi"],["strength","Kekuatan tertinggi"],["relative_return_pct","Return relatif tertinggi"]].map(([v,l])=>'<option value="'+v+'" '+(state.sort===v?"selected":"")+'>'+l+'</option>').join("")+'</select></div><div id="rotation-table-body">'+tableMarkup(list)+'</div></section>'+
-      '<details class="rotation-method"><summary>Cakupan, sumber &amp; metode</summary><p>'+data.coverage.valid+' dari '+data.coverage.requested+' saham dashboard lolos syarat 100 sesi lengkap. Universe terbatas pada saham yang tersedia di GLABS; bukan semua emiten BEI.</p><p>Klasifikasi IDX-IC: '+esc(classification.as_of)+' · '+esc(classification.refresh_status||"cache")+'. '+(classification.refresh_status==="cached_refresh_failed"?"Pembaruan sumber resmi gagal; menggunakan cache bertanggal, tanpa menebak sektor.":"")+'</p><p>'+esc(data.methodology.strength)+'<br>'+esc(data.methodology.momentum)+'<br>L = 5 / 20 / 60 sesi; m = 3 / 5 / 10 sesi. Weekly di sini horizon 20 hari bursa, bukan candle mingguan.</p><p>'+esc(data.methodology.sector)+'. '+esc(data.methodology.limitation)+'. '+esc(data.methodology.note)+'.</p><p>Sektor minimal 3 saham valid. Semua konstituen basket tetap selama 100 sesi, tanpa mengisi harga hilang. Ranking kondisi dan momentum bukan estimasi keuntungan.</p><p>Sektor tidak tersedia: '+esc(sectors.filter(r=>r.status!=="ok").map(r=>r.name+" ("+r.members+" saham)").join(", ")||"tidak ada")+'</p><details><summary>Saham tidak memenuhi syarat ('+data.coverage.excluded.length+')</summary><p>'+data.coverage.excluded.map(r=>esc(r.symbol)+": "+esc(r.reason)).join("<br>")+'</p></details><p><a href="https://www.idx.co.id/en/products/stocks/" target="_blank" rel="noopener">IDX-IC</a> · <a href="'+esc(classification.mirror_url||"https://www.idx.co.id")+'" target="_blank" rel="noopener">Asal snapshot klasifikasi</a> · <a href="sector_rotation_data.json" target="_blank" rel="noopener">Data audit</a></p></details>';
-    bind();
-  }
-  function bind() {
-    root().querySelectorAll("[data-style]").forEach(b=>b.onclick=()=>{state.style=b.dataset.style;state.selected="";render();});
-    root().querySelectorAll("[data-scope]").forEach(b=>b.onclick=()=>{state.scope=b.dataset.scope;state.selected="";state.filter="";state.query="";render();});
-    root().querySelectorAll("[data-quadrant]").forEach(b=>b.onclick=()=>{state.filter=state.filter===b.dataset.quadrant?"":b.dataset.quadrant;state.selected="";render();});
-    root().querySelectorAll("[data-symbol]").forEach(b=>{b.onclick=()=>choose(b.dataset.symbol);if(b.tagName.toLowerCase()==="g")b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();choose(b.dataset.symbol);}};});
-    document.getElementById("rotation-sector").onchange=e=>{state.sector=e.target.value;state.scope="stocks";state.selected="";state.filter="";state.query="";render();};
-    document.getElementById("rotation-sort").onchange=e=>{state.sort=e.target.value;render();};
-    document.getElementById("rotation-tail").onchange=e=>{state.tail=Number(e.target.value);render();};
-    document.getElementById("rotation-search").oninput=e=>{
-      state.query=e.target.value;
-      // Update only table/map: retain input focus and caret while typing.
-      document.getElementById("rotation-table-body").innerHTML=tableMarkup(rows());
-      root().querySelectorAll("#rotation-table-body [data-symbol]").forEach(b=>b.onclick=()=>choose(b.dataset.symbol));
-      document.getElementById("rotation-map-body").innerHTML=mapMarkup(rows());
-      root().querySelectorAll(".rotation-map [data-symbol]").forEach(b=>{b.onclick=()=>choose(b.dataset.symbol);b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();choose(b.dataset.symbol);}};});
-    };
-    const drill=document.getElementById("rotation-drill");
-    if(drill)drill.onclick=()=>{state.sector=state.selected;state.scope="stocks";state.selected="";state.filter="";state.query="";render();};
-  }
-  async function open(style) {
-    if(LABEL[style])state.style=style;
-    if(state.data){render();return;}
-    if(state.loading)return state.loading;
-    root().innerHTML='<p class="rotation-status" role="status">Memuat hasil rotasi sektor…</p>';
-    state.loading=(async()=>{
-      try {
-        const response=await fetch("sector_rotation_data.json",{cache:"no-store"});
-        if(!response.ok)throw new Error("HTTP "+response.status);
-        const data=await response.json();
-        if(data.schema_version!==1||data.status!=="ok"||
-           !["daily","weekly","swing"].every(s=>Array.isArray(data.modes?.[s]?.sectors)&&Array.isArray(data.modes?.[s]?.stocks)))
-          throw new Error("Kontrak data tidak valid");
-        state.data=data;state.sector=data.modes[state.style].sectors.find(r=>r.status==="ok")?.symbol||"";render();
-      } catch(error) {
-        root().innerHTML='<div class="rotation-status rotation-error">Hasil rotasi belum dapat dimuat. Tidak ada angka/saham contoh yang ditampilkan.<br><span class="rotation-muted">'+esc(error.message)+'</span><br><button class="rotation-control" id="rotation-retry">Coba muat ulang</button></div>';
-        document.getElementById("rotation-retry").onclick=()=>open(state.style);
-      } finally {state.loading=null;}
-    })();
-    return state.loading;
-  }
-  window.GLABSRotation={open};
+(()=>{
+"use strict";
+const C=window.GLABSRotationCore;
+const Q={Leading:"#32d74b",Improving:"#60a5fa",Weakening:"#ffb340",Lagging:"#ff5571",Neutral:"#a1a1aa"};
+const COLORS=["#32d74b","#0aa9ef","#ff8b37","#9869ff","#ed4b9e","#14b8a6","#eab308","#ff5757","#94a3b8","#6fafff","#ce8fff"];
+const INFO={Leading:"Kekuatan dan momentum di atas 100",Improving:"Momentum pulih, kekuatan masih tertinggal",Weakening:"Kekuatan unggul, momentum melemah",Lagging:"Kekuatan dan momentum di bawah 100"};
+const state={data:null,loading:null,universe:"COMPOSITE",interval:"daily",lookback:20,momentum:5,smooth:3,tail:5,filter:"",phase:"",query:"",sort:"strength",descending:true,selected:"",picks:[],legendPicks:[],range:"1M",relative:false,settings:false,help:false,movementFocus:""};
+const root=()=>document.getElementById("rotation-root");
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+const num=(v,d=2)=>Number.isFinite(v)?v.toLocaleString("id-ID",{maximumFractionDigits:d,minimumFractionDigits:d}):"—";
+const pct=v=>(v>0?"+":"")+num(v)+"%";
+const control=(label,attrs="")=>'<button class="rotation-control" '+attrs+'>'+label+'</button>';
+const settings=()=>({interval:state.interval,lookback:state.lookback,momentum:state.momentum,smooth:state.smooth});
+const base=()=>state.data.modes.weekly;
+const rawSectors=()=>base().sectors.filter(r=>r.status==="ok");
+const color=symbol=>{const sector=rawSectors().findIndex(r=>r.symbol===symbol);if(sector>=0)return COLORS[sector%COLORS.length];let h=0;for(const c of symbol)h=(h*31+c.charCodeAt(0))>>>0;return COLORS[h%COLORS.length];};
+const compute=rows=>rows.map(r=>C.calculate(r,settings())).filter(Boolean);
+const sectors=()=>compute(rawSectors());
+const stocks=()=>compute(base().stocks);
+function universeRows(){if(state.picks.length)return stocks().filter(r=>state.picks.includes(r.symbol));return state.universe==="COMPOSITE"?sectors():stocks().filter(r=>r.sector===state.universe);}
+function listRows(){let rows=universeRows().filter(r=>(!state.filter||r.quadrant===state.filter)&&(!state.phase||r.phase===state.phase)&&(!state.query||(r.symbol+" "+r.name).toLowerCase().includes(state.query.toLowerCase())));rows.sort((a,b)=>{const v=typeof a[state.sort]==="number"?a[state.sort]-b[state.sort]:String(a[state.sort]||"").localeCompare(String(b[state.sort]||""));return (state.descending?-1:1)*v||a.symbol.localeCompare(b.symbol);});return rows;}
+function mapRows(){return listRows().filter(r=>!state.legendPicks.length||state.legendPicks.includes(r.symbol));}
+const badge=q=>'<span class="rotation-badge" style="--q-color:'+(Q[q]||Q.Neutral)+'">'+esc(q)+'</span>';
+function mapMarkup(rows){
+ if(!rows.length)return '<p class="rotation-status">Tidak ada trajectory valid untuk pengaturan/filter ini. Tambahkan riwayat atau pendekkan lookback.</p>';
+ const points=rows.flatMap(r=>r.trail.slice(-state.tail));const sx=Math.max(2,...points.map(p=>Math.abs(p.strength-100)))*1.2,sy=Math.max(2,...points.map(p=>Math.abs(p.momentum-100)))*1.2;
+ const x=v=>65+(v-100+sx)*690/(2*sx),y=v=>35+(100+sy-v)*400/(2*sy);
+ let out='<svg class="rotation-map" viewBox="0 0 820 490" role="img" aria-label="Rotation Map terhadap IHSG">'+
+ '<rect x="65" y="35" width="345" height="200" fill="'+Q.Improving+'" opacity=".055"/><rect x="410" y="35" width="345" height="200" fill="'+Q.Leading+'" opacity=".055"/><rect x="65" y="235" width="345" height="200" fill="'+Q.Lagging+'" opacity=".055"/><rect x="410" y="235" width="345" height="200" fill="'+Q.Weakening+'" opacity=".055"/>';
+ for(let i=0;i<=4;i++){const px=65+i*172.5,py=35+i*100;out+='<path d="M'+px+' 35V435 M65 '+py+'H755" stroke="currentColor" opacity="'+(i===2?".28":".08")+'" stroke-dasharray="'+(i===2?"0":"3 6")+'"/><text x="'+px+'" y="457" text-anchor="middle" fill="#858585" font-size="10">'+num(100-sx+i*sx/2,1)+'</text><text x="55" y="'+(py+4)+'" text-anchor="end" fill="#858585" font-size="10">'+num(100+sy-i*sy/2,1)+'</text>';}
+ for(const [q,px,py,anchor] of [["Improving",78,55,"start"],["Leading",741,55,"end"],["Lagging",78,424,"start"],["Weakening",741,424,"end"]])out+='<text data-quadrant="'+q+'" role="button" tabindex="0" x="'+px+'" y="'+py+'" text-anchor="'+anchor+'" fill="'+Q[q]+'" font-size="12">'+q+'</text>';
+ out+='<text x="410" y="484" text-anchor="middle" fill="#858585" font-size="11">Kekuatan relatif →</text><text x="410" y="230" text-anchor="middle" fill="#858585" font-size="10">IHSG · 100</text><text x="65" y="22" fill="#858585" font-size="11">Momentum relatif ↑</text>';
+ for(const r of rows){const tail=r.trail.slice(-state.tail),p=tail.at(-1),col=color(r.symbol);out+='<g class="rotation-track" data-map-symbol="'+esc(r.symbol)+'" role="button" tabindex="0" aria-label="'+esc(r.symbol+" rotation trail")+'" data-line="'+esc(r.symbol)+'"><title>'+esc(r.name+" · "+r.quadrant+" · "+r.phase)+'</title><polyline class="rotation-hit" points="'+tail.map(t=>x(t.strength)+","+y(t.momentum)).join(" ")+'" fill="none" stroke="transparent" stroke-width="15"/><polyline class="rotation-visible-line" points="'+tail.map(t=>x(t.strength)+","+y(t.momentum)).join(" ")+'" fill="none" stroke="'+col+'" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="'+x(p.strength)+'" cy="'+y(p.momentum)+'" r="5" fill="'+col+'" stroke="var(--bg-card)" stroke-width="2"/><text class="rotation-head-label" x="'+Math.min(730,x(p.strength)+10)+'" y="'+(y(p.momentum)-10)+'" fill="'+col+'" font-size="11">'+esc(r.symbol)+'</text></g>';}
+ return out+'</svg>';
+}
+function inspector(){
+ const r=universeRows().find(r=>r.symbol===state.selected);
+ if(!r)return '<p class="rotation-muted">Klik satu garis, titik, atau baris untuk membaca detail trajectory. Garis lain akan memudar.</p>';
+ return '<div class="rotation-detail-head"><div><b>'+esc(r.symbol)+'</b><span class="rotation-muted">'+esc(r.name)+'</span></div>'+badge(r.quadrant)+control("Hapus sorotan",'id="rotation-clear"')+'</div><p class="rotation-summary">'+esc(INFO[r.quadrant]||"Pada batas; arah belum jelas")+'. '+esc(r.phase)+'.</p><div class="rotation-detail-metrics"><span>Kekuatan <b>'+num(r.strength)+'</b></span><span>Momentum <b>'+num(r.momentum)+'</b></span><span>Perubahan <b>'+num(r.delta_strength)+' / '+num(r.delta_momentum)+'</b></span><span>Foreign flow <b title="Tidak ada sumber net foreign flow dalam dataset GLABS">Belum tersedia</b></span></div><p class="rotation-muted">'+(state.interval==="weekly"?"Penutupan akhir tiap minggu hingga sesi terakhir":"Penutupan harian")+' · '+Math.min(state.tail,r.trail.length)+' titik jejak · '+esc(r.date)+'. Kondisi relatif, bukan instruksi transaksi.</p>'+(r.members?control("Lihat saham sektor ini →",'data-drill="'+esc(r.symbol)+'"'):'');
+}
+function table(rows){
+ if(!rows.length)return '<p class="rotation-muted">Tidak ada hasil sesuai filter/pengaturan.</p>';
+ const headings=[["symbol","Symbol"],["quadrant","Quadrant"],["strength","vs Market"],["momentum","Momentum"],["speed","Move"],["foreign","Foreign Flow"],["phase","Phase"]];
+ return '<div class="rotation-table-wrap"><table class="rotation-table"><thead><tr>'+headings.map(([k,l])=>'<th>'+ (k==="foreign"?'<span title="Net foreign flow belum tersedia">'+l+'</span>':'<button data-sort="'+k+'">'+l+(state.sort===k?(state.descending?" ↓":" ↑"):"")+'</button>')+'</th>').join("")+'</tr></thead><tbody>'+rows.map(r=>{const dx=r.delta_strength,dy=r.delta_momentum,arrow=Math.abs(dx)<1e-8&&Math.abs(dy)<1e-8?"→":dx>=0?(dy>=0?"↗":"↘"):(dy>=0?"↖":"↙");return '<tr class="'+(state.selected===r.symbol?"selected":"")+'"><td><button data-select="'+esc(r.symbol)+'"><b>'+esc(r.symbol)+'</b><br><span class="rotation-muted">'+esc(r.name)+'</span></button></td><td>'+badge(r.quadrant)+'</td><td title="GLABS strength: '+num(r.strength)+'">'+(r.strength>100?"Unggul ":"Tertinggal ")+num(Math.abs(r.strength-100),1)+'</td><td title="GLABS momentum: '+num(r.momentum)+'">'+(r.momentum>100?"Menguat":r.momentum<100?"Melemah":"Datar")+'</td><td title="Perubahan strength / momentum dari titik sebelumnya">'+arrow+' '+num(Math.hypot(dx,dy))+'</td><td title="Belum ada data net foreign flow">—</td><td>'+esc(r.phase)+'</td></tr>';}).join("")+'</tbody></table></div>';
+}
+function movementModel(){
+ const rows=state.universe==="COMPOSITE"?rawSectors():base().stocks.filter(r=>r.sector===state.universe);
+ return C.movement(rows,state.data.market_data_date,state.range,state.relative);
+}
+function movementMarkup(){
+ const m=movementModel();if(!m.series.length)return '<p class="rotation-status">Riwayat pergerakan belum tersedia.</p>';
+ if(!m.available)return '<p class="rotation-status">Rentang '+state.range+' belum lengkap untuk seluruh basket ini. Riwayat yang tersedia mulai '+esc(m.start)+'. Pilih rentang lebih pendek; tidak ada data yang diperpanjang atau diisi otomatis.</p>';
+ const values=m.series.flatMap(s=>s.points.map(p=>p.value)),lo=Math.min(0,...values),hi=Math.max(0,...values),pad=Math.max(1,(hi-lo)*.12),min=lo-pad,max=hi+pad;
+ const x=i=>60+i*820/(m.series[0].points.length-1),y=v=>45+(max-v)*315/(max-min);
+ let out='<div class="rotation-movement-title"><h3>'+(state.universe==="COMPOSITE"?"IHSG & Basket Sektor GLABS":esc(state.universe)+" · Pergerakan Saham")+'</h3><p>'+esc(m.start)+' — '+esc(m.end)+'</p></div><svg class="rotation-movement-svg" viewBox="0 0 950 420" role="img" aria-label="Sector Movement '+state.range+' '+(state.relative?"relatif terhadap IHSG":"return ternormalisasi")+'">';
+ for(let i=0;i<=4;i++){const v=min+(max-min)*i/4;out+='<path d="M60 '+y(v)+'H880" stroke="currentColor" opacity=".1"/><text x="50" y="'+(y(v)+4)+'" fill="#858585" font-size="11" text-anchor="end">'+num(v,1)+'%</text>';}
+ out+='<path d="M60 '+y(0)+'H880" stroke="currentColor" opacity=".18"/>';
+ const pts=m.series[0].points;for(let i=0;i<pts.length;i+=Math.max(1,Math.floor((pts.length-1)/6)))out+='<text x="'+x(i)+'" y="394" text-anchor="middle" fill="#858585" font-size="10">'+esc(pts[i].date.slice(5))+'</text>';
+ for(const s of m.series){const p=s.points.at(-1),col=s.benchmark?"#b4b4bb":color(s.symbol),points=s.points.map((p,i)=>x(i)+","+y(p.value)).join(" ");out+='<g data-movement-line="'+esc(s.symbol)+'" class="rotation-movement-track" '+(!s.benchmark?'role="button" tabindex="0" aria-label="'+esc(s.name)+'"':'')+'><title>'+esc(s.name+" "+pct(p.value))+'</title>'+(!s.benchmark?'<polyline points="'+points+'" fill="none" stroke="transparent" stroke-width="16"/>':'')+'<polyline class="rotation-visible-line" points="'+points+'" fill="none" stroke="'+col+'" stroke-width="'+(s.benchmark?3:1.8)+'" '+(s.benchmark?'stroke-dasharray="5 5"':'')+' stroke-linecap="round" stroke-linejoin="round"/><circle cx="880" cy="'+y(p.value)+'" r="3.5" fill="'+col+'"/><g class="rotation-end-label"><rect x="655" y="'+(y(p.value)-32)+'" width="220" height="24" rx="12" fill="var(--bg-card)" stroke="'+col+'"/><text x="665" y="'+(y(p.value)-16)+'" fill="var(--text-primary)" font-size="10">'+esc(s.symbol+" "+pct(p.value))+'</text></g></g>';}
+ out+='</svg><div class="rotation-movement-legend">'+m.series.map(s=>'<button class="rotation-legend-item" data-movement-legend="'+esc(s.symbol)+'" '+(s.benchmark?'disabled':'')+'><i style="background:'+(s.benchmark?"#b4b4bb":color(s.symbol))+'"></i>'+esc(s.name)+' <b>'+pct(s.points.at(-1).value)+'</b></button>').join("")+'</div><p class="rotation-muted">Awal periode = 0%. '+(state.relative?"Return rasio harga/IHSG; IHSG = 0%.":"Return harga; IHSG digambar putus-putus.")+' Rentang dihitung mundur dari screening terakhir, bukan tanggal hari ini. Klik garis/legend sektor untuk melihat sahamnya.</p>';
+ return out;
+}
+function settingsMarkup(){return '<div class="rotation-settings" id="rotation-settings" '+(!state.settings?'hidden':'')+'><div class="rotation-setting-row"><label>Benchmark<select id="rotation-benchmark" class="rotation-control"><option value="COMPOSITE">IHSG (Composite)</option>'+["LQ45","IDX30","IDX80","Kompas100","Bisnis27","MNC36","IDX ESG Leaders"].map(s=>'<option disabled>'+s+' — data belum tersedia</option>').join("")+'</select></label><p class="rotation-muted">Semua pembacaan terhadap IHSG. Benchmark lain tidak diganti dengan IHSG secara diam-diam.</p></div><div class="rotation-setting-row"><label>Interval</label><div class="rotation-tabs" aria-label="Interval rotasi">'+["weekly","daily"].map(s=>'<button data-interval="'+s+'" aria-pressed="'+(state.interval===s)+'" class="'+(state.interval===s?"active":"")+'">'+(s==="weekly"?"Weekly":"Daily")+'</button>').join("")+'</div><p class="rotation-muted">Weekly memakai penutupan akhir minggu; Daily memakai tiap hari bursa. Terpisah dari toggle horizon screener.</p></div><div class="rotation-setting-row"><label for="rotation-tail">Tail length <output id="rotation-tail-value">'+state.tail+' '+(state.interval==="weekly"?"minggu":"sesi")+'</output></label><input id="rotation-tail" type="range" min="2" max="20" value="'+state.tail+'"><p class="rotation-muted">Mengatur jejak peta saja. Tombol 1M/3M/6M/1Y tidak mengubah tail.</p></div><details class="rotation-advanced"><summary>Adjustment metode GLABS</summary><div class="rotation-adjustments">'+[["lookback","Lookback",2,60],["momentum","Momentum lag",1,20],["smooth","Smoothing",1,10]].map(([k,l,min,max])=>'<label>'+l+'<input id="rotation-'+k+'" type="number" class="rotation-control" min="'+min+'" max="'+max+'" value="'+state[k]+'"></label>').join("")+'</div><p class="rotation-muted">S = SMA smoothing dari 100 × rasio harga/IHSG dibanding lookback lalu. M = 100 × S/S momentum-lag lalu. Satuan mengikuti interval. Bukan angka JdK atau metode internal BandarMetrics.</p></details></div>';}
+function render(){
+ if(!state.data||!root())return;const rows=listRows(),all=universeRows(),sectorRows=sectors(),classification=state.data.classification||{};
+ root().innerHTML='<header class="rotation-header"><div class="greet"><h1>Rotasi <em>Sektor</em></h1><p>Penutupan '+esc(state.data.market_data_date)+' · '+(state.interval==="weekly"?"Weekly":"Daily")+' · IHSG</p></div><div class="rotation-header-actions">'+control("Cara pakai",'id="rotation-help"')+control("Refresh",'id="rotation-refresh"')+control("Unduh chart",'id="rotation-export"')+'</div></header><div class="rotation-toolbar rotation-main-toolbar"><select id="rotation-universe" class="rotation-control" aria-label="Indeks atau sektor"><option value="COMPOSITE">COMPOSITE · IHSG / seluruh sektor</option>'+rawSectors().map(r=>'<option value="'+r.symbol+'" '+(state.universe===r.symbol?'selected':'')+'>'+r.symbol+' · '+esc(r.name)+'</option>').join("")+'</select>'+control("Settings",'id="rotation-settings-toggle" aria-expanded="'+state.settings+'"')+ (state.universe!=="COMPOSITE"?control("← Semua sektor",'id="rotation-back"'):'')+settingsMarkup()+'</div>'+
+ (state.help?'<div class="rotation-status">1. Pilih seluruh sektor atau satu sektor. 2. Atur benchmark, interval, dan tail di Settings. 3. Compare stocks mengganti peta menjadi saham pilihan. 4. Klik garis untuk detail; arahkan pointer untuk sorotan. 5. Sector Movement punya rentang terpisah dan membuka saham dalam sektor. Leading berarti relatif unggul, bukan jaminan harga naik.</div>':'')+
+ '<p class="rotation-source-note">Basket sektor GLABS (equal-weight), bukan indeks IDX resmi / angka BandarMetrics.'+(classification.refresh_status==="cached_refresh_failed"?' Klasifikasi cache '+esc(classification.as_of)+'; refresh sumber resmi gagal.':'')+'</p>'+
+ (window.dashboardData?.market_data_date&&window.dashboardData.market_data_date!==state.data.market_data_date?'<p class="rotation-status">Dataset rotasi belum mengikuti screening terbaru. Hasil ini tetap bertanggal '+esc(state.data.market_data_date)+'.</p>':'')+
+ '<div class="rotation-quadrants">'+Object.keys(INFO).map(q=>{const subset=sectorRows.filter(r=>r.quadrant===q);return '<button class="rotation-quadrant '+(state.filter===q?'active':'')+'" data-quadrant="'+q+'" style="--q-color:'+Q[q]+'"><span>'+q+'</span><strong>'+subset.length+'</strong><div class="rotation-quadrant-symbols">'+esc(subset.slice(0,4).map(r=>r.symbol).join(" · "))+'</div><small>'+INFO[q]+'</small></button>';}).join("")+'</div>'+
+ '<section class="rotation-panel"><div class="rotation-table-toolbar"><div><h2>Rotation Map</h2><p class="rotation-muted">'+(state.universe==="COMPOSITE"?"Jejak rotasi sektor terhadap IHSG":"Rotasi saham dalam "+esc(state.universe)+" terhadap IHSG")+'. Klik garis untuk detail.</p></div><span class="rotation-badge" style="--q-color:#a1a1aa">'+esc(state.universe)+' · '+esc(state.data.market_data_date)+'</span></div><div class="rotation-compare"><label for="rotation-compare">Compare stocks</label><p class="rotation-muted">Pilih saham valid GLABS. Saat dipilih, peta hanya menampilkan saham tersebut; hapus untuk kembali ke sektor.</p><div class="rotation-picks">'+state.picks.map(s=>control(esc(s)+" ×",'data-remove-pick="'+esc(s)+'"')).join("")+(state.picks.length?control("Hapus semua",'id="rotation-clear-picks"'):'')+'</div><input id="rotation-compare" class="rotation-control" placeholder="Cari saham untuk dibandingkan…" aria-label="Compare stocks" value=""><div id="rotation-suggestions"></div></div><div id="rotation-map-body">'+mapMarkup(mapRows())+'</div><div class="rotation-map-legend">'+all.map(r=>'<button class="rotation-legend-item" data-map-legend="'+esc(r.symbol)+'" aria-pressed="'+state.legendPicks.includes(r.symbol)+'"><i style="background:'+color(r.symbol)+'"></i><b>'+esc(r.symbol)+'</b><span class="rotation-muted">S '+num(r.strength)+' · M '+num(r.momentum)+'</span></button>').join("")+'</div><div id="rotation-inspector">'+inspector()+'</div></section>'+
+ '<section class="rotation-panel"><div class="rotation-table-toolbar"><input id="rotation-search" class="rotation-control" placeholder="Search symbol…" aria-label="Search symbol" value="'+esc(state.query)+'">'+control("Hapus filter",'id="rotation-reset-filter"')+'</div><div class="rotation-phase-filters">'+[...new Set(all.map(r=>r.phase))].map(p=>'<button class="rotation-control '+(p===state.phase?'active':'')+'" data-phase="'+esc(p)+'">'+esc(p)+'</button>').join("")+'</div><div id="rotation-table-body">'+table(rows)+'</div><p id="rotation-count" class="rotation-muted">'+rows.length+' / '+all.length+' trajectory valid · hover angka untuk nilai dasar. Move = perubahan titik, bukan estimasi keuntungan.</p></section>'+
+ '<section class="rotation-panel rotation-movement-panel"><div class="rotation-table-toolbar"><h2>Sector Movement</h2><div class="rotation-movement-controls"><div class="rotation-tabs" aria-label="Rentang Sector Movement">'+["1M","3M","6M","1Y"].map(r=>'<button data-range="'+r+'" class="'+(state.range===r?'active':'')+'" aria-pressed="'+(state.range===r)+'">'+r+'</button>').join("")+'</div><div class="rotation-tabs" aria-label="Mode Sector Movement"><button data-relative="false" class="'+(!state.relative?'active':'')+'">Normalized</button><button data-relative="true" class="'+(state.relative?'active':'')+'">vs COMPOSITE</button></div></div></div><p class="rotation-muted">'+(state.relative?"Kinerja relatif terhadap IHSG":"Pergerakan harga ternormalisasi")+'. Hover/fokus garis meredupkan garis lain. Klik garis/legend membuka saham sektornya.</p><div id="rotation-movement-body">'+movementMarkup()+'</div></section>'+
+ '<details class="rotation-method"><summary>Cakupan, sumber & metode</summary><p>'+state.data.coverage.valid+' / '+state.data.coverage.requested+' saham memenuhi riwayat minimum 100 sesi. Universe GLABS, bukan semua BEI. Harga adjusted, tidak ada forward fill. Konstituen saat ini, bukan point-in-time.</p><p>Benchmark IHSG. Sektor basket equal-weight rebalance harian. Angka dan fase bukan algoritme proprietary BandarMetrics/JdK. Foreign flow belum tersedia dan tidak disimpulkan dari volume harga.</p><p>Klasifikasi sektor '+esc(classification.as_of)+' · '+esc(classification.refresh_status||"cache")+'. Riwayat chart terbatas pada penutupan nyata yang tersedia; rentang yang kurang tidak diplot sebagai data lengkap.</p><a href="sector_rotation_data.json" target="_blank" rel="noopener">Data audit</a></details><p id="rotation-notice" class="rotation-muted" role="status"></p>';
+ bind();highlightMap(state.selected);highlightMovement(state.movementFocus);
+}
+function highlightMap(symbol){root()?.querySelectorAll("[data-line]").forEach(el=>{el.classList.toggle("is-muted",!!symbol&&el.dataset.line!==symbol);el.classList.toggle("is-focused",!!symbol&&el.dataset.line===symbol);});}
+function highlightMovement(symbol){root()?.querySelectorAll("[data-movement-line]").forEach(el=>{const benchmark=el.dataset.movementLine==="COMPOSITE";el.classList.toggle("is-muted",!!symbol&&!benchmark&&el.dataset.movementLine!==symbol);el.classList.toggle("is-focused",!!symbol&&el.dataset.movementLine===symbol);});root()?.querySelectorAll("[data-movement-legend]").forEach(el=>el.classList.toggle("active",el.dataset.movementLegend===symbol));}
+function select(symbol){state.selected=state.selected===symbol?"":symbol;highlightMap(state.selected);document.getElementById("rotation-inspector").innerHTML=inspector();document.getElementById("rotation-table-body").innerHTML=table(listRows());bindRows();}
+function drill(symbol){state.universe=symbol;state.picks=[];state.legendPicks=[];state.selected="";state.query="";state.filter="";state.phase="";state.movementFocus="";render();}
+function movementClick(symbol){if(symbol==="COMPOSITE")return;if(rawSectors().some(r=>r.symbol===symbol)){drill(symbol);}else {state.selected=symbol;state.movementFocus=symbol;highlightMap(symbol);highlightMovement(symbol);document.getElementById("rotation-inspector").innerHTML=inspector();bindRows();}}
+function keyActivate(el,fn){el.onclick=fn;el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fn();}};}
+function bindRows(){
+ root().querySelectorAll("[data-select]").forEach(el=>el.onclick=()=>select(el.dataset.select));
+ root().querySelectorAll("[data-sort]").forEach(el=>el.onclick=()=>{const k=el.dataset.sort;if(k===state.sort)state.descending=!state.descending;else {state.sort=k;state.descending=true;}render();});
+ root().querySelectorAll("[data-drill]").forEach(el=>el.onclick=()=>drill(el.dataset.drill));
+ const clear=document.getElementById("rotation-clear");if(clear)clear.onclick=()=>{state.selected="";render();};
+}
+function bindMap(){
+ root().querySelectorAll("[data-map-symbol]").forEach(el=>{keyActivate(el,()=>select(el.dataset.mapSymbol));el.onpointerenter=()=>highlightMap(el.dataset.mapSymbol);el.onpointerleave=()=>highlightMap(state.selected);el.onfocus=()=>highlightMap(el.dataset.mapSymbol);el.onblur=()=>highlightMap(state.selected);});
+ root().querySelectorAll("[data-quadrant]").forEach(el=>keyActivate(el,()=>{state.filter=state.filter===el.dataset.quadrant?"":el.dataset.quadrant;state.selected="";render();}));
+}
+function bindMovement(){
+ root().querySelectorAll("[data-movement-line]").forEach(el=>{if(el.dataset.movementLine==="COMPOSITE")return;keyActivate(el,()=>movementClick(el.dataset.movementLine));el.onpointerenter=()=>highlightMovement(el.dataset.movementLine);el.onpointerleave=()=>highlightMovement(state.movementFocus);el.onfocus=()=>highlightMovement(el.dataset.movementLine);el.onblur=()=>highlightMovement(state.movementFocus);});
+ root().querySelectorAll("[data-movement-legend]").forEach(el=>{el.onclick=()=>movementClick(el.dataset.movementLegend);el.onpointerenter=()=>highlightMovement(el.dataset.movementLegend);el.onpointerleave=()=>highlightMovement(state.movementFocus);el.onfocus=()=>highlightMovement(el.dataset.movementLegend);el.onblur=()=>highlightMovement(state.movementFocus);});
+}
+function bind(){
+ document.getElementById("rotation-universe").onchange=e=>drill(e.target.value);
+ const back=document.getElementById("rotation-back");if(back)back.onclick=()=>drill("COMPOSITE");
+ document.getElementById("rotation-settings-toggle").onclick=()=>{state.settings=!state.settings;document.getElementById("rotation-settings").hidden=!state.settings;document.getElementById("rotation-settings-toggle").setAttribute("aria-expanded",String(state.settings));};
+ document.getElementById("rotation-help").onclick=()=>{state.help=!state.help;render();};
+ document.getElementById("rotation-refresh").onclick=()=>{state.data=null;return open();};
+ document.getElementById("rotation-export").onclick=()=>{const svg=root().querySelector(".rotation-movement-svg");if(!svg){document.getElementById("rotation-notice").textContent="Pilih rentang dengan chart valid untuk mengunduh.";return;}const clone=svg.cloneNode(true);clone.setAttribute("xmlns","http://www.w3.org/2000/svg");clone.style.background="#111";clone.querySelectorAll(".rotation-end-label").forEach(el=>el.remove());const url=URL.createObjectURL(new Blob([clone.outerHTML.replaceAll("var(--bg-card)","#111").replaceAll("var(--text-primary)","#eee")],{type:"image/svg+xml"}));const a=document.createElement("a");a.href=url;a.download="GLABS-sector-movement-"+state.data.market_data_date+".svg";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+ root().querySelectorAll("[data-interval]").forEach(el=>el.onclick=()=>{state.interval=el.dataset.interval;state.lookback=state.interval==="weekly"?5:20;state.momentum=state.interval==="weekly"?3:5;state.selected="";state.legendPicks=[];render();});
+ document.getElementById("rotation-tail").oninput=e=>{state.tail=Number(e.target.value);document.getElementById("rotation-tail-value").textContent=state.tail+" "+(state.interval==="weekly"?"minggu":"sesi");document.getElementById("rotation-map-body").innerHTML=mapMarkup(mapRows());bindMap();highlightMap(state.selected);};
+ for(const [k,min,max] of [["lookback",2,60],["momentum",1,20],["smooth",1,10]])document.getElementById("rotation-"+k).onchange=e=>{const v=Number(e.target.value);if(!Number.isInteger(v)||v<min||v>max){e.target.value=state[k];return;}state[k]=v;state.selected="";render();};
+ const clear=document.getElementById("rotation-clear-picks");if(clear)clear.onclick=()=>{state.picks=[];state.selected="";state.legendPicks=[];render();};
+ root().querySelectorAll("[data-remove-pick]").forEach(el=>el.onclick=()=>{state.picks=state.picks.filter(s=>s!==el.dataset.removePick);state.selected="";render();});
+ root().querySelectorAll("[data-map-legend]").forEach(el=>{const symbol=el.dataset.mapLegend;el.onclick=()=>{state.legendPicks=state.legendPicks.includes(symbol)?state.legendPicks.filter(s=>s!==symbol):[...state.legendPicks,symbol];document.getElementById("rotation-map-body").innerHTML=mapMarkup(mapRows());el.setAttribute("aria-pressed",String(state.legendPicks.includes(symbol)));bindMap();highlightMap(state.selected);};el.onpointerenter=()=>highlightMap(symbol);el.onpointerleave=()=>highlightMap(state.selected);});
+ document.getElementById("rotation-compare").oninput=e=>{const q=e.target.value.trim().toLowerCase();const suggestions=document.getElementById("rotation-suggestions");suggestions.innerHTML=q?stocks().filter(r=>!state.picks.includes(r.symbol)&&(r.symbol+" "+r.name).toLowerCase().includes(q)).slice(0,12).map(r=>control(esc(r.symbol)+" · "+esc(r.name),'data-add-pick="'+esc(r.symbol)+'"')).join("")||'<p class="rotation-muted">Tidak ada saham valid sesuai pengaturan.</p>':"";suggestions.querySelectorAll("[data-add-pick]").forEach(el=>el.onclick=()=>{if(state.picks.length>=8){suggestions.innerHTML='<p class="rotation-muted">Maksimal 8 saham agar peta terbaca.</p>';return;}state.picks.push(el.dataset.addPick);state.selected="";state.legendPicks=[];render();});};
+ document.getElementById("rotation-search").oninput=e=>{state.query=e.target.value;document.getElementById("rotation-table-body").innerHTML=table(listRows());document.getElementById("rotation-map-body").innerHTML=mapMarkup(mapRows());document.getElementById("rotation-count").textContent=listRows().length+" / "+universeRows().length+" trajectory valid";bindRows();bindMap();highlightMap(state.selected);};
+ document.getElementById("rotation-reset-filter").onclick=()=>{state.filter="";state.phase="";state.query="";state.legendPicks=[];render();};
+ root().querySelectorAll("[data-phase]").forEach(el=>el.onclick=()=>{state.phase=state.phase===el.dataset.phase?"":el.dataset.phase;render();});
+ root().querySelectorAll("[data-range]").forEach(el=>el.onclick=()=>{state.range=el.dataset.range;state.movementFocus="";render();});
+ root().querySelectorAll("[data-relative]").forEach(el=>el.onclick=()=>{state.relative=el.dataset.relative==="true";render();});
+ bindRows();bindMap();bindMovement();
+}
+async function open(){
+ if(state.data){render();return;}if(state.loading)return state.loading;
+ if(!root())return;root().innerHTML='<p class="rotation-status" role="status">Memuat hasil rotasi sektor…</p>';
+ state.loading=(async()=>{try{if(!C)throw new Error("Rotation core belum dimuat");const response=await fetch("sector_rotation_data.json",{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);const data=await response.json();if(data.schema_version!==1||data.status!=="ok"||!Array.isArray(data.modes?.weekly?.sectors)||!Array.isArray(data.modes?.weekly?.stocks))throw new Error("Kontrak data tidak valid");state.data=data;render();}catch(error){root().innerHTML='<div class="rotation-status rotation-error">Hasil rotasi belum dapat dimuat. Tidak ada angka/saham contoh yang ditampilkan.<br>'+esc(error.message)+'<br>'+control("Coba muat ulang",'id="rotation-retry"')+'</div>';document.getElementById("rotation-retry").onclick=()=>open();}finally{state.loading=null;}})();return state.loading;
+}
+window.GLABSRotation={open};
 })();

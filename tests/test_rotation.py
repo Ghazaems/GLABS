@@ -80,6 +80,20 @@ class RotationTests(unittest.TestCase):
                 self.assertLessEqual(len(row["trail"]), 20)
         json.dumps(report, allow_nan=False)
 
+    def test_chart_history_uses_available_sessions_without_extending(self):
+        report = build_rotation(self.prices,self.market,self.classification,self.session)
+        row = report["modes"]["weekly"]["stocks"][0]
+        self.assertEqual(len(row["history"]),100)
+        self.assertEqual(len(row["chart_history"]),130)
+        self.assertEqual(row["chart_history"][-1]["date"],self.session)
+        sector = next(r for r in report["modes"]["weekly"]["sectors"] if r["status"]=="ok")
+        self.assertEqual(len(sector["chart_history"]),130)
+        self.prices["AAAA"].iloc[5] = np.nan
+        report = build_rotation(self.prices,self.market,self.classification,self.session)
+        row = next(r for r in report["modes"]["weekly"]["stocks"] if r["symbol"]=="AAAA")
+        self.assertEqual(len(row["chart_history"]),124)
+        self.assertEqual(row["chart_history"][0]["date"],self.dates[6].strftime("%Y-%m-%d"))
+
     def test_missing_prices_and_unknown_not_filled(self):
         self.prices["AAAA"].iloc[-10] = np.nan
         self.prices["UNKNOWN"] = self.market
