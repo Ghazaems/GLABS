@@ -53,11 +53,11 @@ function movementModel(){
  return C.movement(rows,state.data.market_data_date,state.range,state.relative);
 }
 function movementMarkup(){
- const m=movementModel();if(!m.series.length)return '<p class="rotation-status">Riwayat pergerakan belum tersedia.</p>';
+ const m=movementModel();
  if(!m.available)return '<p class="rotation-status">Rentang '+state.range+' belum lengkap untuk seluruh basket ini. Riwayat yang tersedia mulai '+esc(m.start)+'. Pilih rentang lebih pendek; tidak ada data yang diperpanjang atau diisi otomatis.</p>';
  const values=m.series.flatMap(s=>s.points.map(p=>p.value)),lo=Math.min(0,...values),hi=Math.max(0,...values),pad=Math.max(1,(hi-lo)*.12),min=lo-pad,max=hi+pad;
  const x=i=>60+i*820/(m.series[0].points.length-1),y=v=>45+(max-v)*315/(max-min);
- let out='<div class="rotation-movement-title"><h3>'+(state.universe==="COMPOSITE"?"IHSG & Basket Sektor GLABS":esc(state.universe)+" · Pergerakan Saham")+'</h3><p>'+esc(m.start)+' — '+esc(m.end)+'</p></div><svg class="rotation-movement-svg" viewBox="0 0 950 420" role="img" aria-label="Sector Movement '+state.range+' '+(state.relative?"relatif terhadap IHSG":"return ternormalisasi")+'">';
+ let out=(m.missing?.length?'<p class="rotation-status">'+(m.series.length-1)+' basket/saham dengan riwayat lengkap. Tidak diplot pada '+state.range+': '+esc(m.missing.join(", "))+' (riwayat kurang).</p>':'')+'<div class="rotation-movement-title"><h3>'+(state.universe==="COMPOSITE"?"IHSG & Basket Sektor GLABS":esc(state.universe)+" · Pergerakan Saham")+'</h3><p>'+esc(m.start)+' — '+esc(m.end)+'</p></div><svg class="rotation-movement-svg" viewBox="0 0 950 420" role="img" aria-label="Sector Movement '+state.range+' '+(state.relative?"relatif terhadap IHSG":"return ternormalisasi")+'">';
  for(let i=0;i<=4;i++){const v=min+(max-min)*i/4;out+='<path d="M60 '+y(v)+'H880" stroke="currentColor" opacity=".1"/><text x="50" y="'+(y(v)+4)+'" fill="#858585" font-size="11" text-anchor="end">'+num(v,1)+'%</text>';}
  out+='<path d="M60 '+y(0)+'H880" stroke="currentColor" opacity=".18"/>';
  const pts=m.series[0].points,ticks=[0,...Array.from({length:6},(_,j)=>Math.round((j+1)*(pts.length-1)/6))];for(const i of [...new Set(ticks)])out+='<text x="'+x(i)+'" y="394" text-anchor="middle" fill="#858585" font-size="10">'+esc(pts[i].date.slice(5))+'</text>';

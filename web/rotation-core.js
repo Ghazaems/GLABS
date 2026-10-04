@@ -25,18 +25,20 @@ function calculate(row,settings){
 }
 function rangeStart(end,range){const d=new Date(end+"T12:00:00Z"),months={ "1M":1,"3M":3,"6M":6,"1Y":12 }[range];const day=d.getUTCDate();d.setUTCDate(1);d.setUTCMonth(d.getUTCMonth()-months);const year=d.getUTCFullYear(),month=d.getUTCMonth();const last=new Date(Date.UTC(year,month+1,0)).getUTCDate();d.setUTCDate(Math.min(day,last));return d.toISOString().slice(0,10);}
 function movement(rows,end,range,relative){
- const start=rangeStart(end,range),all=rows.map(r=>({row:r,history:history(r).filter(p=>p.date<=end)})).filter(r=>r.history.length);
- if(!all.length)return {series:[],available:false,start,end};
+ const start=rangeStart(end,range),candidates=rows.map(r=>({row:r,history:history(r).filter(p=>p.date<=end)})).filter(r=>r.history.length);
+ const tolerance=new Date(start+"T12:00:00Z");tolerance.setUTCDate(tolerance.getUTCDate()+7);const maxStart=tolerance.toISOString().slice(0,10);
+ const missing=candidates.filter(r=>r.history[0].date>maxStart).map(r=>r.row.symbol);
+ const all=candidates.filter(r=>r.history[0].date<=maxStart);
+ if(!all.length)return {series:[],available:false,start:candidates.map(r=>r.history[0].date).sort().at(-1)||start,end,missing};
  const common=all[0].history.filter(p=>p.date>=start).map(p=>p.date).filter(date=>all.every(r=>r.history.some(p=>p.date===date)));
- if(common.length<2)return {series:[],available:false,start,end};
+ if(common.length<2)return {series:[],available:false,start,end,missing};
  const first=common[0],series=all.map(({row,history:h})=>{const lookup=new Map(h.map(p=>[p.date,p])),base=lookup.get(first);
  return {symbol:row.symbol,name:row.name,points:common.map(date=>{const p=lookup.get(date);return {date,value:relative?100*((p.close/base.close)/(p.benchmark/base.benchmark)-1):100*(p.close/base.close-1)};})};});
  const firstRow=new Map(all[0].history.map(p=>[p.date,p])),base=firstRow.get(first).benchmark;
  series.push({symbol:"COMPOSITE",name:"IHSG (Composite)",benchmark:true,points:common.map(date=>({date,value:relative?0:100*(firstRow.get(date).benchmark/base-1)}))});
  // One-year is never silently represented by a shorter dataset.
  const coverageStart=all.map(r=>r.history[0].date).sort().at(-1);
- const tolerance=new Date(start+"T12:00:00Z");tolerance.setUTCDate(tolerance.getUTCDate()+7);
- return {series,available:coverageStart<=tolerance.toISOString().slice(0,10),start:first,end:common.at(-1),requestedStart:start};
+ return {series,available:coverageStart<=maxStart,start:first,end:common.at(-1),requestedStart:start,missing};
 }
 const api={history,periods,quadrant,calculate,rangeStart,movement};
 if(typeof module!=="undefined"&&module.exports)module.exports=api;else window.GLABSRotationCore=api;

@@ -14,6 +14,8 @@ assert(relative.available);assert(relative.series[0].points.every(p=>Math.abs(p.
 assert.equal(C.movement([matching],dates.at(-1),"1M",false).series[0].points[0].value,0);
 assert.equal(C.movement([{...matching,history:h.slice(-100)}],dates.at(-1),"1Y",false).available,false);
 assert.equal(C.rangeStart("2026-03-31","1M"),"2026-02-28");
+const mixed=C.movement([matching,{...matching,symbol:"SHORT",history:h.slice(-5)}],dates.at(-1),"1M",false);
+assert(mixed.available);assert.equal(mixed.missing[0],"SHORT");assert.equal(mixed.series.length,2);
 assert.equal(C.calculate({...matching,history:h.slice(-5)},{interval:"daily",lookback:20,momentum:5,smooth:3}),null);
 const end=dates.at(-1);
 function fixture(data,ok=true){
