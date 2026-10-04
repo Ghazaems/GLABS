@@ -13,6 +13,10 @@ on:
     paths:
       - ".github/workflows/sector-rotation.yml"
       - "screener/rotation.py"
+      - "data/rotation_history.py"
+      - "web/rotation-core.js"
+      - "web/rotation.js"
+      - "tests/test_rotation_history.py"
       - "data/idx_sector_classification.json"
 
 permissions:
@@ -25,7 +29,7 @@ concurrency:
 jobs:
   rotation:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,7 +46,13 @@ jobs:
           try:
               report = json.loads(Path("web/sector_rotation_data.json").read_text())
               needed = (report.get("dashboard_sha256") != current or
-                        report.get("schema_version") != 1 or report.get("status") != "ok")
+                        report.get("schema_version") != 1 or report.get("status") != "ok" or
+                        report.get("history_schema_version") != 1)
+              extended = json.loads(Path("web/rotation_history_data.json").read_text())
+              needed = needed or extended.get("dashboard_sha256") != current or extended.get("status") != "ok"
+              # Retry failed benchmark/history fetches on automatic recovery, not indefinitely inside one run.
+              needed = needed or extended.get("health", {}).get("stocks_fresh", 0) < extended.get("health", {}).get("stocks_requested", 0)
+              needed = needed or any(b.get("status") == "stale_or_unavailable" for b in extended.get("benchmarks", {}).values())
           except (OSError, ValueError):
               needed = True
           needed = needed or os.environ["EVENT_NAME"] in {"push", "workflow_dispatch"}
@@ -57,14 +67,22 @@ jobs:
           cache: pip
       - name: Install rotation dependencies
         if: steps.freshness.outputs.run == 'true'
-        run: pip install numpy pandas requests yfinance
+        run: pip install -r requirements.txt
       - name: Rotation regression tests
         if: steps.freshness.outputs.run == 'true'
         run: |
-          python -m unittest discover -s tests -p test_rotation.py -v
+          python -m unittest discover -s tests -p 'test_rotation*.py' -v
           node --check web/rotation-core.js
           node --check web/rotation.js
           node tests/test_rotation_ui.js
+      - name: Restore historical stock cache
+        if: steps.freshness.outputs.run == 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/rotation_stock_history.json.gz
+          key: rotation-history-v1-${{ runner.os }}-${{ hashFiles('web/dashboard_data.json') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            rotation-history-v1-${{ runner.os }}-
       - name: Generate rotation
         if: steps.freshness.outputs.run == 'true'
         run: |
@@ -73,6 +91,12 @@ jobs:
             if [ "$attempt" -eq 2 ]; then exit 1; fi
             sleep 20
           done
+      - name: Save historical stock cache
+        if: steps.freshness.outputs.run == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/rotation_stock_history.json.gz
+          key: rotation-history-v1-${{ runner.os }}-${{ hashFiles('web/dashboard_data.json') }}-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Validate publication contract
         if: steps.freshness.outputs.run == 'true'
         run: |
@@ -89,14 +113,21 @@ jobs:
               for row in mode["stocks"]:
                   assert row["date"] == data["market_data_date"]
                   assert row["sector"] in {s["symbol"] for s in mode["sectors"]}
-          print(f"Validated {data['coverage']['valid']} stocks across 11 sector definitions")
+          extended = json.loads(Path("web/rotation_history_data.json").read_text())
+          assert extended["status"] == "ok"
+          assert extended["market_data_date"] == data["market_data_date"]
+          assert extended["dashboard_sha256"] == data["dashboard_sha256"]
+          assert extended["benchmarks"]["COMPOSITE"]["status"] == "ok"
+          assert extended["views"]["COMPOSITE"]["sectors"]
+          assert extended["stocks"]
+          print(f"Validated {data['coverage']['valid']} stocks; extended history and benchmark contracts match")
           PY
       - name: Publish generated rotation
         if: steps.freshness.outputs.run == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add web/sector_rotation_data.json data/idx_sector_classification.json
+          git add web/sector_rotation_data.json web/rotation_history_data.json data/rotation_index_history.json data/idx_sector_classification.json
           if git diff --cached --quiet; then exit 0; fi
           git commit -m "chore: publish sector rotation results"
           for attempt in 1 2 3; do
@@ -106,6 +137,8 @@ jobs:
           from pathlib import Path
           data = json.loads(Path("web/sector_rotation_data.json").read_bytes())
           current = hashlib.sha256(Path("web/dashboard_data.json").read_bytes()).hexdigest()
+          extended = json.loads(Path("web/rotation_history_data.json").read_bytes())
+          assert extended["dashboard_sha256"] == current, "Historical feed advanced during rotation"
           assert data["dashboard_sha256"] == current, "Dashboard advanced during rotation; retry on next automatic trigger"
           PY
               git push && exit 0

@@ -266,6 +266,10 @@ def run():
     report["classification"] = {k: v for k, v in classification.items() if k != "companies"}
     if report["coverage"]["valid"] < max(3, int(len(prices) * .5)):
         raise ValueError("Less than 50% of dashboard eligible for rotation; publication refused")
+    # This adds an independent adjustable history contract; existing screener/radar modes remain unchanged.
+    from data.rotation_history import run as fetch_rotation_history
+    fetch_rotation_history(classification["companies"], SECTORS, source, dashboard)
+    report["history_schema_version"] = 1
     output = Path("web/sector_rotation_data.json")
     temporary = output.with_suffix(".tmp")
     temporary.write_text(json.dumps(report, ensure_ascii=False, allow_nan=False,
