@@ -18,6 +18,8 @@ on:
     paths:
       - ".github/workflows/daily-screening.yml"
       - "main.py"
+      - "idx_tickers.py"
+      - "idx_tickers_500.py"
       - "data/**.py"
       - "screener/**.py"
 
@@ -30,7 +32,7 @@ concurrency:
 
 jobs:
   run-screening:
-    name: Screen 500 IDX issuers
+    name: Screen configured IDX universe
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
@@ -52,6 +54,8 @@ jobs:
           import os
           from datetime import datetime, time, timedelta
           from zoneinfo import ZoneInfo
+
+          from idx_tickers_500 import IDX_SCREENING_TICKERS
 
           WIB = ZoneInfo("Asia/Jakarta")
           MARKET_CLOSE = time(16, 15)
@@ -87,7 +91,8 @@ jobs:
                       payload = json.load(source)
                   completed_session = payload.get("screening_session_date")
                   should_run = (completed_session != session_date.isoformat()
-                                or payload.get("market_data_date") != session_date.isoformat())
+                                or payload.get("market_data_date") != session_date.isoformat()
+                                or set(payload.get("universe_tickers", [])) != set(IDX_SCREENING_TICKERS))
                   reason = (
                       "session-stale"
                       if should_run
@@ -131,11 +136,11 @@ jobs:
         if: steps.freshness.outputs.run == 'true'
         run: |
           python - <<'PY'
-          from idx_tickers_500 import IDX_TICKERS_500
+          from idx_tickers_500 import IDX_SCREENING_TICKERS, REQUESTED_SCREENING_TICKERS
 
-          assert len(IDX_TICKERS_500) == 500
-          assert len(set(IDX_TICKERS_500)) == 500
-          print("Valid: 500 ticker unik")
+          assert len(IDX_SCREENING_TICKERS) == len(set(IDX_SCREENING_TICKERS))
+          assert set(REQUESTED_SCREENING_TICKERS).issubset(IDX_SCREENING_TICKERS)
+          print(f"Valid: {len(IDX_SCREENING_TICKERS)} ticker unik")
           PY
 
       - name: Run screening
@@ -211,7 +216,9 @@ jobs:
           )
           print(f"VWAP valid: {len(valid)}")
 
-          assert coverage.get("requested") == 500
+          from idx_tickers_500 import IDX_SCREENING_TICKERS
+          assert coverage.get("requested") == len(IDX_SCREENING_TICKERS)
+          assert set(data.get("universe_tickers", [])) == set(IDX_SCREENING_TICKERS)
           assert coverage.get("quality_gate") == "passed"
           assert coverage.get("fetch_coverage_pct", 0) >= 80
           assert coverage.get("success_coverage_pct", 0) >= 80

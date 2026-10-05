@@ -1,5 +1,5 @@
 """
-Pipeline screening otomatis untuk 500 emiten IDX.
+Pipeline screening otomatis untuk universe emiten IDX terkonfigurasi.
 
 Dijalankan terjadwal oleh GitHub Actions setelah penutupan pasar.
 Menghasilkan sinyal VWAP BUY/HOLD/WAIT/REDUCE/EXIT/AVOID tanpa
@@ -15,7 +15,7 @@ from pathlib import Path
 import pandas as pd
 
 from data.yfinance_fetcher import fetch_batch, fetch_daily
-from idx_tickers_500 import IDX_TICKERS_500
+from idx_tickers_500 import IDX_SCREENING_TICKERS
 from screener.scoring import classify_signal, compute_score
 from screener.trend import (
     find_swing_points,
@@ -40,7 +40,7 @@ from storage.db import (
 )
 
 
-EXPECTED_TICKER_COUNT = 500
+EXPECTED_TICKER_COUNT = len(IDX_SCREENING_TICKERS)
 MINIMUM_ANALYSIS_ROWS = 65
 MINIMUM_GARCH_ROWS = 120
 MINIMUM_FETCH_COVERAGE_PCT = float(
@@ -55,7 +55,7 @@ MINIMUM_DOMINANT_DATE_PCT = float(
 ENABLE_RESEARCH_CALIBRATION = (
     os.environ.get("ENABLE_RESEARCH_CALIBRATION", "0") == "1"
 )
-DEFAULT_WATCHLIST = IDX_TICKERS_500
+DEFAULT_WATCHLIST = IDX_SCREENING_TICKERS
 
 
 def load_wyckoff_calibration(
@@ -131,7 +131,7 @@ def clean_number(value):
 def validate_ticker_universe(
     tickers: list[str],
 ) -> None:
-    """Pastikan universe berisi tepat 500 ticker unik."""
+    """Pastikan universe sesuai konfigurasi dan tidak mengandung duplikat."""
     if len(tickers) != EXPECTED_TICKER_COUNT:
         raise RuntimeError(
             f"Universe harus berisi "
@@ -665,6 +665,7 @@ def export_dashboard_json(
         "screening_session_date": screening_session_date,
         "market_data_date": market_data_date,
         "universe_size": EXPECTED_TICKER_COUNT,
+        "universe_tickers": tickers,
         "analysis_contract": {
             "indicator": "rolling_vwap_on_daily_bars",
             "horizons": [5, 20, 60],
@@ -756,7 +757,7 @@ def validate_available_universe(price_data, tickers, previous_path=Path("web/das
 
 
 def run_screening() -> None:
-    """Jalankan screening 500 emiten."""
+    """Jalankan screening seluruh emiten dalam universe terkonfigurasi."""
     init_db()
 
     tickers = list(DEFAULT_WATCHLIST)

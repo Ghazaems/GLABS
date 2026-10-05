@@ -89,6 +89,16 @@ IDX_TICKERS_500 = select_representative_tickers(
 )
 
 
+# Owner-requested additions. Keep the original 500 unchanged and never
+# replace an existing issuer to make room for a requested stock.
+REQUESTED_SCREENING_TICKERS = (
+    "DEWA", "ENRG", "ESSA", "FAST", "GEMS", "HRUM", "JARR", "KIJA", "PACK", "PGEO", "ARCI", "BBCA", "BBRI", "BMRI", "BRMS", "BRPT", "BULL", "BUMI", "BUVA", "CUAN", "PGUN", "SUPA", "TEBE", "VKTR"
+)
+IDX_SCREENING_TICKERS = clean_tickers(
+    [*IDX_TICKERS_500, *REQUESTED_SCREENING_TICKERS]
+)
+
+
 if __name__ == "__main__":
     print(
         f"Total ticker sumber: "
@@ -96,7 +106,7 @@ if __name__ == "__main__":
     )
     print(
         f"Total ticker screening: "
-        f"{len(IDX_TICKERS_500)}"
+        f"{len(IDX_SCREENING_TICKERS)}"
     )
     print(
         "10 ticker pertama: "
