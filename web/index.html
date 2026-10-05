@@ -2648,8 +2648,8 @@ async function loadICReport() {
 <input type="checkbox" name="botcheck" class="support-honeypot" tabindex="-1" aria-hidden="true">
 <div class="support-fields"><label>Nama<input name="name" type="text" autocomplete="name" required maxlength="80" placeholder="Nama kamu"></label><label>Email untuk balasan<input name="email" type="email" autocomplete="email" required maxlength="254" placeholder="nama@email.com"></label></div>
 <label>Pesan<textarea id="support-message" name="message" required minlength="10" maxlength="4000" rows="6" placeholder="Ceritakan pertanyaan atau masalahnya…"></textarea></label>
-<div class="support-meta"><span>Balasan melalui email, bukan di popup ini.</span><span id="support-count">0/4000</span></div>
-<p class="support-privacy">Nama, email, dan pesan diproses Web3Forms lalu diteruskan ke pengelola GLABS. Jangan masukkan password, API key, atau informasi rekening. Lampiran tidak tersedia.</p>
+<div class="support-meta" style="justify-content:flex-end"><span id="support-count">0/4000</span></div>
+
 <div class="support-captcha"><div class="h-captcha" data-captcha="true" data-theme="dark"></div></div>
 <p id="support-status" class="support-status" role="status" aria-live="polite" aria-atomic="true"></p><button type="submit" id="support-send" class="support-send">Kirim pesan</button>
 </form></dialog>
