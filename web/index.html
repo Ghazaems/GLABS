@@ -776,7 +776,7 @@ html { overflow-x: hidden; }
       </div>
       <p class="loading-msg" style="margin-top:-18px; margin-bottom:22px">
         Toggle ini mengganti <b>Top pick, Sinyal breakdown, Watchlist, Trend structure,
-        Rolling VWAP, Wyckoff, Comparative strength,</b> serta <b>Support &amp; resistance</b>
+        Rolling VWAP, dan Wyckoff</b>
         sesuai Daily, Weekly, atau Swing. Komponen yang belum dikalibrasi untuk Daily
         ditandai belum tersedia dan tidak diganti diam-diam dengan data Weekly.
       </p>
@@ -891,35 +891,6 @@ html { overflow-x: hidden; }
 
       </div>
 
-      <!-- ROW 3 -->
-      <div class="grid" style="grid-template-columns: repeat(2, 1fr);">
-        <div class="card">
-          <div class="card-head">
-            <div class="label">
-              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
-              Comparative strength vs IHSG
-            </div>
-          </div>
-          <div class="card-body">
-            <p id="cs-text">Memuat...</p>
-          </div>
-          <div class="card-foot"><span id="cs-footer"></span><span class="link">Lihat semua</span></div>
-        </div>
-
-        <div class="card">
-          <div class="card-head">
-            <div class="label">
-              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M4 6h10M4 18h7"/></svg>
-              Support &amp; resistance terdekat
-            </div>
-          </div>
-          <div class="card-body" id="sr-rows">
-            <div class="wl-row"><span class="t">Memuat...</span></div>
-          </div>
-          <div class="card-foot"><span></span><span class="link">Lihat semua</span></div>
-        </div>
-      </div>
-
       <!-- COVERAGE: ticker yang gagal fetch/data kurang -->
       <div class="grid" style="grid-template-columns: 1fr; margin-top:0;">
         <div class="card" style="min-height:auto;">
@@ -1028,39 +999,6 @@ html { overflow-x: hidden; }
             <div id="forward-ic-body">
               <p class="loading-msg">Memuat...</p>
             </div>
-          </div>
-        </div>
-        <!-- ===== GRUP 3: UJI SIGNIFIKANSI (IC) - BACKTEST ===== -->
-        <div class="report-group">
-          <div class="report-group-head" style="justify-content:space-between">
-            <span style="display:flex; align-items:center; gap:8px">
-              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M4 15l4-6 4 3 4-8 4 5"/></svg>
-              <h2>Validasi VWAP <span>&middot; Daily / Weekly / Swing</span></h2>
-            </span>
-            <span id="ic-horizon-select" hidden></span>
-          </div>
-          <div class="explain-card" style="margin-bottom:16px">
-            <b>Intinya:</b> bagian ini menjawab apakah ranking VWAP benar-benar mampu
-            mengurutkan saham yang hasil berikutnya lebih baik. Web hanya menampilkan
-            kesimpulan; perhitungan statistik mentah tetap disimpan untuk audit.
-          </div>
-          <div id="ic-body">
-            <p class="loading-msg">Memuat ic_data.json...</p>
-          </div>
-        </div>
-        <div class="report-group">
-          <div class="report-group-head">
-            <span style="display:flex; align-items:center; gap:8px">
-              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M5 15l4-5 3 2 4-7 3 4"/></svg>
-              <h2>Validasi Wyckoff <span>&middot; per event dan timeframe</span></h2>
-            </span>
-          </div>
-          <div class="explain-card" style="margin-bottom:16px">
-            Web menampilkan keputusan akhirnya. Event yang belum signifikan tetap
-            terlihat di chart sebagai konteks, tetapi bobotnya nol dalam skor komposit.
-          </div>
-          <div id="wyckoff-validation-body">
-            <p class="loading-msg">Memuat hasil validasi Wyckoff...</p>
           </div>
         </div>
       </div><!-- /view-laporan -->
@@ -1950,7 +1888,7 @@ async function loadDashboard() {
   }
 
   // Top pick, Sinyal breakdown, Watchlist, Trend structure, VWAP,
-  // Comparative strength - semua ikut toggle Weekly/Swing,
+  // dan Wyckoff ikut toggle Daily/Weekly/Swing,
   // dipindah ke renderStyleDependent() di bawah.
   renderStyleDependent(currentStyle);
 
@@ -2149,25 +2087,7 @@ function renderStyleDependent(style) {
   document.getElementById("vwap-meta").textContent =
     `Badge = keputusan Rolling VWAP 5/20/60; urutan difokuskan ke ${label} ${vwapFocus}.`;
 
-  const outperform = styleRows.filter(r => r[csKey]?.relative_strength_trend === "outperforming");
-  const underperform = styleRows.filter(r => r[csKey]?.relative_strength_trend === "underperforming");
-  document.getElementById("cs-text").innerHTML = hasStyleData
-    ? `<b>${outperform.length}</b> ticker mengungguli IHSG (${label}), ` +
-      `<b>${underperform.length}</b> tertinggal. ` +
-      (outperform[0] ? `${outperform[0].ticker} outperform paling jelas.` : "")
-    : waitingMessage;
-  document.getElementById("cs-footer").textContent = hasStyleData
-    ? `${outperform.length} outperform · ${underperform.length} underperform`
-    : label;
 
-  const srRows = document.getElementById("sr-rows");
-  srRows.innerHTML = hasStyleData
-    ? sortedWl.slice(0, 4).map(r => `
-        <div class="wl-row">
-          <span class="t">${r.ticker}</span>
-          <span class="s">S: ${fmtNum(r[supportKey])} &middot; R: ${fmtNum(r[resistanceKey])}</span>
-        </div>`).join("")
-    : `<div class="vwap-meta">${waitingMessage}</div>`;
 }
 
 function enableVwapCardWheel() {
@@ -2236,8 +2156,6 @@ function showView(name) {
     reportLoaded = true;
     loadBacktestReport();
     loadForwardReport();
-    loadICReport();
-    loadWyckoffValidationReport();
   }
 }
 
@@ -2516,23 +2434,6 @@ function verdictCard(entry) {
   </div>`;
 }
 
-function renderVWAPICSummary(bodyId, data) {
-  const results = data?.horizon_results;
-  const required = ["5", "20", "60"];
-  if (!results || !required.every(key => results[key])) {
-    document.getElementById(bodyId).innerHTML =
-      `<div class="verdict-banner neutral"><span class="icon">○</span><span>
-        <b>Laporan lama belum sesuai metode terbaru.</b> Menunggu validasi otomatis
-        cross-sectional untuk Daily 5D, Weekly 20D, dan Swing 60D.
-      </span></div>`;
-    return;
-  }
-  document.getElementById(bodyId).innerHTML =
-    `<div class="horizon-grid">${required.map(key => verdictCard(results[key])).join("")}</div>
-     <div class="note-card">Kesimpulan membandingkan jarak harga terhadap Rolling VWAP pada tanggal yang sama.
-       Tidak ada IC time-series per saham dan tidak ada penggabungan horizon.</div>`;
-}
-
 function renderForwardICSummary(bodyId, selectId, data) {
   const select = document.getElementById(selectId);
   if (select) select.style.display = "none";
@@ -2562,66 +2463,6 @@ function renderForwardICSummary(bodyId, selectId, data) {
   }).join("");
   document.getElementById(bodyId).innerHTML = `<div class="horizon-grid">${cards}</div>`;
 }
-
-function renderWyckoffValidationSummary(data) {
-  const body = document.getElementById("wyckoff-validation-body");
-  const summaries = data?.timeframe_summary;
-  const order = ["daily", "weekly", "swing"];
-  if (!summaries || !order.every(key => summaries[key])) {
-    body.innerHTML = `<div class="verdict-banner neutral"><span class="icon">○</span><span>
-      <b>Validasi belum tersedia.</b> Wyckoff tetap menjadi konteks visual dan
-      tidak memengaruhi skor sampai laporan statistik lengkap tersedia.
-    </span></div>`;
-    return;
-  }
-  body.innerHTML = `<div class="horizon-grid">${order.map(key => {
-    const item = summaries[key];
-    const validated = item.validated_events || [];
-    const reversed = item.reversed_events || [];
-    const tone = validated.length ? "good" : reversed.length ? "bad" : "neutral";
-    const icon = tone === "good" ? "✓" : tone === "bad" ? "⚠" : "○";
-    const eventText = validated.length
-      ? `Event berbobot: ${validated.join(", ")}.`
-      : "Belum ada event berbobot.";
-    return `<div class="h-card">
-      <div class="h-title">${item.label} · ${item.horizon}</div>
-      <div class="verdict-banner ${tone}" style="margin:10px 0 12px">
-        <span class="icon">${icon}</span><span><b>${item.headline}</b></span>
-      </div>
-      <p style="margin:0; color:var(--text-secondary); line-height:1.65">${eventText}</p>
-    </div>`;
-  }).join("")}</div>
-  <div class="note-card">AR dan ST tetap visual-only karena arah keduanya bergantung
-    pada konteks akumulasi atau distribusi.</div>`;
-}
-
-async function loadWyckoffValidationReport() {
-  try {
-    const response = await fetch("wyckoff_ic_data.json", { cache: "no-store" });
-    if (!response.ok) throw new Error("not found");
-    renderWyckoffValidationSummary(await response.json());
-  } catch (error) {
-    renderWyckoffValidationSummary(null);
-  }
-}
-
-async function loadICReport() {
-  let data;
-  try {
-    const res = await fetch("ic_data.json", { cache: "no-store" });
-    if (!res.ok) throw new Error("not found");
-    data = await res.json();
-  } catch (e) {
-    document.getElementById("ic-body").innerHTML =
-      `<p class="loading-msg">Belum ada data. Jalankan <code>python evaluate_ic.py</code> setelah
-      <code>backtest.py</code> (atau tunggu workflow mingguan jalan), lalu commit
-      <code>web/ic_data.json</code> yang terbentuk ke repo.</p>`;
-    document.getElementById("ic-horizon-select").style.display = "none";
-    return;
-  }
-  renderVWAPICSummary("ic-body", data);
-}
-
 
 </script>
 <div class="drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>

@@ -59,6 +59,25 @@ class DashboardContractTests(unittest.TestCase):
         self.assertNotIn("scoredist-bars", self.index)
         self.assertNotIn("sort(compareVwapCandidates).slice(0,5)", self.index)
 
+    def test_home_omits_comparative_and_support_resistance_cards(self):
+        for removed in (
+            'id="cs-text"',
+            'id="cs-footer"',
+            'id="sr-rows"',
+            'getElementById("cs-text")',
+            'getElementById("cs-footer")',
+            'getElementById("sr-rows")',
+            "Comparative strength vs IHSG",
+            "Support &amp; resistance terdekat",
+        ):
+            self.assertNotIn(removed, self.index)
+        for retained in (
+            '"csKey": "comparative_strength_daily"',
+            '"supportKey": "support_daily"',
+            '"resistanceKey": "resistance_daily"',
+        ):
+            self.assertIn(retained, self.index)
+
     def test_signal_breakdown_is_fitted_bar_chart(self):
         for marker in (
             'id="signal-bar-chart"',
@@ -229,36 +248,29 @@ class DashboardContractTests(unittest.TestCase):
         self.assertIn("Number.isFinite(tickerCount)", self.index)
         self.assertNotIn("data.watchlist.length", self.index)
 
-    def test_ic_web_shows_conclusions_not_raw_calculations(self):
-        for marker in (
+    def test_validation_panels_and_fetches_are_removed_from_web(self):
+        for removed in (
             "Validasi VWAP",
-            "Daily / Weekly / Swing",
-            "renderVWAPICSummary",
-            "horizon_results",
-            "Web hanya menampilkan",
-            "Laporan lama belum sesuai metode terbaru",
-            'fetch("ic_data.json", { cache: "no-store" })',
-            'fetch("wyckoff_ic_data.json", { cache: "no-store" })',
-        ):
-            self.assertIn(marker, self.index)
-        self.assertNotIn("Lihat detail teknis (IC, p-value)", self.index)
-        self.assertNotIn("<th class=\"num\">IC</th>", self.index)
-
-
-    def test_wyckoff_validation_is_summary_only(self):
-        for marker in (
             "Validasi Wyckoff",
+            'id="ic-body"',
+            'id="wyckoff-validation-body"',
+            "renderVWAPICSummary",
+            "renderWyckoffValidationSummary",
+            "loadICReport",
             "loadWyckoffValidationReport",
-            "wyckoff_ic_data.json",
-            "Event berbobot",
-            "konteks visual",
+            'fetch("ic_data.json"',
+            'fetch("wyckoff_ic_data.json"',
+        ):
+            self.assertNotIn(removed, self.index)
+        for retained in (
+            "loadBacktestReport",
+            "loadForwardReport",
+            "renderForwardICSummary",
             '"wyckoffKey": "wyckoff_daily"',
             '"wyckoffKey": "wyckoff_swing"',
         ):
-            self.assertIn(marker, self.index)
+            self.assertIn(retained, self.index)
         self.assertNotIn('src="workspace.js"', self.index)
-        self.assertNotIn("mean_IC", self.index)
-        self.assertNotIn("%positive_months", self.index)
 
     def test_api_payloads_are_bounded(self):
         chat = (ROOT / "web" / "api" / "chat.js").read_text(encoding="utf-8")
