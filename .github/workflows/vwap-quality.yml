@@ -40,6 +40,8 @@ jobs:
           node --check web/cockpit.js
           node --check web/api/chat.js
           node --check web/api/unlock.js
+          node --check web/support.js
+          node tests/test_support.js
       - name: Validate inline JavaScript and rotation wiring
         run: |
           node - <<'JS'
