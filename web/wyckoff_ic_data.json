@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-04T08:24:11.783446+00:00",
+  "generated_at": "2026-10-05T08:47:00.463363+00:00",
   "source": "backtest_results.csv",
   "methodology": {
     "type": "cross_sectional_per_date_per_event",
@@ -71,15 +71,15 @@
       "verdict": "reversed",
       "headline": "Arah statistik terbalik setelah FDR",
       "statistics": {
-        "mean_ic": -0.0814,
-        "std_ic": 0.0656,
-        "t_stat_hac": -4.0855,
-        "p_value_raw": 4.4e-05,
-        "q_value_fdr": 4.4e-05,
+        "mean_ic": -0.0686,
+        "std_ic": 0.095,
+        "t_stat_hac": -2.6142,
+        "p_value_raw": 0.008943,
+        "q_value_fdr": 0.008943,
         "hac_lags": 1,
-        "positive_months_pct": 9.09,
+        "positive_months_pct": 20.0,
         "n_dates": 13,
-        "n_months": 11
+        "n_months": 10
       },
       "score_weight": 0.0
     },

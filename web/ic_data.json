@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-04T08:23:58.553506+00:00",
+  "generated_at": "2026-10-05T08:46:47.168121+00:00",
   "source": "backtest_results.csv",
   "methodology": {
     "type": "cross_sectional_per_date",
@@ -22,20 +22,20 @@
     "5": {
       "horizon": "5D",
       "style": "Daily",
-      "status": "not_proven",
-      "headline": "Belum terbukti konsisten",
-      "conclusion": "Belum ada hubungan yang bertahan setelah koreksi FDR untuk Rolling VWAP Daily terhadap return 5D.",
+      "status": "reversed",
+      "headline": "Hubungan negatif terdeteksi",
+      "conclusion": "Ranking jarak Rolling VWAP Daily berhubungan negatif dengan return 5D setelah koreksi FDR. Besar efeknya kecil (mean IC -0.031); jangan membalik sinyal tanpa forward test.",
       "stability_summary": "Mayoritas bulan tidak positif.",
       "statistics": {
-        "mean_ic": -0.0195,
-        "std_ic": 0.179,
-        "t_stat_hac": -2.1584,
-        "p_value_raw": 0.030899,
-        "q_value_fdr": 0.092697,
+        "mean_ic": -0.0308,
+        "std_ic": 0.1587,
+        "t_stat_hac": -3.7405,
+        "p_value_raw": 0.000184,
+        "q_value_fdr": 0.000552,
         "hac_lags": 1,
-        "positive_months_pct": 31.03,
+        "positive_months_pct": 21.43,
         "n_dates": 446,
-        "n_months": 29
+        "n_months": 28
       }
     },
     "20": {
@@ -46,15 +46,15 @@
       "conclusion": "Belum ada hubungan yang bertahan setelah koreksi FDR untuk Rolling VWAP Weekly terhadap return 20D.",
       "stability_summary": "Mayoritas bulan tidak positif.",
       "statistics": {
-        "mean_ic": -0.0092,
-        "std_ic": 0.191,
-        "t_stat_hac": -0.688,
-        "p_value_raw": 0.491432,
-        "q_value_fdr": 0.491432,
+        "mean_ic": -0.0144,
+        "std_ic": 0.178,
+        "t_stat_hac": -1.1233,
+        "p_value_raw": 0.261307,
+        "q_value_fdr": 0.261307,
         "hac_lags": 3,
-        "positive_months_pct": 44.83,
+        "positive_months_pct": 42.86,
         "n_dates": 446,
-        "n_months": 29
+        "n_months": 28
       }
     },
     "60": {
@@ -65,15 +65,15 @@
       "conclusion": "Belum ada hubungan yang bertahan setelah koreksi FDR untuk Rolling VWAP Swing terhadap return 60D.",
       "stability_summary": "Mayoritas bulan tidak positif.",
       "statistics": {
-        "mean_ic": -0.0288,
-        "std_ic": 0.1583,
-        "t_stat_hac": -1.7601,
-        "p_value_raw": 0.078398,
-        "q_value_fdr": 0.117597,
+        "mean_ic": -0.0307,
+        "std_ic": 0.1575,
+        "t_stat_hac": -1.96,
+        "p_value_raw": 0.049993,
+        "q_value_fdr": 0.07499,
         "hac_lags": 11,
-        "positive_months_pct": 37.93,
+        "positive_months_pct": 42.86,
         "n_dates": 446,
-        "n_months": 29
+        "n_months": 28
       }
     }
   }
