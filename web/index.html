@@ -741,10 +741,6 @@ html { overflow-x: hidden; }
     </nav>
     <div class="foot">
 <button type="button" class="icon-btn support-trigger" aria-label="Buka Support" aria-haspopup="dialog" aria-controls="support-dialog"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1M4 12H2v7h4v-7H4m16 0h2v7h-4v-7h2M18 20c0 2-2 2-6 2"/></svg><span class="tip">Support</span></button>
-      <div class="icon-btn">
-        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19 12a7 7 0 00-.14-1.4l2-1.55-2-3.46-2.36.95a7 7 0 00-2.4-1.4L13.7 2h-4l-.4 2.14a7 7 0 00-2.4 1.4l-2.36-.95-2 3.46 2 1.55A7 7 0 004.5 12c0 .48.05.94.14 1.4l-2 1.55 2 3.46 2.36-.95c.7.62 1.52 1.1 2.4 1.4L9.7 22h4l.4-2.14a7 7 0 002.4-1.4l2.36.95 2-3.46-2-1.55c.09-.46.14-.92.14-1.4z"/></svg>
-        <span class="tip">Pengaturan</span>
-      </div>
       <div class="workspace">GK</div>
     </div>
   </aside>
@@ -758,8 +754,7 @@ html { overflow-x: hidden; }
       </label>
       <button class="rotation-control rotation-shortcut" onclick="showView('rotation')">Rotasi Sektor</button>
       <button class="radar-control radar-shortcut" onclick="showView('radar')">Radar</button>
-      <button type="button" class="support-trigger support-shortcut" aria-haspopup="dialog" aria-controls="support-dialog">Support</button>
-<div class="avatar"></div>
+      <div class="avatar"></div>
     </div>
 
     <div class="content">
@@ -2639,7 +2634,8 @@ async function loadICReport() {
 <script src="rotation.js"></script>
 <script src="radar.js"></script>
 
-<dialog id="support-dialog" class="glabs-support" aria-labelledby="support-title" aria-describedby="support-description">
+<div id="support-backdrop" class="support-backdrop" hidden aria-hidden="true"></div>
+<dialog id="support-dialog" class="glabs-support" aria-modal="true" aria-labelledby="support-title" aria-describedby="support-description">
 <header class="support-header"><div><h2 id="support-title">GLABS Support</h2><p id="support-description">Kirim pertanyaan atau masukan langsung ke email pengelola.</p></div><button type="button" id="support-close" class="support-close" aria-label="Tutup Support">×</button></header>
 <form id="support-form" action="https://api.web3forms.com/submit" method="POST">
 <!-- Public form ID, not a secret API credential. -->

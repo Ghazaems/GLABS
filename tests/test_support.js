@@ -25,7 +25,15 @@ async function run(){
   for(const match of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))if(match[1].trim())new Function(match[1]);
   assert.ok(html.includes('id="support-dialog"'));assert.ok(html.includes('src="support.js"'));assert.ok(html.includes('href="support.css"'));assert.ok(html.includes('aria-live="polite"'));assert.ok(html.includes('name="botcheck"'));assert.ok(html.includes('data-captcha="true"'));
   assert.ok(!html.includes('name="attachment"'));
+  assert.equal((html.match(/class="icon-btn support-trigger"/g)||[]).length,1);
+  assert.ok(!html.includes('support-trigger support-shortcut'));
+  assert.ok(!html.includes('<span class="tip">Pengaturan</span>'));
   assert.ok(js.includes('if(busy || !form.reportValidity())return;'));assert.ok(js.includes('status.textContent=text'));assert.ok(!js.includes('localStorage'));assert.ok(!js.includes('innerHTML'));
-  console.log('Support payload, rejection, HTML wiring and safety checks passed.');
+  assert.ok(!js.includes('dialog.showModal('));assert.ok(js.includes('dialog.show()'));
+  assert.ok(html.includes('id="support-backdrop"'));assert.ok(html.includes('aria-modal="true"'));
+  assert.ok(js.includes('shell.inert=true'));assert.ok(js.includes('shell.inert=previousInert'));
+  const css=fs.readFileSync('web/support.css','utf8');
+  assert.ok(css.includes('position:fixed'));assert.ok(css.includes('.support-backdrop[hidden]{display:none}'));
+  console.log('Support payload, rejection, HTML wiring and CAPTCHA layer checks passed.');
 }
 module.exports=run();

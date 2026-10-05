@@ -34,8 +34,36 @@
     script.onerror=()=>{captchaLoading=false;script.remove();report('CAPTCHA gagal dimuat. Periksa koneksi lalu tutup dan buka Support lagi.','error');};
     document.head.appendChild(script);
   }
-  document.querySelectorAll('.support-trigger').forEach(button=>button.addEventListener('click',()=>{if(!dialog.open)dialog.showModal();loadCaptcha();}));
+  // showModal() puts the dialog in the browser top layer, above hCaptcha's
+  // body-mounted challenge. Use a normal fixed dialog instead; only the
+  // GLABS shell is inert, leaving the provider's challenge interactive.
+  const backdrop=document.getElementById('support-backdrop');
+  const shell=document.querySelector('.shell');
+  let returnFocus=null, previousOverflow='', previousInert=false;
+  function openSupport(button) {
+    if(dialog.open) return;
+    returnFocus=button;
+    previousOverflow=document.body.style.overflow;
+    previousInert=shell ? shell.inert : false;
+    if(shell) shell.inert=true;
+    backdrop.hidden=false;
+    document.body.style.overflow='hidden';
+    dialog.show();
+    document.getElementById('support-close').focus();
+    loadCaptcha();
+  }
+  function restoreSupport() {
+    backdrop.hidden=true;
+    if(shell) shell.inert=previousInert;
+    document.body.style.overflow=previousOverflow;
+    if(returnFocus?.isConnected) returnFocus.focus();
+  }
+  document.querySelectorAll('.support-trigger').forEach(button=>button.addEventListener('click',()=>openSupport(button)));
   document.getElementById('support-close').addEventListener('click',()=>dialog.close());
+  dialog.addEventListener('close',restoreSupport);
+  dialog.addEventListener('keydown',event=>{
+    if(event.key==='Escape') { event.preventDefault(); dialog.close(); }
+  });
   message.addEventListener('input',()=>{count.textContent=message.value.length+'/4000';});
   form.addEventListener('submit',async event=>{
     event.preventDefault();
