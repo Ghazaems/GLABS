@@ -74,12 +74,15 @@ const data={schema_version:1,status:"ok",market_data_date:end,coverage:{valid:2,
  app.controls["data-relative:true"].onclick();
  assert(app.nodes["rotation-root"].innerHTML.includes("Return rasio harga/COMPOSITE"));
  const extended={schema_version:1,status:"ok",market_data_date:end,dashboard_sha256:data.dashboard_sha256,method:{basket:"Fixture only"},
- benchmarks:{COMPOSITE:{name:"IHSG (Composite)",status:"ok",history:h.map(p=>[p.date,p.benchmark])},LQ45:{name:"LQ45",status:"ok",history:h.map((p,i)=>[p.date,p.benchmark*(1+i/2000)])},IDX30:{name:"IDX30",status:"insufficient_history",reason:"1 sesi"}},
+ benchmarks:{COMPOSITE:{name:"IHSG (Composite)",status:"ok",history:h.map(p=>[p.date,p.benchmark])},LQ45:{name:"LQ45",status:"ok",history:h.map((p,i)=>[p.date,p.benchmark*(1+i/2000)])},IDX30:{name:"IDX30",status:"insufficient_history",reason:"1 sesi"},IDX80:{name:"IDX80",status:"insufficient_history"},KOMPAS100:{name:"Kompas100",status:"insufficient_history"},"BISNIS-27":{name:"Bisnis27",status:"insufficient_history"},MNC36:{name:"MNC36",status:"insufficient_history"},IDXESGL:{name:"IDX ESG Leaders",status:"insufficient_history"}},
  stocks:[{symbol:"AAAA",name:"Fixture only",sector:"IDXFINANCE",prices:h.map(p=>[p.date,p.close])}],
  views:{COMPOSITE:{sectors:[{...row,symbol:"IDXFINANCE",name:"Finance fixture"}]},LQ45:{sectors:[{...row,symbol:"IDXFINANCE",name:"Finance fixture",chart_history:h.map((p,i)=>({...p,benchmark:p.benchmark*(1+i/2000)}))}]}}};
  const expanded=fixture(data,true,extended);await expanded.api.open();
  assert(expanded.nodes["rotation-root"].innerHTML.includes('value="LQ45"'));
- assert(expanded.nodes["rotation-root"].innerHTML.includes('value="IDX30" disabled'));
+ for(const code of ["IDX30","IDX80","KOMPAS100","BISNIS-27","MNC36","IDXESGL"])assert(!expanded.nodes["rotation-root"].innerHTML.includes('value="'+code+'"'));
+ assert(expanded.nodes["rotation-root"].innerHTML.includes('value="COMPOSITE"'));
+ expanded.nodes["rotation-benchmark"].onchange({target:{value:"IDX30"}});
+ assert(expanded.nodes["rotation-root"].innerHTML.includes("vs COMPOSITE"));
  expanded.nodes["rotation-benchmark"].onchange({target:{value:"LQ45"}});
  assert(expanded.nodes["rotation-root"].innerHTML.includes("vs LQ45"));
  assert(expanded.nodes["rotation-root"].innerHTML.includes("Return harga; LQ45"));
