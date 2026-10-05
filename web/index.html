@@ -891,22 +891,6 @@ html { overflow-x: hidden; }
 
       </div>
 
-      <!-- COVERAGE: ticker yang gagal fetch/data kurang -->
-      <div class="grid" style="grid-template-columns: 1fr; margin-top:0;">
-        <div class="card" style="min-height:auto;">
-          <div class="card-head">
-            <div class="label">
-              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
-              Ticker belum terproses
-            </div>
-            <div class="stamp" id="coverage-stamp"></div>
-          </div>
-          <div class="card-body">
-            <p id="coverage-text" style="word-break:break-word; line-height:2;">Memuat...</p>
-          </div>
-        </div>
-      </div>
-
       <!-- PILLS -->
       <div class="pills">
         <div class="pill"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/></svg>Cek trend</div>
@@ -1001,6 +985,22 @@ html { overflow-x: hidden; }
             </div>
           </div>
         </div>
+      <!-- COVERAGE: ticker yang gagal fetch/data kurang -->
+      <div class="grid" style="grid-template-columns: 1fr; margin-top:0;">
+        <div class="card" style="min-height:auto;">
+          <div class="card-head">
+            <div class="label">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
+              Ticker belum terproses
+            </div>
+            <div class="stamp" id="coverage-stamp"></div>
+          </div>
+          <div class="card-body">
+            <p id="coverage-text" style="word-break:break-word; line-height:2;">Memuat...</p>
+          </div>
+        </div>
+      </div>
+
       </div><!-- /view-laporan -->
 
       <div id="view-watchlist" style="display:none">

@@ -140,21 +140,28 @@ class DashboardContractTests(unittest.TestCase):
             self.screening_workflow,
         )
 
-    def test_validation_workflow_is_autonomous_and_recoverable(self):
-        workflow = (
-            ROOT / ".github" / "workflows" / "weekly-ic-validation.yml"
-        ).read_text(encoding="utf-8")
-        for marker in (
-            "workflow_dispatch:",
-            "push:",
-            "weekly-ic-validation.yml",
-            'cron: "17 1,4,7,10 * * 6,0"',
-            "generated-data-writer",
-            "Check whether weekly validation is already fresh",
-            "git pull --rebase origin main",
-        ):
-            self.assertIn(marker, workflow)
+    def test_validation_workflows_are_paused_until_owner_approval(self):
+        for name in ("weekly-ic-validation.yml", "monthly-validation.yml"):
+            workflow = (ROOT / ".github" / "workflows" / name).read_text(
+                encoding="utf-8"
+            )
+            self.assertIn("workflow_dispatch:", workflow)
+            self.assertIn("if: ${{ false }}", workflow)
+            self.assertNotIn("  schedule:", workflow)
+            self.assertNotIn("  push:", workflow)
+            self.assertIn("python evaluate_ic.py", workflow)
+            self.assertIn("python evaluate_wyckoff.py", workflow)
 
+    def test_coverage_card_is_last_in_reports_not_home(self):
+        home_start = self.index.index('id="view-overview"')
+        report_start = self.index.index('id="view-laporan"')
+        report_end = self.index.index("</div><!-- /view-laporan -->")
+        coverage = self.index.index('id="coverage-text"')
+        self.assertGreater(coverage, report_start)
+        self.assertLess(coverage, report_end)
+        self.assertNotIn('id="coverage-text"', self.index[home_start:report_start])
+        self.assertEqual(self.index.count('id="coverage-text"'), 1)
+        self.assertEqual(self.index.count('id="coverage-stamp"'), 1)
 
     def test_publication_fails_closed_on_bad_data(self):
         for marker in (

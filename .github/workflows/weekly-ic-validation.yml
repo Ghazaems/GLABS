@@ -1,22 +1,9 @@
 name: Weekly Signal IC Validation
 
+# Paused at the owner's request. Keep code and archived reports.
+# Do not re-enable triggers or the job without explicit owner approval.
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/weekly-ic-validation.yml"
-      - "analysis_contract.py"
-      - "backtest.py"
-      - "evaluate_ic.py"
-      - "evaluate_wyckoff.py"
-      - "screener/vwap.py"
-      - "screener/wyckoff.py"
-  schedule:
-    # Weekend watchdog, WIB 08:17/11:17/14:17/17:17.
-    # Only the first slot with a stale report runs the expensive validation.
-    - cron: "17 1,4,7,10 * * 6,0"
 
 permissions:
   contents: write
@@ -28,6 +15,8 @@ concurrency:
 
 jobs:
   validate:
+    # Blocks even manual dispatch while validation is paused.
+    if: ${{ false }}
     name: VWAP and Wyckoff IC 5D / 20D / 60D
     runs-on: ubuntu-latest
     timeout-minutes: 180

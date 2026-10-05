@@ -1,9 +1,9 @@
 name: Monthly VWAP Validation
 
+# Paused at the owner's request. Keep code and archived reports.
+# Do not re-enable triggers or the job without explicit owner approval.
 on:
-  schedule:
-    # Minggu pertama setiap bulan, 02:00 UTC / 09:00 WIB.
-    - cron: "0 2 1-7 * 0"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -14,6 +14,8 @@ concurrency:
 
 jobs:
   validate:
+    # Blocks even manual dispatch while validation is paused.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 180
 
