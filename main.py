@@ -665,7 +665,7 @@ def export_dashboard_json(
         "screening_session_date": screening_session_date,
         "market_data_date": market_data_date,
         "universe_size": EXPECTED_TICKER_COUNT,
-        "universe_tickers": tickers,
+        "universe_tickers": list(DEFAULT_WATCHLIST),
         "analysis_contract": {
             "indicator": "rolling_vwap_on_daily_bars",
             "horizons": [5, 20, 60],
