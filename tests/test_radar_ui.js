@@ -46,7 +46,10 @@ const data={schema_version:1,status:"ok",market_data_date:"2026-10-02",
   const app=fixture(data);
   await app.api.open("daily");
   assert.equal((app.nodes["radar-list"].innerHTML.match(/class="radar-item"/g)||[]).length,1);
-  assert(app.nodes["radar-list"].innerHTML.includes("1 perubahan lainnya"));
+  assert(app.nodes["radar-list"].innerHTML.includes("<summary>Kenapa?</summary>"));
+  assert(app.nodes["radar-list"].innerHTML.includes("Sinyal campuran"));
+  assert(app.nodes["radar-root"].innerHTML.includes("<summary>Pilihan analisis</summary>"));
+  assert(!app.nodes["radar-root"].innerHTML.includes("Baru masuk Leading"));
   app.controls["data-filter:opportunity"].onclick();
   assert(app.nodes["radar-list"].innerHTML.includes("<b>Baru Leading."));
   app.controls["data-scope:full_vwap"].onclick();
@@ -66,6 +69,6 @@ const data={schema_version:1,status:"ok",market_data_date:"2026-10-02",
   const noBaseline=fixture({...data,comparison_status:"baseline_unavailable",
     modes:Object.fromEntries(["daily","weekly","swing"].map(s=>[s,{events:[],rotation_baseline_available:false}]))});
   await noBaseline.api.open();
-  assert(noBaseline.nodes["radar-root"].innerHTML.includes("Tidak ada perubahan yang dibuat-buat"));
+  assert(noBaseline.nodes["radar-root"].innerHTML.includes("Belum ada data pembanding"));
   console.log("Radar UI contracts passed");
 })().catch(e=>{console.error(e);process.exitCode=1});

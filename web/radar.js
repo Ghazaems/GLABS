@@ -3,7 +3,7 @@
   const state={data:null,loading:null,style:"daily",scope:"timeframe",filter:"all",query:"",limit:30};
   const styles={daily:"Daily · 5D",weekly:"Weekly · 20D",swing:"Swing · 60D"};
   const colors={risk:"#ff453a",opportunity:"#32d74b",watch:"#ffd60a"};
-  const labels={risk:"Evaluasi risiko",opportunity:"Membaik",watch:"Pantau"};
+  const labels={risk:"Risiko naik",opportunity:"Membaik",watch:"Pantau"};
   const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const root=()=>document.getElementById("radar-root");
   function groups(events) {
@@ -23,9 +23,12 @@
   function transition(e){return '<div class="radar-change"><span>'+esc(e.kind==="composite"?"Komposit":e.kind==="rotation"?"Rotasi":e.kind==="vwap_focus"?"Kondisi VWAP":"Full VWAP")+'</span><span>'+esc(e.before)+'</span><span aria-label="berubah menjadi">→</span><b>'+esc(e.after)+'</b></div>';}
   function card(r) {
     const p=r.primary;
-    return '<article class="radar-item"><div class="radar-item-head"><span class="radar-ticker">'+esc(r.ticker)+'</span><span class="radar-tag" style="--radar-color:'+colors[p.group]+'">'+labels[p.group]+'</span></div><p class="radar-meaning"><b>'+esc(p.title)+'.</b> '+esc(p.meaning)+'</p>'+transition(p)+
-      (r.events.length>1?'<details><summary>'+ (r.events.length-1)+' perubahan lainnya</summary>'+r.events.slice(1).map(e=>transition(e)+'<p>'+esc(e.meaning)+'</p>').join("")+'</details>':'')+
-      '<button class="radar-action" data-analysis="'+esc(r.ticker)+'">Buka analisis saham →</button></article>';
+    const mixed=r.events.some(e=>e.group==="risk")&&r.events.some(e=>e.group==="opportunity");
+    return '<article class="radar-item"><div class="radar-item-head"><span class="radar-ticker">'+esc(r.ticker)+'</span><span class="radar-tag" style="--radar-color:'+colors[p.group]+'">'+labels[p.group]+'</span></div>'+
+      '<p class="radar-meaning"><b>'+esc(p.title)+'.</b></p>'+
+      (mixed?'<p class="radar-note">Sinyal campuran: ada yang membaik, tetapi risiko juga muncul.</p>':'')+
+      '<div class="radar-item-actions"><button class="radar-action" data-analysis="'+esc(r.ticker)+'">Lihat saham →</button>'+
+      '<details><summary>Kenapa?</summary>'+[p,...r.events.filter(e=>e!==p)].map(e=>'<p><b>'+esc(e.title)+'.</b> '+esc(e.meaning)+'</p>'+transition(e)).join("")+'</details></div></article>';
   }
   function bindAnalysis(parent) {
     parent.querySelectorAll("[data-analysis]").forEach(b=>b.onclick=()=>{
@@ -51,15 +54,15 @@
     const counts=Object.fromEntries(Object.keys(labels).map(g=>[g,groups(events()).filter(r=>r.events.some(e=>e.group===g)).length]));
     root().innerHTML='<div class="greet-row"><div class="greet"><h1>Radar <em>Sinyal</em></h1><p>'+esc(d.market_data_date)+(d.previous_session?' dibanding screening '+esc(d.previous_session):' · belum ada sesi pembanding')+'</p></div></div>'+
       (stale?'<div class="radar-status">Radar belum menyamai screening '+esc(latest)+'. Hasil di bawah masih bertanggal '+esc(d.market_data_date)+'.</div>':'')+
-      '<p class="radar-summary">Lihat apa yang <b>baru berubah</b>, bukan daftar sinyal yang berulang.</p>'+
-      '<div class="radar-toolbar"><div class="radar-tabs" aria-label="Jenis analisis radar">'+[["timeframe","Per timeframe"],["full_vwap","Full VWAP 5/20/60"]].map(([s,l])=>'<button data-scope="'+s+'" class="'+(state.scope===s?"active":"")+'" aria-pressed="'+(state.scope===s)+'">'+l+'</button>').join("")+'</div>'+
-      (state.scope==="timeframe"?'<div class="radar-tabs" aria-label="Horizon radar">'+Object.keys(styles).map(s=>'<button data-style="'+s+'" class="'+(state.style===s?"active":"")+'" aria-pressed="'+(state.style===s)+'">'+s[0].toUpperCase()+s.slice(1)+'</button>').join("")+'</div>':'')+'</div>'+
-      '<p class="radar-note">'+(state.scope==="timeframe"?esc(styles[state.style])+': perubahan komposit, kondisi VWAP horizon ini, dan rotasi saham.':'BUY/HOLD/WAIT/REDUCE/EXIT/AVOID berasal dari Full VWAP gabungan; bukan sinyal Daily/Weekly/Swing terpisah.')+' Risiko ditampilkan lebih dahulu, bukan ranking keuntungan.</p>'+
-      (d.comparison_status!=="ready"?'<div class="radar-status">Belum ada screening sebelumnya dengan metode yang kompatibel. Tidak ada perubahan yang dibuat-buat.</div>':'')+
-      (state.scope==="timeframe"&&!mode.rotation_baseline_available?'<div class="radar-status">Pembanding rotasi sebelumnya belum tersedia. “Baru masuk Leading” akan muncul setelah ada dua sesi rotasi berbeda yang tersimpan.</div>':'')+
+      '<p class="radar-summary">Apa yang berubah sejak screening terakhir? <b>Risiko ditampilkan lebih dulu.</b></p>'+
+      '<div class="radar-toolbar">'+
+      (state.scope==="timeframe"?'<div class="radar-tabs" aria-label="Horizon radar">'+Object.keys(styles).map(s=>'<button data-style="'+s+'" class="'+(state.style===s?"active":"")+'" aria-pressed="'+(state.style===s)+'">'+s[0].toUpperCase()+s.slice(1)+'</button>').join("")+'</div>':'<span class="radar-note">Gabungan VWAP · 5/20/60</span>')+
+      '<details class="radar-options"><summary>Pilihan analisis</summary><div class="radar-tabs" aria-label="Jenis analisis radar">'+[["timeframe","Sinyal periode ini"],["full_vwap","Gabungan VWAP"]].map(([s,l])=>'<button data-scope="'+s+'" class="'+(state.scope===s?"active":"")+'" aria-pressed="'+(state.scope===s)+'">'+l+'</button>').join("")+'</div></details></div>'+
+      (d.comparison_status!=="ready"?'<div class="radar-status">Belum ada data pembanding. Perubahan sinyal akan muncul setelah screening berikutnya.</div>':'')+
+      
       '<div class="radar-filters">'+[["all","Semua"],...Object.entries(labels)].map(([g,l])=>'<button class="radar-filter '+(state.filter===g?"active":"")+'" data-filter="'+g+'">'+l+(g==="all"?"":" · "+counts[g])+'</button>').join("")+'<input class="radar-control" id="radar-search" type="search" placeholder="Cari saham…" aria-label="Cari saham di radar" value="'+esc(state.query)+'"></div>'+
       '<p class="radar-note" id="radar-count"></p><div class="radar-list" id="radar-list"></div>'+
-      '<details class="radar-note" style="margin-top:20px"><summary>Cakupan &amp; cara membaca</summary><p>'+d.coverage.common+' saham ditemukan di kedua sesi. Saham baru ('+d.coverage.new_tickers.length+') dan saham hilang ('+d.coverage.missing_tickers.length+') tidak dianggap sebagai perubahan sinyal.</p><p>Setiap angka hitungan kategori adalah jumlah saham unik. Satu saham dapat memiliki perubahan membaik sekaligus risiko pada analisis berbeda.</p><p>Harga per saham harus sesuai tanggal screening. Perubahan metode/setting tidak dibandingkan sebagai sinyal baru. Saat akhir pekan atau libur, gunakan sesi screening terakhir—bukan tanggal komputer.</p><p>Perubahan sinyal bukan kepastian profit. REDUCE/EXIT perlu dibaca bersama kepemilikan posisi dan rencana risiko Anda.</p><a href="radar_data.json" target="_blank" rel="noopener">Data audit</a></details>';
+      '<details class="radar-note" style="margin-top:20px"><summary>Detail &amp; cara membaca</summary><p>'+(state.scope==="timeframe"?esc(styles[state.style])+": perubahan komposit, kondisi VWAP horizon ini, dan rotasi saham.":"BUY/HOLD/WAIT/REDUCE/EXIT/AVOID berasal dari Full VWAP gabungan; bukan sinyal Daily/Weekly/Swing terpisah.")+'</p><p>'+d.coverage.common+' saham ditemukan di kedua sesi. Saham baru ('+d.coverage.new_tickers.length+') dan saham hilang ('+d.coverage.missing_tickers.length+') tidak dianggap sebagai perubahan sinyal.</p><p>Setiap angka hitungan kategori adalah jumlah saham unik. Satu saham dapat memiliki perubahan membaik sekaligus risiko pada analisis berbeda.</p><p>Harga per saham harus sesuai tanggal screening. Perubahan metode/setting tidak dibandingkan sebagai sinyal baru. Saat akhir pekan atau libur, gunakan sesi screening terakhir—bukan tanggal komputer.</p><p>Perubahan sinyal bukan kepastian profit. REDUCE/EXIT perlu dibaca bersama kepemilikan posisi dan rencana risiko Anda.</p><a href="radar_data.json" target="_blank" rel="noopener">Data audit</a></details>';
     root().querySelectorAll("[data-scope]").forEach(b=>b.onclick=()=>{state.scope=b.dataset.scope;state.filter="all";state.query="";state.limit=30;render();});
     root().querySelectorAll("[data-style]").forEach(b=>b.onclick=()=>{state.style=b.dataset.style;state.filter="all";state.query="";state.limit=30;render();});
     root().querySelectorAll("[data-filter]").forEach(b=>b.onclick=()=>{state.filter=b.dataset.filter;state.limit=30;render();});
