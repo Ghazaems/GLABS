@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-07T14:35:30.075057+00:00",
+  "generated_at": "2026-10-08T14:42:30.417143+00:00",
   "jenis": "forward_test",
   "catatan": "Sinyal diamati pada penutupan sesi dan dieksekusi pada pembukaan sesi berikutnya. Return sudah dikurangi friction 0.70%.",
   "execution": "next_session_open",
@@ -13,34 +13,34 @@
     "round_trip_slippage_pct": 0.2,
     "total_friction_pct": 0.7
   },
-  "total_sampel_terdaftar": 5719,
-  "total_sampel_matang": 3435,
+  "total_sampel_terdaftar": 6140,
+  "total_sampel_matang": 3847,
   "by_signal": {
     "5": [
       {
         "signal": "beli",
-        "jumlah_sampel": 312,
-        "rata_rata_return_pct": 1.4235,
-        "median_return_pct": -4.5868,
-        "persen_untung": 22.44,
+        "jumlah_sampel": 337,
+        "rata_rata_return_pct": 1.8652,
+        "median_return_pct": -3.9609,
+        "persen_untung": 25.82,
         "return_terburuk": -44.0555,
         "return_terbaik": 1997.759
       },
       {
         "signal": "jual",
-        "jumlah_sampel": 259,
-        "rata_rata_return_pct": -3.3754,
-        "median_return_pct": -2.5405,
-        "persen_untung": 27.8,
+        "jumlah_sampel": 283,
+        "rata_rata_return_pct": -3.0714,
+        "median_return_pct": -2.5182,
+        "persen_untung": 29.68,
         "return_terburuk": -32.2068,
         "return_terbaik": 44.1276
       },
       {
         "signal": "pantau",
-        "jumlah_sampel": 2864,
-        "rata_rata_return_pct": -1.9921,
-        "median_return_pct": -2.0813,
-        "persen_untung": 31.22,
+        "jumlah_sampel": 3227,
+        "rata_rata_return_pct": -1.5471,
+        "median_return_pct": -1.6804,
+        "persen_untung": 33.87,
         "return_terburuk": -99.7509,
         "return_terbaik": 173.5793
       }
@@ -81,57 +81,57 @@
     "5": [
       {
         "vwap_signal": "AVOID",
-        "jumlah_sampel": 711,
-        "rata_rata_return_pct": -1.8959,
-        "median_return_pct": -1.4752,
-        "persen_untung": 37.69,
+        "jumlah_sampel": 863,
+        "rata_rata_return_pct": -1.2755,
+        "median_return_pct": -0.7,
+        "persen_untung": 40.9,
         "return_terburuk": -48.5142,
         "return_terbaik": 108.1235
       },
       {
         "vwap_signal": "BUY",
-        "jumlah_sampel": 37,
-        "rata_rata_return_pct": -0.4626,
-        "median_return_pct": -3.2496,
-        "persen_untung": 35.14,
+        "jumlah_sampel": 44,
+        "rata_rata_return_pct": 2.7302,
+        "median_return_pct": -2.89,
+        "persen_untung": 38.64,
         "return_terburuk": -44.0555,
-        "return_terbaik": 54.7622
+        "return_terbaik": 121.5222
       },
       {
         "vwap_signal": "EXIT",
-        "jumlah_sampel": 1234,
-        "rata_rata_return_pct": -2.2425,
-        "median_return_pct": -1.6524,
-        "persen_untung": 34.68,
+        "jumlah_sampel": 1427,
+        "rata_rata_return_pct": -1.8235,
+        "median_return_pct": -1.4042,
+        "persen_untung": 37.42,
         "return_terburuk": -99.7509,
         "return_terbaik": 104.6942
       },
       {
         "vwap_signal": "HOLD",
-        "jumlah_sampel": 187,
-        "rata_rata_return_pct": -4.3058,
-        "median_return_pct": -3.2,
-        "persen_untung": 25.67,
+        "jumlah_sampel": 210,
+        "rata_rata_return_pct": -3.1313,
+        "median_return_pct": -2.4145,
+        "persen_untung": 30.95,
         "return_terburuk": -54.5462,
         "return_terbaik": 64.3
       },
       {
         "vwap_signal": "REDUCE",
-        "jumlah_sampel": 226,
-        "rata_rata_return_pct": -2.336,
-        "median_return_pct": -2.5349,
-        "persen_untung": 26.55,
+        "jumlah_sampel": 256,
+        "rata_rata_return_pct": -1.6712,
+        "median_return_pct": -2.4291,
+        "persen_untung": 28.12,
         "return_terburuk": -47.6466,
         "return_terbaik": 143.7444
       },
       {
         "vwap_signal": "WAIT",
-        "jumlah_sampel": 86,
-        "rata_rata_return_pct": -1.2123,
+        "jumlah_sampel": 92,
+        "rata_rata_return_pct": -0.4775,
         "median_return_pct": -1.6105,
-        "persen_untung": 27.91,
+        "persen_untung": 29.35,
         "return_terburuk": -31.7417,
-        "return_terbaik": 71.2512
+        "return_terbaik": 77.637
       }
     ],
     "20": [
@@ -204,34 +204,34 @@
   },
   "by_timeframe": {
     "daily": {
-      "total_sampel_terdaftar": 4183,
-      "total_sampel_matang": 2481,
+      "total_sampel_terdaftar": 4604,
+      "total_sampel_matang": 2892,
       "by_signal": {
         "5": [
           {
             "signal": "beli",
-            "jumlah_sampel": 106,
-            "rata_rata_return_pct": -3.5484,
-            "median_return_pct": -2.566,
-            "persen_untung": 30.19,
+            "jumlah_sampel": 131,
+            "rata_rata_return_pct": -1.9201,
+            "median_return_pct": -1.513,
+            "persen_untung": 38.17,
             "return_terburuk": -54.5462,
             "return_terbaik": 45.9667
           },
           {
             "signal": "jual",
-            "jumlah_sampel": 282,
-            "rata_rata_return_pct": -2.3445,
-            "median_return_pct": -1.4617,
-            "persen_untung": 39.01,
+            "jumlah_sampel": 360,
+            "rata_rata_return_pct": -1.7498,
+            "median_return_pct": -0.8582,
+            "persen_untung": 41.67,
             "return_terburuk": -31.7345,
             "return_terbaik": 43.997
           },
           {
             "signal": "pantau",
-            "jumlah_sampel": 2093,
-            "rata_rata_return_pct": -2.1655,
-            "median_return_pct": -1.8111,
-            "persen_untung": 33.4,
+            "jumlah_sampel": 2401,
+            "rata_rata_return_pct": -1.5954,
+            "median_return_pct": -1.4752,
+            "persen_untung": 36.15,
             "return_terburuk": -99.7509,
             "return_terbaik": 143.7444
           }
@@ -261,34 +261,34 @@
       }
     },
     "weekly": {
-      "total_sampel_terdaftar": 5719,
-      "total_sampel_matang": 3435,
+      "total_sampel_terdaftar": 6140,
+      "total_sampel_matang": 3847,
       "by_signal": {
         "5": [
           {
             "signal": "beli",
-            "jumlah_sampel": 312,
-            "rata_rata_return_pct": 1.4235,
-            "median_return_pct": -4.5868,
-            "persen_untung": 22.44,
+            "jumlah_sampel": 337,
+            "rata_rata_return_pct": 1.8652,
+            "median_return_pct": -3.9609,
+            "persen_untung": 25.82,
             "return_terburuk": -44.0555,
             "return_terbaik": 1997.759
           },
           {
             "signal": "jual",
-            "jumlah_sampel": 259,
-            "rata_rata_return_pct": -3.3754,
-            "median_return_pct": -2.5405,
-            "persen_untung": 27.8,
+            "jumlah_sampel": 283,
+            "rata_rata_return_pct": -3.0714,
+            "median_return_pct": -2.5182,
+            "persen_untung": 29.68,
             "return_terburuk": -32.2068,
             "return_terbaik": 44.1276
           },
           {
             "signal": "pantau",
-            "jumlah_sampel": 2864,
-            "rata_rata_return_pct": -1.9921,
-            "median_return_pct": -2.0813,
-            "persen_untung": 31.22,
+            "jumlah_sampel": 3227,
+            "rata_rata_return_pct": -1.5471,
+            "median_return_pct": -1.6804,
+            "persen_untung": 33.87,
             "return_terburuk": -99.7509,
             "return_terbaik": 173.5793
           }
@@ -327,34 +327,34 @@
       }
     },
     "swing": {
-      "total_sampel_terdaftar": 4183,
-      "total_sampel_matang": 2481,
+      "total_sampel_terdaftar": 4604,
+      "total_sampel_matang": 2892,
       "by_signal": {
         "5": [
           {
             "signal": "beli",
-            "jumlah_sampel": 86,
-            "rata_rata_return_pct": -1.4079,
-            "median_return_pct": -1.6174,
-            "persen_untung": 30.23,
+            "jumlah_sampel": 97,
+            "rata_rata_return_pct": -0.0493,
+            "median_return_pct": -1.3079,
+            "persen_untung": 31.96,
             "return_terburuk": -34.9697,
-            "return_terbaik": 51.5491
+            "return_terbaik": 121.5222
           },
           {
             "signal": "jual",
-            "jumlah_sampel": 243,
-            "rata_rata_return_pct": -2.3034,
-            "median_return_pct": -2.4157,
-            "persen_untung": 31.69,
+            "jumlah_sampel": 290,
+            "rata_rata_return_pct": -1.8246,
+            "median_return_pct": -1.7257,
+            "persen_untung": 35.17,
             "return_terburuk": -29.5136,
             "return_terbaik": 44.398
           },
           {
             "signal": "pantau",
-            "jumlah_sampel": 2152,
-            "rata_rata_return_pct": -2.2718,
-            "median_return_pct": -1.7047,
-            "persen_untung": 34.29,
+            "jumlah_sampel": 2505,
+            "rata_rata_return_pct": -1.6679,
+            "median_return_pct": -1.4042,
+            "persen_untung": 37.33,
             "return_terburuk": -99.7509,
             "return_terbaik": 143.7444
           }
@@ -396,7 +396,7 @@
   "detail_terbaru": [
     {
       "ticker": "AADI",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "beli",
       "entry_price": null,
       "score": 60.0,
@@ -413,10 +413,10 @@
     },
     {
       "ticker": "AALI",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "beli",
       "entry_price": null,
-      "score": 55.0,
+      "score": 60.0,
       "returns": {
         "5": null,
         "20": null,
@@ -426,28 +426,11 @@
       "comp_wyckoff": 0.0,
       "comp_vwap": 15.0,
       "comp_comparative_strength": 15.0,
-      "comp_support_resistance": -5.0
-    },
-    {
-      "ticker": "ABDA",
-      "date": "2026-10-07",
-      "signal": "pantau",
-      "entry_price": null,
-      "score": -5.0,
-      "returns": {
-        "5": null,
-        "20": null,
-        "60": null
-      },
-      "comp_trend": 0.0,
-      "comp_wyckoff": 0.0,
-      "comp_vwap": -15.0,
-      "comp_comparative_strength": 15.0,
-      "comp_support_resistance": -5.0
+      "comp_support_resistance": 0.0
     },
     {
       "ticker": "ACES",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": -30.0,
@@ -464,7 +447,7 @@
     },
     {
       "ticker": "ACRO",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": -30.0,
@@ -481,10 +464,10 @@
     },
     {
       "ticker": "ADES",
-      "date": "2026-10-07",
-      "signal": "beli",
+      "date": "2026-10-08",
+      "signal": "pantau",
       "entry_price": null,
-      "score": 60.0,
+      "score": 30.0,
       "returns": {
         "5": null,
         "20": null,
@@ -492,16 +475,16 @@
       },
       "comp_trend": 30.0,
       "comp_wyckoff": 0.0,
-      "comp_vwap": 15.0,
+      "comp_vwap": -15.0,
       "comp_comparative_strength": 15.0,
       "comp_support_resistance": 0.0
     },
     {
       "ticker": "ADMF",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
-      "score": 0.0,
+      "score": 10.0,
       "returns": {
         "5": null,
         "20": null,
@@ -510,46 +493,46 @@
       "comp_trend": 0.0,
       "comp_wyckoff": 0.0,
       "comp_vwap": -15.0,
-      "comp_comparative_strength": 15.0,
-      "comp_support_resistance": 0.0
-    },
-    {
-      "ticker": "ADMG",
-      "date": "2026-10-07",
-      "signal": "pantau",
-      "entry_price": null,
-      "score": 0.0,
-      "returns": {
-        "5": null,
-        "20": null,
-        "60": null
-      },
-      "comp_trend": 30.0,
-      "comp_wyckoff": 0.0,
-      "comp_vwap": -15.0,
-      "comp_comparative_strength": -15.0,
-      "comp_support_resistance": 0.0
-    },
-    {
-      "ticker": "ADRO",
-      "date": "2026-10-07",
-      "signal": "beli",
-      "entry_price": null,
-      "score": 40.0,
-      "returns": {
-        "5": null,
-        "20": null,
-        "60": null
-      },
-      "comp_trend": 0.0,
-      "comp_wyckoff": 0.0,
-      "comp_vwap": 15.0,
       "comp_comparative_strength": 15.0,
       "comp_support_resistance": 10.0
     },
     {
+      "ticker": "ADMG",
+      "date": "2026-10-08",
+      "signal": "pantau",
+      "entry_price": null,
+      "score": -25.0,
+      "returns": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 5.0
+    },
+    {
+      "ticker": "ADRO",
+      "date": "2026-10-08",
+      "signal": "pantau",
+      "entry_price": null,
+      "score": -35.0,
+      "returns": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": 15.0,
+      "comp_support_resistance": -5.0
+    },
+    {
       "ticker": "AGAR",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": 30.0,
@@ -566,10 +549,10 @@
     },
     {
       "ticker": "AGII",
-      "date": "2026-10-07",
-      "signal": "pantau",
+      "date": "2026-10-08",
+      "signal": "beli",
       "entry_price": null,
-      "score": 30.0,
+      "score": 60.0,
       "returns": {
         "5": null,
         "20": null,
@@ -577,30 +560,13 @@
       },
       "comp_trend": 30.0,
       "comp_wyckoff": 0.0,
-      "comp_vwap": -15.0,
+      "comp_vwap": 15.0,
       "comp_comparative_strength": 15.0,
       "comp_support_resistance": 0.0
     },
     {
       "ticker": "AGRS",
-      "date": "2026-10-07",
-      "signal": "beli",
-      "entry_price": null,
-      "score": 40.0,
-      "returns": {
-        "5": null,
-        "20": null,
-        "60": null
-      },
-      "comp_trend": 0.0,
-      "comp_wyckoff": 0.0,
-      "comp_vwap": 15.0,
-      "comp_comparative_strength": 15.0,
-      "comp_support_resistance": 10.0
-    },
-    {
-      "ticker": "AIMS",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": 0.0,
@@ -609,15 +575,15 @@
         "20": null,
         "60": null
       },
-      "comp_trend": -30.0,
+      "comp_trend": 0.0,
       "comp_wyckoff": 0.0,
-      "comp_vwap": 15.0,
+      "comp_vwap": -15.0,
       "comp_comparative_strength": 15.0,
       "comp_support_resistance": 0.0
     },
     {
       "ticker": "AKKU",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": 30.0,
@@ -634,10 +600,10 @@
     },
     {
       "ticker": "AKPI",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
-      "score": -5.0,
+      "score": 5.0,
       "returns": {
         "5": null,
         "20": null,
@@ -647,28 +613,28 @@
       "comp_wyckoff": 0.0,
       "comp_vwap": -15.0,
       "comp_comparative_strength": 15.0,
-      "comp_support_resistance": -5.0
+      "comp_support_resistance": 5.0
     },
     {
       "ticker": "AKSI",
-      "date": "2026-10-07",
-      "signal": "pantau",
+      "date": "2026-10-08",
+      "signal": "beli",
       "entry_price": null,
-      "score": 0.0,
+      "score": 40.0,
       "returns": {
         "5": null,
         "20": null,
         "60": null
       },
-      "comp_trend": 0.0,
+      "comp_trend": 30.0,
       "comp_wyckoff": 0.0,
       "comp_vwap": -15.0,
       "comp_comparative_strength": 15.0,
-      "comp_support_resistance": 0.0
+      "comp_support_resistance": 10.0
     },
     {
       "ticker": "ALII",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "jual",
       "entry_price": null,
       "score": -60.0,
@@ -685,7 +651,7 @@
     },
     {
       "ticker": "ALKA",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "beli",
       "entry_price": null,
       "score": 60.0,
@@ -702,7 +668,7 @@
     },
     {
       "ticker": "AMAN",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": 0.0,
@@ -719,27 +685,10 @@
     },
     {
       "ticker": "AMAR",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
-      "score": 25.0,
-      "returns": {
-        "5": null,
-        "20": null,
-        "60": null
-      },
-      "comp_trend": 0.0,
-      "comp_wyckoff": 0.0,
-      "comp_vwap": 15.0,
-      "comp_comparative_strength": 15.0,
-      "comp_support_resistance": -5.0
-    },
-    {
-      "ticker": "AMIN",
-      "date": "2026-10-07",
-      "signal": "pantau",
-      "entry_price": null,
-      "score": -5.0,
+      "score": 10.0,
       "returns": {
         "5": null,
         "20": null,
@@ -749,14 +698,31 @@
       "comp_wyckoff": 0.0,
       "comp_vwap": -15.0,
       "comp_comparative_strength": 15.0,
-      "comp_support_resistance": -5.0
+      "comp_support_resistance": 10.0
+    },
+    {
+      "ticker": "AMIN",
+      "date": "2026-10-08",
+      "signal": "pantau",
+      "entry_price": null,
+      "score": 10.0,
+      "returns": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": 15.0,
+      "comp_support_resistance": 10.0
     },
     {
       "ticker": "AMMS",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
-      "score": -30.0,
+      "score": 0.0,
       "returns": {
         "5": null,
         "20": null,
@@ -764,16 +730,16 @@
       },
       "comp_trend": -30.0,
       "comp_wyckoff": 0.0,
-      "comp_vwap": -15.0,
+      "comp_vwap": 15.0,
       "comp_comparative_strength": 15.0,
       "comp_support_resistance": 0.0
     },
     {
       "ticker": "AMRT",
-      "date": "2026-10-07",
-      "signal": "pantau",
+      "date": "2026-10-08",
+      "signal": "beli",
       "entry_price": null,
-      "score": 30.0,
+      "score": 40.0,
       "returns": {
         "5": null,
         "20": null,
@@ -783,11 +749,11 @@
       "comp_wyckoff": 0.0,
       "comp_vwap": -15.0,
       "comp_comparative_strength": 15.0,
-      "comp_support_resistance": 0.0
+      "comp_support_resistance": 10.0
     },
     {
       "ticker": "ANJT",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": 5.0,
@@ -804,7 +770,7 @@
     },
     {
       "ticker": "APEX",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": -30.0,
@@ -821,7 +787,7 @@
     },
     {
       "ticker": "APII",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": 35.0,
@@ -838,10 +804,10 @@
     },
     {
       "ticker": "APLI",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
-      "score": -35.0,
+      "score": -20.0,
       "returns": {
         "5": null,
         "20": null,
@@ -851,11 +817,11 @@
       "comp_wyckoff": 0.0,
       "comp_vwap": -15.0,
       "comp_comparative_strength": 15.0,
-      "comp_support_resistance": -5.0
+      "comp_support_resistance": 10.0
     },
     {
       "ticker": "ARCI",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": -20.0,
@@ -872,7 +838,7 @@
     },
     {
       "ticker": "AREA",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": 0.0,
@@ -889,7 +855,7 @@
     },
     {
       "ticker": "ARKO",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "jual",
       "entry_price": null,
       "score": -60.0,
@@ -906,7 +872,7 @@
     },
     {
       "ticker": "ARTA",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": -30.0,
@@ -923,7 +889,7 @@
     },
     {
       "ticker": "ARTO",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "jual",
       "entry_price": null,
       "score": -60.0,
@@ -940,7 +906,7 @@
     },
     {
       "ticker": "ASDM",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": 5.0,
@@ -957,7 +923,7 @@
     },
     {
       "ticker": "ASGR",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": 30.0,
@@ -974,7 +940,7 @@
     },
     {
       "ticker": "ASJT",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": 5.0,
@@ -991,7 +957,7 @@
     },
     {
       "ticker": "ASLI",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "beli",
       "entry_price": null,
       "score": 60.0,
@@ -1008,7 +974,7 @@
     },
     {
       "ticker": "ASMI",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": 30.0,
@@ -1025,41 +991,7 @@
     },
     {
       "ticker": "ASRI",
-      "date": "2026-10-07",
-      "signal": "pantau",
-      "entry_price": null,
-      "score": 10.0,
-      "returns": {
-        "5": null,
-        "20": null,
-        "60": null
-      },
-      "comp_trend": 0.0,
-      "comp_wyckoff": 0.0,
-      "comp_vwap": -15.0,
-      "comp_comparative_strength": 15.0,
-      "comp_support_resistance": 10.0
-    },
-    {
-      "ticker": "ASSA",
-      "date": "2026-10-07",
-      "signal": "jual",
-      "entry_price": null,
-      "score": -50.0,
-      "returns": {
-        "5": null,
-        "20": null,
-        "60": null
-      },
-      "comp_trend": -30.0,
-      "comp_wyckoff": 0.0,
-      "comp_vwap": -15.0,
-      "comp_comparative_strength": -15.0,
-      "comp_support_resistance": 10.0
-    },
-    {
-      "ticker": "ATIC",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": -30.0,
@@ -1075,11 +1007,28 @@
       "comp_support_resistance": 0.0
     },
     {
-      "ticker": "AVIA",
-      "date": "2026-10-07",
+      "ticker": "ASSA",
+      "date": "2026-10-08",
+      "signal": "jual",
+      "entry_price": null,
+      "score": -60.0,
+      "returns": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "ATIC",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
-      "score": 5.0,
+      "score": 35.0,
       "returns": {
         "5": null,
         "20": null,
@@ -1087,13 +1036,30 @@
       },
       "comp_trend": 0.0,
       "comp_wyckoff": 0.0,
+      "comp_vwap": 15.0,
+      "comp_comparative_strength": 15.0,
+      "comp_support_resistance": 5.0
+    },
+    {
+      "ticker": "AVIA",
+      "date": "2026-10-08",
+      "signal": "pantau",
+      "entry_price": null,
+      "score": -25.0,
+      "returns": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "comp_trend": -30.0,
+      "comp_wyckoff": 0.0,
       "comp_vwap": -15.0,
       "comp_comparative_strength": 15.0,
       "comp_support_resistance": 5.0
     },
     {
       "ticker": "AYAM",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "beli",
       "entry_price": null,
       "score": 60.0,
@@ -1110,10 +1076,10 @@
     },
     {
       "ticker": "AYLS",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
-      "score": 30.0,
+      "score": 0.0,
       "returns": {
         "5": null,
         "20": null,
@@ -1121,13 +1087,13 @@
       },
       "comp_trend": 0.0,
       "comp_wyckoff": 0.0,
-      "comp_vwap": 15.0,
+      "comp_vwap": -15.0,
       "comp_comparative_strength": 15.0,
       "comp_support_resistance": 0.0
     },
     {
       "ticker": "BABY",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "jual",
       "entry_price": null,
       "score": -60.0,
@@ -1144,7 +1110,7 @@
     },
     {
       "ticker": "BAJA",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": 30.0,
@@ -1161,10 +1127,10 @@
     },
     {
       "ticker": "BALI",
-      "date": "2026-10-07",
-      "signal": "beli",
+      "date": "2026-10-08",
+      "signal": "pantau",
       "entry_price": null,
-      "score": 60.0,
+      "score": 30.0,
       "returns": {
         "5": null,
         "20": null,
@@ -1172,13 +1138,13 @@
       },
       "comp_trend": 30.0,
       "comp_wyckoff": 0.0,
-      "comp_vwap": 15.0,
+      "comp_vwap": -15.0,
       "comp_comparative_strength": 15.0,
       "comp_support_resistance": 0.0
     },
     {
       "ticker": "BAPA",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
       "signal": "jual",
       "entry_price": null,
       "score": -60.0,
@@ -1195,10 +1161,10 @@
     },
     {
       "ticker": "BATR",
-      "date": "2026-10-07",
-      "signal": "pantau",
+      "date": "2026-10-08",
+      "signal": "beli",
       "entry_price": null,
-      "score": 25.0,
+      "score": 40.0,
       "returns": {
         "5": null,
         "20": null,
@@ -1208,11 +1174,28 @@
       "comp_wyckoff": 0.0,
       "comp_vwap": 15.0,
       "comp_comparative_strength": 15.0,
-      "comp_support_resistance": -5.0
+      "comp_support_resistance": 10.0
     },
     {
       "ticker": "BAYU",
-      "date": "2026-10-07",
+      "date": "2026-10-08",
+      "signal": "pantau",
+      "entry_price": null,
+      "score": -5.0,
+      "returns": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": 15.0,
+      "comp_support_resistance": -5.0
+    },
+    {
+      "ticker": "BBCA",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
       "score": 30.0,
@@ -1228,29 +1211,46 @@
       "comp_support_resistance": 0.0
     },
     {
-      "ticker": "BBCA",
-      "date": "2026-10-07",
+      "ticker": "BBHI",
+      "date": "2026-10-08",
       "signal": "pantau",
       "entry_price": null,
-      "score": 30.0,
+      "score": -30.0,
       "returns": {
         "5": null,
         "20": null,
         "60": null
       },
-      "comp_trend": 30.0,
+      "comp_trend": 0.0,
       "comp_wyckoff": 0.0,
       "comp_vwap": -15.0,
-      "comp_comparative_strength": 15.0,
+      "comp_comparative_strength": -15.0,
+      "comp_support_resistance": 0.0
+    },
+    {
+      "ticker": "BBKP",
+      "date": "2026-10-08",
+      "signal": "pantau",
+      "entry_price": null,
+      "score": -30.0,
+      "returns": {
+        "5": null,
+        "20": null,
+        "60": null
+      },
+      "comp_trend": 0.0,
+      "comp_wyckoff": 0.0,
+      "comp_vwap": -15.0,
+      "comp_comparative_strength": -15.0,
       "comp_support_resistance": 0.0
     }
   ],
   "ic": {
     "5d": {
-      "mean": 0.0129,
-      "median": -0.0018,
-      "positive_rate": 41.67,
-      "days": 12
+      "mean": 0.0137,
+      "median": -0.0022,
+      "positive_rate": 46.15,
+      "days": 13
     },
     "20d": {
       "mean": null,
@@ -1268,10 +1268,10 @@
   "ic_by_timeframe": {
     "daily": {
       "5d": {
-        "mean": -0.0219,
-        "median": -0.0333,
-        "positive_rate": 50.0,
-        "days": 6
+        "mean": -0.022,
+        "median": -0.0337,
+        "positive_rate": 42.86,
+        "days": 7
       },
       "20d": {
         "mean": null,
@@ -1288,10 +1288,10 @@
     },
     "weekly": {
       "5d": {
-        "mean": 0.0129,
-        "median": -0.0018,
-        "positive_rate": 41.67,
-        "days": 12
+        "mean": 0.0137,
+        "median": -0.0022,
+        "positive_rate": 46.15,
+        "days": 13
       },
       "20d": {
         "mean": null,
@@ -1308,10 +1308,10 @@
     },
     "swing": {
       "5d": {
-        "mean": 0.0406,
-        "median": 0.0612,
-        "positive_rate": 83.33,
-        "days": 6
+        "mean": 0.0358,
+        "median": 0.0566,
+        "positive_rate": 85.71,
+        "days": 7
       },
       "20d": {
         "mean": null,
