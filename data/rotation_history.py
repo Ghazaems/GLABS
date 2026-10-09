@@ -191,14 +191,14 @@ def build_views(stock_prices, index_prices, classification, sectors, session, he
     return {"schema_version": VERSION, "status": "ok", "market_data_date": session, "stocks": shared_stocks,
             "generated_at": datetime.now(timezone.utc).isoformat(), "benchmarks": benchmarks,
             "views": views, "health": health,
-            "method": {"source": "Yahoo Finance via yfinance; personal research",
+            "method": {"source": "IHSG: purbayasadewa.id with same-symbol Yahoo fallback; other prices: Yahoo Finance; personal research",
                        "price_basis": "Stocks adjusted for dividends/splits; index closing levels",
                        "basket": "Equal-weight observed daily returns, minimum 3 valid return pairs; daily eligible membership changes. Current classification, NOT point-in-time or an official index.",
                        "retention": "Chart: up to 600 real sessions; bootstrap: 5 years when available",
                        "no_fill": "No forward-fill, synthetic IPO history, ETF substitution, or fallback to a different benchmark"}}
 
 
-def run(classification, sectors, dashboard_bytes, dashboard):
+def run(classification, sectors, dashboard_bytes, dashboard, ihsg_frame=None, ihsg_source=None):
     session = dashboard["market_data_date"]
     if pd.Timestamp(session).weekday() >= 5:
         raise ValueError("Cannot fetch a weekend screening session")
@@ -246,7 +246,11 @@ def run(classification, sectors, dashboard_bytes, dashboard):
     index_cache = read_json(index_path)
     registry = {k: v[1] for k, v in BENCHMARKS.items()}
     registry.update({code: code+".JK" for code in sectors})
-    index_raw = download(list(registry.values()), session)
+    if ihsg_frame is None:
+        from data.ihsg_fetcher import fetch_ihsg
+        ihsg_frame, ihsg_source = fetch_ihsg(session)
+    index_raw = download([s for s in registry.values() if s != "^JKSE"], session)
+    index_raw["^JKSE"] = clean_close(ihsg_frame)
     indices = {}
     for code, symbol in registry.items():
         merged, _ = merge_history(from_rows(index_cache.get("indices", {}).get(code, [])),
@@ -259,7 +263,7 @@ def run(classification, sectors, dashboard_bytes, dashboard):
     for t in rebase:
         if status[t] == "ok":
             refresh_dates[t] = session
-    health = {"refresh_dates": refresh_dates, "stocks_requested": len(tickers), "stocks_fresh": sum(v=="ok" for v in status.values()),
+    health = {"ihsg_source": ihsg_source, "refresh_dates": refresh_dates, "stocks_requested": len(tickers), "stocks_fresh": sum(v=="ok" for v in status.values()),
               "excluded": [{"symbol": t, "reason": v} for t, v in status.items() if v != "ok"],
               "adjustment_rebases": rebase, "automatic_retry": True,
               "index_archive": "Actual daily observations accumulated; a latest quote is not historical coverage"}

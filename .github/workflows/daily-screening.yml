@@ -137,9 +137,11 @@ jobs:
         run: |
           python - <<'PY'
           from idx_tickers_500 import IDX_SCREENING_TICKERS, REQUESTED_SCREENING_TICKERS
+          from data.purbaya_stock_universe import PURBAYA_STOCK_TICKERS
 
           assert len(IDX_SCREENING_TICKERS) == len(set(IDX_SCREENING_TICKERS))
           assert set(REQUESTED_SCREENING_TICKERS).issubset(IDX_SCREENING_TICKERS)
+          assert set(PURBAYA_STOCK_TICKERS).issubset(IDX_SCREENING_TICKERS)
           print(f"Valid: {len(IDX_SCREENING_TICKERS)} ticker unik")
           PY
 

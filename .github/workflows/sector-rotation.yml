@@ -14,6 +14,8 @@ on:
       - ".github/workflows/sector-rotation.yml"
       - "screener/rotation.py"
       - "data/rotation_history.py"
+      - "data/ihsg_fetcher.py"
+      - "tests/test_ihsg_fetcher.py"
       - "web/rotation-core.js"
       - "web/rotation.js"
       - "tests/test_rotation_history.py"
@@ -72,6 +74,7 @@ jobs:
         if: steps.freshness.outputs.run == 'true'
         run: |
           python -m unittest discover -s tests -p 'test_rotation*.py' -v
+          python -m unittest discover -s tests -p 'test_ihsg*.py' -v
           node --check web/rotation-core.js
           node --check web/rotation.js
           node tests/test_rotation_ui.js

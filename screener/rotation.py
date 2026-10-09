@@ -246,7 +246,7 @@ def load_classification(path=Path("data/idx_sector_classification.json")):
 
 
 def run():
-    from data.yfinance_fetcher import fetch_daily
+    from data.ihsg_fetcher import fetch_ihsg
     source = Path("web/dashboard_data.json").read_bytes()
     dashboard = json.loads(source)
     session = screening_session(dashboard)
@@ -257,18 +257,17 @@ def run():
             [bar.get("close") for bar in history],
             index=pd.to_datetime([bar["date"] for bar in history])
         )
-    ihsg = fetch_daily("^JKSE", period="1y")
-    if ihsg is None:
-        raise ValueError("Cannot fetch IHSG; previous rotation retained")
+    ihsg, ihsg_source = fetch_ihsg(session)
     classification = load_classification()
     report = build_rotation(prices, ihsg["Close"], classification["companies"], session)
+    report["ihsg_source"] = ihsg_source
     report["dashboard_sha256"] = hashlib.sha256(source).hexdigest()
     report["classification"] = {k: v for k, v in classification.items() if k != "companies"}
     if report["coverage"]["valid"] < max(3, int(len(prices) * .5)):
         raise ValueError("Less than 50% of dashboard eligible for rotation; publication refused")
     # This adds an independent adjustable history contract; existing screener/radar modes remain unchanged.
     from data.rotation_history import run as fetch_rotation_history
-    fetch_rotation_history(classification["companies"], SECTORS, source, dashboard)
+    fetch_rotation_history(classification["companies"], SECTORS, source, dashboard, ihsg_frame=ihsg, ihsg_source=ihsg_source)
     report["history_schema_version"] = 1
     output = Path("web/sector_rotation_data.json")
     temporary = output.with_suffix(".tmp")

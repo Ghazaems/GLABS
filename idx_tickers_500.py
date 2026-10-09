@@ -1,5 +1,5 @@
 """
-Pemilih 500 emiten dari universe IDX.
+Universe screening: basis 500 lama, tambahan pemilik, dan saham sumber Purbaya.
 
 Daftar sumber tetap berada di idx_tickers.py. Pemilihan dilakukan secara
 merata dari seluruh daftar agar hasil tidak hanya berisi ticker dengan
@@ -7,6 +7,7 @@ huruf awal A sampai M.
 """
 
 from idx_tickers import IDX_TICKERS_COMPLETE
+from data.purbaya_stock_universe import PURBAYA_STOCK_TICKERS
 
 
 TARGET_TICKER_COUNT = 500
@@ -95,7 +96,7 @@ REQUESTED_SCREENING_TICKERS = (
     "DEWA", "ENRG", "ESSA", "FAST", "GEMS", "HRUM", "JARR", "KIJA", "PACK", "PGEO", "ARCI", "BBCA", "BBRI", "BMRI", "BRMS", "BRPT", "BULL", "BUMI", "BUVA", "CUAN", "PGUN", "SUPA", "TEBE", "VKTR"
 )
 IDX_SCREENING_TICKERS = clean_tickers(
-    [*IDX_TICKERS_500, *REQUESTED_SCREENING_TICKERS]
+    [*IDX_TICKERS_500, *REQUESTED_SCREENING_TICKERS, *PURBAYA_STOCK_TICKERS]
 )
 
 

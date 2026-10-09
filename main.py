@@ -806,10 +806,13 @@ def run_screening() -> None:
     validate_available_universe(price_data, tickers)
 
     print("Mengambil data IHSG...")
-    ihsg = fetch_daily(
-        "^JKSE",
-        period="1y",
-    )
+    from collections import Counter
+    from data.ihsg_fetcher import fetch_ihsg
+    ihsg_session = os.environ.get("SCREENING_SESSION_DATE") or Counter(
+        frame.index[-1].strftime("%Y-%m-%d") for frame in price_data.values()
+    ).most_common(1)[0][0]
+    ihsg, ihsg_source = fetch_ihsg(ihsg_session)
+    print(f"IHSG source: {ihsg_source['provider']}; session={ihsg_session}; bars={len(ihsg)}")
     ihsg = completed_session_frame(ihsg)
     if ihsg is None or ihsg.empty:
         raise RuntimeError(
@@ -961,6 +964,7 @@ def run_screening() -> None:
         )
 
     coverage = {
+        "ihsg_source": ihsg_source,
         "analysis_completion_pct": round(analysis_completion_pct, 2),
         "coverage_status": "partial" if len(results) < len(tickers) else "complete",
         "requested": len(tickers),
