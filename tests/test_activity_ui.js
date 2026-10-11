@@ -18,7 +18,7 @@ async function run(){
   assert.equal(api.record('VKTR','2026-10-08'),null);
   assert.equal(api.record('BBCA','2026-10-09'),null);
   let html=api.panel({ticker:'VKTR'},'2026-10-09');
-  for(const label of ['Tekanan Likuiditas GLABS','Money Flow · bar','Money Flow · line','Intensity GLABS','Bukan LPM Bandarmetrics','Tidak masuk skor komposit'])assert.ok(html.includes(label));
+  for(const label of ['Tekanan Likuiditas GLABS','Money Flow · bar','Money Flow · line','Intensity GLABS','bukan LPM Bandarmetrics','Tidak masuk skor komposit'])assert.ok(html.includes(label));
   assert.equal((html.match(/<svg/g)||[]).length,4);
   assert.ok(!html.includes('NaN'));
   assert.ok(api.panel({ticker:'BBCA'},'2026-10-09').includes('belum tersedia'));
@@ -28,8 +28,43 @@ async function run(){
   assert.equal(api.record('VKTR','2026-10-09'),null);
   item.latest.date='2026-10-09';
   await api.load('2026-10-09');assert.equal(calls,1);
-  assert.ok(cockpit.includes("['activity','Arus & Aktivitas']"));
-  assert.ok(cockpit.includes('price_history:activityRecord.history'));
+  assert.ok(!cockpit.includes("['activity','Arus & Aktivitas']"));
+  assert.ok(cockpit.includes('data-layer-toggle'));
+  assert.ok(cockpit.indexOf('${chart.svg}${!isForecast?window.GlabsActivity.panel')>=0);
+  assert.ok(cockpit.includes('price_history:activityRecord.history.map'));
+  const chartContext={window:{addEventListener(){}},document:{},console};
+  vm.createContext(chartContext);
+  vm.runInContext(cockpit.replace('  window.openAnalysis = open;', '  window.chartTest={makeChart,state,layerControls,render}; window.openAnalysis = open;'),chartContext);
+  const original=JSON.stringify({ticker:'VKTR',score:42,signal:'beli',price_history:history.map(r=>({...r,vwap_5:102,vwap_20:103,vwap_60:104})),support:80,resistance:120,wyckoff:{tr_low:85,tr_high:115,events:[{date:'2026-10-09',type:'SOS'}]}});
+  const stock=JSON.parse(original),chartApi=chartContext.window.chartTest;
+  for(const key of ['wyckoff','trend','vwap']){
+    const layers={wyckoff:true,trend:true,vwap:true};
+    assert.ok(chartApi.makeChart(stock,layers).svg.includes('data-layer="'+key+'"'));
+    layers[key]=false;
+    const chart=chartApi.makeChart(stock,layers).svg;
+    assert.ok(!chart.includes('data-layer="'+key+'"'));
+    for(const other of ['wyckoff','trend','vwap'].filter(k=>k!==key))assert.ok(chart.includes('data-layer="'+other+'"'));
+    assert.equal(JSON.stringify(stock),original);
+  }
+  chartApi.state.layers.vwap=false;
+  assert.ok(chartApi.layerControls().includes('Tampilkan VWAP'));
+  assert.ok(chartApi.layerControls().includes('aria-pressed="false"'));
+  const toggleButtons=['wyckoff','trend','vwap'].map(key=>({dataset:{layerToggle:key}}));
+  const content={innerHTML:''};
+  chartContext.document={getElementById:()=>content,querySelector:()=>({}),querySelectorAll:selector=>selector==='[data-layer-toggle]'?toggleButtons:[]};
+  chartContext.window.GlabsActivity={record:()=>item,panel:()=>'<div class="activity-stack">TEST PANELS</div>'};
+  chartApi.state.data={watchlist:[stock],market_data_date:'2026-10-09'};
+  chartApi.state.ticker='VKTR';chartApi.state.layers={wyckoff:true,trend:true,vwap:true};
+  chartApi.render();
+  assert.ok(content.innerHTML.indexOf('class="activity-stack"')<content.innerHTML.indexOf('class="mode-tabs"'));
+  toggleButtons[2].onclick();
+  assert.equal(chartApi.state.layers.vwap,false);
+  assert.ok(!content.innerHTML.includes('data-layer="vwap"'));
+  assert.ok(content.innerHTML.includes('data-layer="trend"'));
+  assert.ok(content.innerHTML.includes('data-layer="wyckoff"'));
+  assert.ok(content.innerHTML.includes('Skor 42'));
+  assert.equal(JSON.stringify(stock),original);
+  toggleButtons[2].onclick();assert.equal(chartApi.state.layers.vwap,true);
   console.log('Activity UI contracts passed');
 }
 run().catch(e=>{console.error(e);process.exitCode=1});

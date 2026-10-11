@@ -20,7 +20,7 @@
     }catch(_){error=true;}finally{loading=false;window.dispatchEvent(new Event('activity-ready'));}
   }
   function series(history,key,color,bars=false){
-    const rows=history.slice(-100),width=760,height=136,left=8,right=95,top=12,bottom=24;
+    const rows=history.slice(-100),width=820,height=106,left=12,right=68,top=12,bottom=22;
     const values=rows.map(r=>r[key]).filter(Number.isFinite);
     if(!values.length)return '<p class="empty-event">Data indikator belum cukup.</p>';
     let min=Math.min(0,...values),max=Math.max(0,...values);
@@ -46,16 +46,16 @@
   }
   function panel(stock,session){
     const item=record(stock.ticker,session);
-    if(!item)return '<div class="panel activity-panel"><h3>ARUS & AKTIVITAS</h3><h4>Data Purbaya belum tersedia</h4><p class="empty-event">'+(loading?'Sedang memuat hasil indikator.':error?'Hasil indikator belum dapat dimuat.':'Belum ada hasil yang cocok dengan screening terakhir untuk saham ini.')+'</p><p class="empty-event">Tidak memakai pengganti Yahoo atau data buatan.</p></div>';
-    const last=item.latest,p=last.pressure,intensity=last.intensity;
-    const direction=!Number.isFinite(p)?'Tekanan belum dapat dihitung':p>0?'Tekanan harga–volume condong beli':p<0?'Tekanan harga–volume condong jual':'Tekanan harga–volume seimbang';
-    const card=(title,value,note,chart)=>'<section class="activity-block"><div class="activity-heading"><h4>'+title+'</h4><b>'+escape(value)+'</b></div><p>'+escape(note)+'</p>'+chart+'</section>';
-    return '<div class="panel activity-panel"><h3>INTINYA · '+escape(session)+'</h3><h4>'+escape(direction)+'</h4><p class="empty-event">'+(Number.isFinite(intensity)?'Volume '+fmt(intensity)+'× rata-rata 20 sesi sebelumnya.':'Pembanding aktivitas volume belum cukup.')+' Ini estimasi dari candle, bukan identitas atau transaksi bandar.</p>'+
-      card('Tekanan Likuiditas GLABS',fmt(p),'CMF 20 sesi · skala −100 sampai +100. Bukan LPM Bandarmetrics.',series(item.history,'pressure','#2dd4bf'))+
-      card('Money Flow · bar',compact(last.money_flow_bar)+' lembar','Tekanan per sesi (Money Flow Volume), bukan uang masuk/keluar dalam rupiah.',series(item.history,'money_flow_bar','#4ade80',true))+
-      card('Money Flow · line',compact(last.money_flow_line)+' lembar','Akumulasi ADL sejak '+item.history_start+'. Nilai bergantung awal histori; bukan kepemilikan bandar.',series(item.history,'money_flow_line','#fb923c'))+
-      card('Intensity GLABS',fmt(intensity)+'×','Volume dibanding rata-rata 20 sesi sebelumnya. 1× = aktivitas rata-rata; tidak menentukan arah beli/jual.',series(item.history,'intensity','#a78bfa',true))+
-      '<p class="activity-source">Sumber harga dan volume: <a href="'+escape(item.source.url)+'" target="_blank" rel="noopener noreferrer">Purbaya</a> · Harian · '+item.bars+' sesi. Tidak masuk skor komposit.</p></div>';
+    if(!item)return '<div class="activity-unavailable"><h4>Data Purbaya belum tersedia</h4><p class="empty-event">'+(loading?'Sedang memuat hasil indikator.':error?'Hasil indikator belum dapat dimuat.':'Belum ada hasil yang cocok dengan screening terakhir untuk saham ini.')+'</p><p class="empty-event">Tidak memakai pengganti Yahoo atau data buatan.</p></div>';
+    const last=item.latest;
+    const card=(title,value,note,chart)=>'<section class="activity-block"><div class="activity-heading"><h4>'+title+'</h4><b>'+escape(value)+'</b><span class="activity-hint" title="'+escape(note)+'">ⓘ</span></div>'+chart+'</section>';
+    return '<div class="activity-stack" aria-label="Indikator tambahan harga dan volume">'+
+      card('Tekanan Likuiditas GLABS',fmt(last.pressure),'CMF 20 sesi, skala −100 hingga +100. Bukan LPM Bandarmetrics.',series(item.history,'pressure','#2dd4bf'))+
+      card('Money Flow · line',compact(last.money_flow_line)+' lembar','ADL sejak '+item.history_start+'. Bukan kepemilikan bandar.',series(item.history,'money_flow_line','#fb923c'))+
+      card('Intensity GLABS',fmt(last.intensity)+'×','Volume / rata-rata 20 sesi sebelumnya. 1× = aktivitas rata-rata.',series(item.history,'intensity','#a78bfa',true))+
+      card('Money Flow · bar',compact(last.money_flow_bar)+' lembar','Money Flow Volume per sesi; bukan arus uang dalam rupiah.',series(item.history,'money_flow_bar','#4ade80',true))+
+      '<details class="activity-method"><summary>Sumber & cara baca · indikator tambahan</summary><p>Harian · '+escape(session)+' · '+item.bars+' sesi · <a href="'+escape(item.source.url)+'" target="_blank" rel="noopener noreferrer">Purbaya</a>. Tidak masuk skor komposit.</p><p>Tekanan Likuiditas = CMF20 × 100; bukan LPM Bandarmetrics. Money Flow bar = tekanan per sesi dalam lembar; line = ADL kumulatif sejak '+escape(item.history_start)+'. Bukan transaksi atau kepemilikan bandar, bukan arus uang rupiah. Intensity = volume dibanding rata-rata 20 sesi sebelumnya, bukan arah beli/jual.</p></details></div>';
   }
+
   window.GlabsActivity={load,record,panel};
 })();
