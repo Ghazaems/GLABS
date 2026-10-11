@@ -76,13 +76,13 @@
     return {svg, isReal: true, isVolatility: true};
   }
 
-  function modePanel(stock) {
+  function technicalPanel(stock) {
     const wy=stock.wyckoff||{}, events=wy.events||[];
     if(state.mode==='volatility'){
       const v=stock.volatility;
       if(!v||v.status!=='ok') return `<div class="panel"><h3>FORECAST VOLATILITAS</h3><p class="empty-event">Data volatilitas belum tersedia untuk saham ini (butuh minimal ~120 hari data historis).</p></div>`;
-      const last=v.upper_band_95.length-1;
-      return `<div class="panel"><h3>FORECAST VOLATILITAS (GARCH)</h3><div class="metric-row"><span>Regime</span><b>${esc(v.regime)}</b></div><div class="metric-row"><span>Vol. forecast harian</span><b>${v.current_forecast_vol_pct}%</b></div><div class="metric-row"><span>Vol. historis 60 hari</span><b>${v.hist_vol_60d_pct}%</b></div><div class="metric-row"><span>Band 10 hari (95%)</span><b>${fmt(v.lower_band_95[last])} – ${fmt(v.upper_band_95[last])}</b></div><p class="empty-event">Ini rentang wajar pergerakan harga berdasar pola volatilitas historis, BUKAN tebakan harga pasti dan BUKAN sinyal beli/jual. Dipakai sebagai referensi lebar stop-loss / risk sizing.</p></div>`;
+      const last=Math.min((v.upper_band_95||[]).length,(v.lower_band_95||[]).length)-1;
+      return `<div class="panel"><h3>FORECAST VOLATILITAS (GARCH)</h3><div class="metric-row"><span>Regime</span><b>${esc(v.regime)}</b></div><div class="metric-row"><span>Vol. forecast harian</span><b>${v.current_forecast_vol_pct}%</b></div><div class="metric-row"><span>Vol. historis 60 hari</span><b>${v.hist_vol_60d_pct}%</b></div><div class="metric-row"><span>Band 10 hari (95%)</span><b>${fmt(v.lower_band_95?.[last])} – ${fmt(v.upper_band_95?.[last])}</b></div><p class="empty-event">Ini rentang wajar pergerakan harga berdasar pola volatilitas historis, BUKAN tebakan harga pasti dan BUKAN sinyal beli/jual. Dipakai sebagai referensi lebar stop-loss / risk sizing.</p></div>`;
     }
     if(state.mode==='wyckoff') return `<div class="panel"><h3>PETA WYCKOFF</h3><div class="metric-row"><span>Bias</span><b>${esc(wy.bias||'unclear')}</b></div><div class="metric-row"><span>Fase</span><b>${esc(wy.phase||'unclear')}</b></div><div class="metric-row"><span>Trading range</span><b>${fmt(wy.tr_low)} — ${fmt(wy.tr_high)}</b></div><div class="event-list">${events.length?events.map(e=>`<div class="event-item"><span class="event-code">${esc(e.type)}</span><div class="event-desc"><b>${esc(String(e.date||'').slice(0,10))}</b><br>${esc(descriptions[e.type]||'Event Wyckoff terdeteksi oleh rule engine.')}</div></div>`).join(''):`<p class="empty-event">Belum ada event Wyckoff yang lolos aturan. Ini bukan berarti tidak ada setup; artinya struktur saat ini belum cukup jelas untuk diberi label otomatis.</p>`}</div></div>`;
     if(state.mode==='trend') return `<div class="panel"><h3>STRUKTUR TREND</h3><div class="metric-row"><span>Status</span><b>${esc(stock.trend)}</b></div><div class="metric-row"><span>Support terdekat</span><b>${fmt(stock.support)}</b></div><div class="metric-row"><span>Resistance terdekat</span><b>${fmt(stock.resistance)}</b></div><p class="empty-event">Swing high dan swing low pada chart membantu memeriksa apakah urutannya membentuk HH/HL, LH/LL, atau sideways.</p></div>`;
@@ -97,15 +97,83 @@
     return `<div class="panel"><h3>KONTRIBUSI SKOR</h3>${Object.entries(stock.score_breakdown||{}).map(([k,v])=>`<div class="metric-row"><span>${esc(k.replace('_',' '))}</span><b>${v>0?'+':''}${v}</b></div>`).join('')}</div>`;
   }
 
+
+  const componentNames = {trend:'Tren',wyckoff:'Wyckoff',vwap:'VWAP',comparative:'Vs IHSG',comparative_strength:'Vs IHSG',sr:'Support / resistance',support_resistance:'Support / resistance'};
+  function summaryFor(stock, mode) {
+    const rows=[], wy=stock.wyckoff||{}, a=stock.vwap_analysis||{};
+    let title='Data belum cukup', reason='Belum ada kesimpulan yang bisa ditampilkan.', next='Tunggu pembaruan data.';
+    if(mode==='wyckoff'){
+      const labels={
+        accumulation:['Ada tanda akumulasi','Struktur mengarah ke penguatan, tetapi belum memastikan harga akan naik.','Tunggu harga menguat dengan volume dan support tetap bertahan.'],
+        distribution:['Ada tanda distribusi','Struktur mengarah ke pelemahan.','Waspadai support jebol; hindari mengejar kenaikan.'],
+        conflicting:['Arah belum jelas','Tanda penguatan dan pelemahan saling bertentangan.','Tunggu arah harga dan volume lebih jelas.'],
+        unclear:['Pola belum jelas','Belum cukup bukti untuk menyimpulkan akumulasi atau distribusi.','Pantau dulu; jangan mengambil keputusan dari pola ini saja.']
+      };
+      [title,reason,next]=labels[wy.bias]||labels.unclear;
+      if(Number.isFinite(wy.tr_low)&&Number.isFinite(wy.tr_high)) rows.push(['Batas area harga',fmt(wy.tr_low)+' – '+fmt(wy.tr_high)]);
+      const latest=[...(wy.events||[])].filter(e=>/^\d{4}-\d{2}-\d{2}/.test(String(e.date||''))).sort((x,y)=>String(y.date).localeCompare(String(x.date)))[0];
+      if(latest) rows.push(['Event terakhir',String(latest.type||'—')+' · '+String(latest.date).slice(0,10)]);
+    } else if(mode==='trend'){
+      const labels={
+        uptrend:['Tren masih naik','Arah struktur harga mendukung penguatan.','Perhatikan apakah support tetap bertahan saat harga melemah.'],
+        downtrend:['Tren masih turun','Arah struktur harga belum mendukung penguatan.','Tunggu struktur membaik; waspadai support jebol.'],
+        sideways:['Harga masih mendatar','Belum ada arah tren yang dominan.','Tunggu harga keluar dari area pergerakan dengan konfirmasi volume.']
+      };
+      [title,reason,next]=labels[stock.trend]||[title,reason,next];
+      if(Number.isFinite(stock.support))rows.push(['Support',fmt(stock.support)]);
+      if(Number.isFinite(stock.resistance))rows.push(['Resistance',fmt(stock.resistance)]);
+    } else if(mode==='vwap'){
+      const labels={
+        BUY:['VWAP mendukung peluang beli','Model VWAP memberi sinyal BUY. Ini bukan perintah transaksi.','Periksa konfirmasi harga dan batas risiko sebelum entry.'],
+        HOLD:['VWAP mendukung tahan posisi','Model VWAP memberi sinyal HOLD, bukan entry baru.','Pantau apakah arah harga masih mendukung posisi.'],
+        WAIT:['VWAP belum mendukung entry','Model VWAP memberi sinyal WAIT.','Tunggu konfirmasi; tidak ada entry baru dari model.'],
+        REDUCE:['VWAP meminta kurangi risiko','Model VWAP memberi sinyal REDUCE.','Evaluasi posisi dan batas risiko sebelum mengambil tindakan.'],
+        AVOID:['VWAP belum layak untuk entry','Model VWAP memberi sinyal AVOID.','Hindari entry dari model ini sampai kondisi membaik.'],
+        EXIT:['VWAP memberi sinyal keluar','Model VWAP memberi sinyal EXIT.','Evaluasi posisi; jangan mengabaikan batas risiko.']
+      };
+      [title,reason,next]=(Object.keys(a).length?labels[stock.vwap_signal]:null)||[title,reason,next];
+      if(Number.isFinite(a.protective_stop))rows.push(['Batas risiko model',fmt(a.protective_stop)]);
+    } else if(mode==='strength'){
+      const status=stock.comparative_strength?.relative_strength_trend;
+      if(status==='outperforming') [title,reason,next]=['Lebih kuat dibanding IHSG','Kinerja relatif saham mengungguli IHSG pada periode yang dihitung.','Cek tren harga juga: mengungguli IHSG belum tentu berarti harga naik.'];
+      if(status==='underperforming') [title,reason,next]=['Tertinggal dari IHSG','Kinerja relatif saham lebih lemah dibanding IHSG pada periode yang dihitung.','Jangan mengandalkan kekuatan relatif untuk mendukung entry saat ini.'];
+    } else if(mode==='volatility'){
+      const v=stock.volatility;
+      if(v?.status==='ok' && Number.isFinite(v.current_forecast_vol_pct)){
+        title='Perkiraan gerak harian '+fmt(v.current_forecast_vol_pct)+'%';
+        reason='Volatilitas mengukur besar gerakan, bukan arah naik atau turun.';
+        next='Gunakan untuk menilai lebar stop dan ukuran posisi, bukan sinyal beli/jual.';
+        const upper=v.upper_band_95||[],lower=v.lower_band_95||[],last=Math.min(upper.length,lower.length)-1;
+        if(last>=0&&Number.isFinite(lower[last])&&Number.isFinite(upper[last]))rows.push(['Rentang '+(last+1)+' hari · 95%',fmt(lower[last])+' – '+fmt(upper[last])]);
+      } else reason='Histori atau hasil forecast belum memadai untuk saham ini.';
+    } else {
+      const labels={
+        beli:['Kandidat untuk dipantau','Gabungan indikator menghasilkan sinyal beli, bukan kepastian untung.','Tunggu konfirmasi harga dan siapkan batas risiko.'],
+        jual:['Risiko lebih dominan','Gabungan indikator menghasilkan sinyal jual.','Evaluasi posisi; hindari entry hanya karena harga terlihat murah.'],
+        pantau:['Belum ada dukungan kuat','Gabungan indikator belum mendukung keputusan beli atau jual yang kuat.','Pantau dulu sampai indikator lebih searah.']
+      };
+      [title,reason,next]=labels[stock.signal]||[title,reason,next];
+      if(Number.isFinite(stock.score))rows.push(['Skor gabungan',fmt(stock.score)+' · skala −100 hingga +100']);
+      const parts=Object.entries(stock.score_breakdown||{}).filter(([,v])=>Number.isFinite(v)&&v!==0);
+      const strongest=parts.sort((x,y)=>Math.abs(y[1])-Math.abs(x[1]))[0];
+      if(strongest)rows.push(['Pengaruh terbesar',(componentNames[strongest[0]]||strongest[0])+' · '+(strongest[1]>0?'mendukung':'menekan')]);
+    }
+    return {title,reason,next,rows};
+  }
+  function modePanel(stock){
+    const s=summaryFor(stock,state.mode);
+    return '<div class="panel analysis-brief"><h3>INTINYA</h3><h4>'+esc(s.title)+'</h4><p>'+esc(s.reason)+'</p><div class="analysis-next"><span>Yang perlu diperhatikan</span><p>'+esc(s.next)+'</p></div>'+s.rows.map(([label,value])=>'<div class="metric-row"><span>'+esc(label)+'</span><b>'+esc(value)+'</b></div>').join('')+'<details class="analysis-details"><summary>Lihat detail teknis</summary>'+technicalPanel(stock)+'</details></div>';
+  }
+
   function render() {
     const stock=current();
     const chart=(state.mode==='volatility' && stock.volatility?.status==='ok') ? makeVolatilityChart(stock) : makeChart(stock);
     const pct=Math.max(0,Math.min(100,(stock.score+100)/2));
-    document.getElementById('analysis-content').innerHTML=`<div class="drawer-shell"><div class="drawer-top"><div><div class="drawer-kicker">Decision-support cockpit · eksekusi manual</div><h2 class="drawer-title">${esc(stock.ticker)} <span style="color:var(--text-secondary)">${fmt(stock.last_close)}</span></h2><div class="drawer-sub">Skor ${stock.score} · komposit <span style="color:${colorForSignal(stock.signal)}">${esc(stock.signal.toUpperCase())}</span> · Full VWAP <span style="color:${colorForVwap(stock.vwap_signal)}">${esc(stock.vwap_signal||'WAIT')}</span> · data ${esc(state.data.generated_at?.slice(0,10)||'')}</div></div><button class="close-btn" aria-label="Tutup">×</button></div><div class="ticker-strip">${state.data.watchlist.map(x=>`<button class="ticker-chip ${x.ticker===stock.ticker?'active':''}" data-ticker="${esc(x.ticker)}">${esc(x.ticker)}</button>`).join('')}</div><div class="chart-wrap"><div class="chart-toolbar"><b>${state.mode==='volatility'?'Forecast volatilitas':'Price structure'}</b><div class="chart-legend">${state.mode==='volatility'?'<span><i class="legend-dot" style="background:#4ade80"></i>Harga historis</span><span><i class="legend-dot" style="background:#60a5fa"></i>Band 95%</span>':'<span><i class="legend-dot" style="background:#4ade80"></i>Naik</span><span><i class="legend-dot" style="background:#f87171"></i>Turun</span><span><i class="legend-dot" style="background:#60a5fa"></i>VWAP 5D</span><span><i class="legend-dot" style="background:#a78bfa"></i>VWAP 20D</span><span><i class="legend-dot" style="background:#f59e0b"></i>VWAP 60D</span>'}</div></div>${chart.svg}<div class="chart-note">${state.mode==='volatility'?'Band = rentang wajar 95%, bukan tebakan harga pasti.':(chart.isReal?'OHLC hasil screening otomatis.':'Preview estimasi; jalankan main.py agar chart memakai OHLC asli.')}</div></div><div class="mode-tabs">${[['wyckoff','Wyckoff'],['trend','Trend'],['vwap','VWAP'],['strength','Vs IHSG'],['volatility','Volatilitas'],['score','Skor']].map(([k,l])=>`<button class="mode-tab ${state.mode===k?'active':''}" data-mode="${k}">${l}</button>`).join('')}</div><div class="analysis-grid">${modePanel(stock)}<div><div class="panel"><h3>RINGKASAN MESIN</h3><div class="metric-row"><span>Skor</span><b>${stock.score}/100</b></div><div class="score-meter"><i style="width:${pct}%"></i></div><div class="decision-box">${decisionText(stock)}</div></div><div class="panel" style="margin-top:14px"><h3>CHECKLIST MANUAL SEBELUM EKSEKUSI</h3><ul class="checklist"><li>□ <span><b>Konteks pasar:</b> periksa arah IHSG dan sektor.</span></li><li>□ <span><b>Invalidasi:</b> tentukan level sebelum entry.</span></li><li>□ <span><b>Risk sizing:</b> sesuaikan jarak stop dan risiko portofolio.</span></li><li>□ <span><b>Konfirmasi:</b> tunggu price action/volume, jangan hanya skor.</span></li></ul></div></div></div></div>`;
+    document.getElementById('analysis-content').innerHTML=`<div class="drawer-shell"><div class="drawer-top"><div><div class="drawer-kicker">Decision-support cockpit · eksekusi manual</div><h2 class="drawer-title">${esc(stock.ticker)} <span style="color:var(--text-secondary)">${fmt(stock.last_close)}</span></h2><div class="drawer-sub">Skor ${stock.score} · komposit <span style="color:${colorForSignal(stock.signal)}">${esc(stock.signal.toUpperCase())}</span> · Full VWAP <span style="color:${colorForVwap(stock.vwap_signal)}">${esc(stock.vwap_signal||'WAIT')}</span> · data ${esc(state.data.generated_at?.slice(0,10)||'')}</div></div><button class="close-btn" aria-label="Tutup">×</button></div><div class="ticker-strip">${state.data.watchlist.map(x=>`<button class="ticker-chip ${x.ticker===stock.ticker?'active':''}" data-ticker="${esc(x.ticker)}">${esc(x.ticker)}</button>`).join('')}</div><div class="chart-wrap"><div class="chart-toolbar"><b>${state.mode==='volatility'?'Forecast volatilitas':'Price structure'}</b><div class="chart-legend">${state.mode==='volatility'?'<span><i class="legend-dot" style="background:#4ade80"></i>Harga historis</span><span><i class="legend-dot" style="background:#60a5fa"></i>Band 95%</span>':'<span><i class="legend-dot" style="background:#4ade80"></i>Naik</span><span><i class="legend-dot" style="background:#f87171"></i>Turun</span><span><i class="legend-dot" style="background:#60a5fa"></i>VWAP 5D</span><span><i class="legend-dot" style="background:#a78bfa"></i>VWAP 20D</span><span><i class="legend-dot" style="background:#f59e0b"></i>VWAP 60D</span>'}</div></div>${chart.svg}<div class="chart-note">${state.mode==='volatility'?'Band = rentang wajar 95%, bukan tebakan harga pasti.':(chart.isReal?'OHLC hasil screening otomatis.':'Preview estimasi; jalankan main.py agar chart memakai OHLC asli.')}</div></div><div class="mode-tabs">${[['wyckoff','Wyckoff'],['trend','Trend'],['vwap','VWAP'],['strength','Vs IHSG'],['volatility','Volatilitas'],['score','Skor']].map(([k,l])=>`<button class="mode-tab ${state.mode===k?'active':''}" data-mode="${k}">${l}</button>`).join('')}</div><div class="analysis-grid">${modePanel(stock)}<div class="panel analysis-overall"><h3>SINYAL GABUNGAN</h3><div class="decision-box">${decisionText(stock)}</div><p class="analysis-risk-note">Sinyal tiap tab bisa berbeda. Keputusan akhir tetap perlu konfirmasi harga dan batas risiko.</p></div></div></div>`;
     bindDrawer();
   }
 
-  function decisionText(s){if(s.signal==='beli')return `<b>Kandidat riset lanjut.</b> Struktur kuantitatif relatif konstruktif, tetapi entry tetap menunggu konfirmasi dan rencana risiko Anda.`;if(s.signal==='jual')return `<b>Risiko dominan.</b> Hindari entry impulsif; evaluasi invalidasi, perubahan struktur, dan apakah posisi perlu dikurangi secara manual.`;return `<b>Belum ada edge kuat.</b> Masukkan ke pantauan dan tunggu konfluensi indikator membaik.`}
+  function decisionText(s){if(s.signal==='beli')return '<b>Kandidat untuk dipantau.</b> Tunggu konfirmasi sebelum entry.';if(s.signal==='jual')return '<b>Risiko lebih dominan.</b> Evaluasi posisi dan batas risiko.';return '<b>Pantau dulu.</b> Belum ada dukungan indikator yang kuat.'}
   function bindDrawer(){document.querySelector('.close-btn').onclick=close;document.querySelectorAll('.ticker-chip').forEach(b=>b.onclick=()=>{state.ticker=b.dataset.ticker;render()});document.querySelectorAll('.mode-tab').forEach(b=>b.onclick=()=>{state.mode=b.dataset.mode;render()})}
   function open(ticker,mode){state.ticker=ticker||state.data.watchlist[0]?.ticker;state.mode=mode||'wyckoff';render();document.getElementById('analysis-drawer').classList.add('open');document.getElementById('drawer-backdrop').classList.add('open');document.getElementById('analysis-drawer').setAttribute('aria-hidden','false')}
   function close(){document.getElementById('analysis-drawer').classList.remove('open');document.getElementById('drawer-backdrop').classList.remove('open');document.getElementById('analysis-drawer').setAttribute('aria-hidden','true')}
