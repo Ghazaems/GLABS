@@ -1,0 +1,35 @@
+const vm=require('node:vm');
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path');
+const source=fs.readFileSync(path.join(__dirname,'../web/activity.js'),'utf8');
+const cockpit=fs.readFileSync(path.join(__dirname,'../web/cockpit.js'),'utf8');
+new vm.Script(source);new vm.Script(cockpit);
+async function run(){
+  let calls=0;
+  const history=Array.from({length:80},(_,i)=>({date:i===79?'2026-10-09':'2026-09-01',open:100,high:110,low:90,close:105,volume:100,pressure:50,money_flow_bar:50,money_flow_line:i*50,intensity:.5}));
+  const item={status:'ok',source:{provider:'purbayasadewa.id',url:'https://purbayasadewa.id/idx/saham/VKTR',session:'2026-10-09'},latest:history.at(-1),history,history_start:'2026-06-01',bars:80};
+  const data={provider:'purbayasadewa.id',method_version:1,market_data_date:'2026-10-09',stocks:{VKTR:item}};
+  const context={window:{dispatchEvent(){}},Event:class{},fetch:async url=>{calls++;assert.equal(url,'purbaya_activity_data.json');return {ok:true,json:async()=>data}}};
+  vm.createContext(context);vm.runInContext(source,context);
+  const api=context.window.GlabsActivity;
+  assert.equal(api.record('VKTR','2026-10-09'),null);
+  await api.load('2026-10-09');
+  assert.ok(api.record('VKTR','2026-10-09'));
+  assert.equal(api.record('VKTR','2026-10-08'),null);
+  assert.equal(api.record('BBCA','2026-10-09'),null);
+  let html=api.panel({ticker:'VKTR'},'2026-10-09');
+  for(const label of ['Tekanan Likuiditas GLABS','Money Flow · bar','Money Flow · line','Intensity GLABS','Bukan LPM Bandarmetrics','Tidak masuk skor komposit'])assert.ok(html.includes(label));
+  assert.equal((html.match(/<svg/g)||[]).length,4);
+  assert.ok(!html.includes('NaN'));
+  assert.ok(api.panel({ticker:'BBCA'},'2026-10-09').includes('belum tersedia'));
+  item.source.provider='Yahoo';
+  assert.equal(api.record('VKTR','2026-10-09'),null);
+  item.source.provider='purbayasadewa.id';item.latest.date='2026-10-08';
+  assert.equal(api.record('VKTR','2026-10-09'),null);
+  item.latest.date='2026-10-09';
+  await api.load('2026-10-09');assert.equal(calls,1);
+  assert.ok(cockpit.includes("['activity','Arus & Aktivitas']"));
+  assert.ok(cockpit.includes('price_history:activityRecord.history'));
+  console.log('Activity UI contracts passed');
+}
+run().catch(e=>{console.error(e);process.exitCode=1});

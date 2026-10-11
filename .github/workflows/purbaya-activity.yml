@@ -1,0 +1,74 @@
+name: Purbaya Price Volume Activity
+on:
+  workflow_run:
+    workflows: ["Daily Stock Screening (500 Emiten IDX)"]
+    types: [completed]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 14 * * 1-5"
+  push:
+    branches: [main]
+    paths:
+      - "data/purbaya_activity.py"
+      - "tests/test_purbaya_activity.py"
+      - ".github/workflows/purbaya-activity.yml"
+permissions:
+  contents: write
+concurrency:
+  group: purbaya-activity-main
+  cancel-in-progress: false
+jobs:
+  activity:
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Regression tests
+        run: |
+          python -m unittest discover -s tests -p "test_purbaya_activity.py" -v
+          node tests/test_activity_ui.js
+          node tests/test_cockpit_summary.js
+      - name: Fetch Purbaya and compute completed-session indicators
+        run: python -m data.purbaya_activity
+      - name: Validate publication
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open("web/dashboard_data.json"))
+          a=json.load(open("web/purbaya_activity_data.json"))
+          assert a["provider"]=="purbayasadewa.id"
+          assert a["market_data_date"]==d["market_data_date"]==d["screening_session_date"]
+          assert set(a["universe_tickers"])==set(d["universe_tickers"])==set(a["stocks"])
+          assert a["coverage"]["available"]>0
+          for ticker,row in a["stocks"].items():
+              assert row["source"]["provider"]=="purbayasadewa.id"
+              if row["status"]=="ok":
+                  assert row["latest"]["date"]==d["market_data_date"]
+                  assert row["history"][-1]["date"]==d["market_data_date"]
+          print(a["coverage"])
+          PY
+      - name: Publish activity only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/purbaya_activity_data.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "chore: publish Purbaya price-volume activity"
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git rebase origin/main || { git rebase --abort; exit 1; }
+            python -c 'import json; d=json.load(open("web/dashboard_data.json")); a=json.load(open("web/purbaya_activity_data.json")); assert d["market_data_date"]==a["market_data_date"]; assert set(d["universe_tickers"])==set(a["universe_tickers"])'
+            git push origin HEAD:main && exit 0
+            sleep 5
+          done
+          exit 1
