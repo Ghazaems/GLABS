@@ -34,16 +34,20 @@
 
   function makeChart(stock) {
     const raw = stock.price_history?.length ? stock.price_history : syntheticHistory(stock);
-    const data = raw.slice(-100), W=820,H=390, top=22,bottom=62,left=12,right=68, volH=68;
-    const plotH=H-bottom-top-volH, plotW=W-left-right;
+    const data = raw.slice(-100), W=820,H=390, top=22,bottom=34,left=12,right=68, volH=68, volGap=28;
+    const plotH=H-bottom-top-volH-volGap, plotW=W-left-right;
+    const volBottom=H-bottom, volTop=volBottom-volH;
+    const volumeValue=d=>Number.isFinite(d.volume)&&d.volume>=0?d.volume:0;
+    const volumeLabel=n=>n>=1e9?fmt(n/1e9)+' M':n>=1e6?fmt(n/1e6)+' jt':n>=1e3?fmt(n/1e3)+' rb':fmt(n);
     const values=data.flatMap(d=>[d.high,d.low,d.vwap_5??d.vwap,d.vwap_20,d.vwap_60]).filter(Number.isFinite);
     [stock.support,stock.resistance,stock.wyckoff?.tr_low,stock.wyckoff?.tr_high].filter(Number.isFinite).forEach(v=>values.push(v));
     const min=Math.min(...values)*.985,max=Math.max(...values)*1.015, span=max-min||1;
     const x=i=>left+(i+.5)*plotW/data.length, y=v=>top+(max-v)/span*plotH;
-    const candleW=Math.max(2,plotW/data.length*.58), maxVol=Math.max(...data.map(d=>d.volume||0),1);
+    const candleW=Math.max(2,plotW/data.length*.58), maxVol=Math.max(...data.map(volumeValue),1);
     let svg=`<svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Chart ${esc(stock.ticker)}">`;
     for(let i=0;i<5;i++){const yy=top+i*plotH/4,val=max-i*span/4;svg+=`<line x1="${left}" y1="${yy}" x2="${W-right}" y2="${yy}" stroke="#252525"/><text x="${W-right+8}" y="${yy+4}" fill="#777" font-size="10">${fmt(val)}</text>`}
-    data.forEach((d,i)=>{const up=d.close>=d.open,c=up?"#4ade80":"#f87171",xx=x(i);svg+=`<line x1="${xx}" y1="${y(d.high)}" x2="${xx}" y2="${y(d.low)}" stroke="${c}"/><rect x="${xx-candleW/2}" y="${Math.min(y(d.open),y(d.close))}" width="${candleW}" height="${Math.max(1,Math.abs(y(d.open)-y(d.close)))}" fill="${c}" rx=".5"/><rect x="${xx-candleW/2}" y="${H-bottom+10+(1-(d.volume||0)/maxVol)*volH}" width="${candleW}" height="${(d.volume||0)/maxVol*volH}" fill="${c}" opacity=".28"/>`});
+    svg+=`<line x1="${left}" y1="${volTop-7}" x2="${W-right}" y2="${volTop-7}" stroke="#252525"/><text x="${left}" y="${volTop-12}" fill="#888" font-size="10">Volume</text><text x="${W-right+8}" y="${volTop+9}" fill="#777" font-size="9">${data.some(d=>Number.isFinite(d.volume)&&d.volume>=0)?volumeLabel(Math.max(...data.map(volumeValue))):"—"}</text><line x1="${left}" y1="${volBottom}" x2="${W-right}" y2="${volBottom}" stroke="#252525"/>`;
+    data.forEach((d,i)=>{const up=d.close>=d.open,c=up?"#4ade80":"#f87171",xx=x(i);svg+=`<line x1="${xx}" y1="${y(d.high)}" x2="${xx}" y2="${y(d.low)}" stroke="${c}"/><rect x="${xx-candleW/2}" y="${Math.min(y(d.open),y(d.close))}" width="${candleW}" height="${Math.max(1,Math.abs(y(d.open)-y(d.close)))}" fill="${c}" rx=".5"/><rect x="${xx-candleW/2}" class="volume-bar" y="${volBottom-volumeValue(d)/maxVol*volH}" width="${candleW}" height="${volumeValue(d)/maxVol*volH}" fill="${c}" opacity=".55"/>`});
     const vwapLines=[['vwap_5','#60a5fa',1.7],['vwap_20','#a78bfa',1.5],['vwap_60','#f59e0b',1.5]];
     vwapLines.forEach(([key,color,width])=>{const path=data.map((d,i)=>{const value=d[key]??(key==='vwap_5'?d.vwap:null);return Number.isFinite(value)?`${i?'L':'M'}${x(i)},${y(value)}`:''}).join(' ');if(path)svg+=`<path d="${path}" fill="none" stroke="${color}" stroke-width="${width}"/>`});
     const levels=[['Support',stock.support,'#4ade80'],['Resistance',stock.resistance,'#f87171'],['TR Low',stock.wyckoff?.tr_low,'#facc15'],['TR High',stock.wyckoff?.tr_high,'#facc15']];
