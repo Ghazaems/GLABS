@@ -1,0 +1,65 @@
+name: IHSG Overview Card
+on:
+  workflow_run:
+    workflows: ["Daily Stock Screening (500 Emiten IDX)"]
+    types: [completed]
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "data/ihsg_card.py"
+      - "tests/test_ihsg_card.py"
+      - "web/ihsg-card.js"
+      - "tests/test_ihsg_card_ui.js"
+      - ".github/workflows/ihsg-card.yml"
+permissions:
+  contents: write
+concurrency:
+  group: ihsg-overview-card-main
+  cancel-in-progress: false
+jobs:
+  card:
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Test IHSG card
+        run: |
+          python -m unittest discover -s tests -p "test_ihsg_card.py" -v
+          node tests/test_ihsg_card_ui.js
+      - name: Fetch verified completed-session IHSG
+        run: python -m data.ihsg_card
+      - name: Publish card only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/ihsg_card_data.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "chore: publish completed-session IHSG card"
+          for attempt in 1 2 3; do
+            if git pull --rebase origin main; then
+              python - <<'PY'
+          import json
+          from data.ihsg_card import build_snapshot
+          d=json.load(open("web/dashboard_data.json"))
+          a=json.load(open("web/ihsg_card_data.json"))
+          assert a["market_data_date"]==d["market_data_date"]==d["screening_session_date"]
+          build_snapshot(a["history"],d["market_data_date"],a["source"])
+          PY
+              git push && exit 0
+            else
+              git rebase --abort || true
+              exit 1
+            fi
+            sleep 10
+          done
+          exit 1

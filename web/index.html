@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="rotation.css">
 <link rel="stylesheet" href="radar.css">
 <link rel="stylesheet" href="support.css">
+<link rel="stylesheet" href="ihsg-card.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js"></script>
 <style>
@@ -786,20 +787,6 @@ html { overflow-x: hidden; }
         <div class="card">
           <div class="card-head">
             <div class="label">
-              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><path d="M7 15l3-4 3 2 4-6"/></svg>
-              Ringkasan mingguan
-            </div>
-            <div class="stamp" id="summary-stamp">Baru saja</div>
-          </div>
-          <div class="card-body">
-            <p id="summary-text">Memuat...</p>
-          </div>
-          <div class="card-foot"><span class="link">Dengar ringkasan</span><span class="link">Tutup</span></div>
-        </div>
-
-        <div class="card">
-          <div class="card-head">
-            <div class="label">
               <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
               Top pick
             </div>
@@ -810,6 +797,16 @@ html { overflow-x: hidden; }
           <div class="bars" id="toppick-bars"></div>
           <div class="card-foot"><span id="toppick-footer-left"></span><span class="link">Lihat detail</span></div>
         </div>
+
+        <section class="card ihsg-card" id="ihsg-card" aria-label="IHSG sesi screening terakhir">
+          <div class="card-head"><div class="label">IHSG</div><span class="ihsg-trend">—</span></div>
+          <div class="card-body">
+            <div class="ihsg-value" aria-label="Penutupan IHSG">—</div>
+            <div class="ihsg-caption">Memuat penutupan IHSG…</div>
+            <div class="ihsg-source"></div>
+          </div>
+          <div class="ihsg-sparkline"></div>
+        </section>
 
         <div class="card signal-breakdown-card">
           <div class="card-head">
@@ -1859,14 +1856,6 @@ async function loadDashboard() {
   document.getElementById("greet-sub").textContent =
     `${wl.length}/${data.universe_size || 500} saham · Harga terakhir ${data.market_data_date || "belum diketahui"} · Diperbarui ${new Date(data.generated_at).toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })} WIB`;
 
-  // Ringkasan mingguan
-  const sc = s.signal_counts || {};
-  const topName = s.top_pick ? s.top_pick.ticker : "-";
-  const topScore = s.top_pick ? s.top_pick.score : "-";
-  document.getElementById("summary-text").innerHTML =
-    `<b>${wl.length} ticker discreening</b> — ${sc.beli||0} beli, ${sc.pantau||0} pantau, ${sc.jual||0} jual. ` +
-    `<b>${topName}</b> skor tertinggi di <b>${topScore}</b>.`;
-
   // Ticker belum terproses (gagal fetch / data kurang) - cuma daftar kode, tanpa analisis apapun.
   const coverage = s.data_coverage;
   const covEl = document.getElementById("coverage-text");
@@ -2470,6 +2459,7 @@ function renderForwardICSummary(bodyId, selectId, data) {
   <div id="analysis-content"></div>
 </section>
 <div class="toast" id="toast" role="status"></div>
+<script src="ihsg-card.js"></script>
 <script src="activity.js"></script>
 <script src="cockpit.js"></script>
 <script src="rotation-core.js"></script>
