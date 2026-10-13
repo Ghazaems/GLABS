@@ -144,11 +144,11 @@ body {
 .search svg { width: 14px; height: 14px; stroke: currentColor; fill: none; flex-shrink: 0; }
 .search input { background: none; border: none; outline: none; color: var(--text-primary); font-size: 13px; font-family: inherit; width: 100%; }
 .search input::placeholder { color: var(--text-muted); }
-.avatar {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: linear-gradient(150deg, rgba(255,255,255,0.22), rgba(255,255,255,0.02));
-  border: 1px solid var(--border);
-  box-shadow: 0 4px 12px -6px rgba(0,0,0,0.5);
+.topbar-logo {
+  display: block;
+  width: 80px; height: 48px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .content { max-width: 1180px; margin: 0 auto; padding: 20px 32px 60px; }
@@ -754,7 +754,7 @@ html { overflow-x: hidden; }
       </label>
       <button class="rotation-control rotation-shortcut" onclick="showView('rotation')">Rotasi Sektor</button>
       <button class="radar-control radar-shortcut" onclick="showView('radar')">Radar</button>
-      <div class="avatar"></div>
+      <img class="topbar-logo" src="assets/logo-ggg-monochrome.png" alt="Logo GGG" width="760" height="512" decoding="async" />
     </div>
 
     <div class="content">
