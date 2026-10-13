@@ -69,7 +69,7 @@
       const closeCaption="Penutupan · "+dateLabel(data.date);
       caption.textContent=closeCaption;
       display(value,data.close,data.previous);
-      source.textContent=data.rows.length+" sesi · "+data.source;
+      source.textContent=data.rows.length+" sesi";
       const coordinates=points(data.rows);
       const path=coordinates.map((p,i)=>{
         if(!i)return "M"+p.x.toFixed(2)+","+p.y.toFixed(2);
