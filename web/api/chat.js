@@ -100,7 +100,8 @@ module.exports = async function handler(req, res) {
   };
   const dataBlock = `Data watchlist (digenerate ${generated_at || "tidak diketahui"}):\n` +
     JSON.stringify({ scope, rows: compactWatchlist }) +
-    "\nJika data hanya sampel, jangan menyimpulkan ranking/jumlah seluruh pasar dari sampel. Nyatakan keterbatasan data.";
+    "\nJika data hanya sampel, jangan menyimpulkan ranking/jumlah seluruh pasar dari sampel. Nyatakan keterbatasan data." +
+    "\nJika selection adalah tanpa data saham, data sengaja tidak dilampirkan untuk sapaan/tes; jangan mengatakan dashboard atau watchlist kosong.";
 
   const prompt = `${SYSTEM_INSTRUCTION}\n\n${dataBlock}\n\nPertanyaan user: ${question}`;
 
