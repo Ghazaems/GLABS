@@ -260,6 +260,10 @@ body {
   margin-top: 14px; font-size: 12px; color: var(--text-muted);
   display: flex; align-items: center; justify-content: space-between;
 }
+.pill{font-family:inherit}
+.card-foot button.link{background:none;border:0;padding:0;font:inherit;text-align:inherit}
+.card-foot button.link:disabled{opacity:.45;cursor:default}
+.card-foot button.link:focus-visible,.pill:focus-visible{outline:2px solid var(--text-secondary);outline-offset:4px}
 .card-foot .link {
   color: var(--text-secondary); cursor: pointer;
   display: inline-flex; align-items: center; gap: 3px;
@@ -777,7 +781,7 @@ html { overflow-x: hidden; }
             <div id="toppick-text"><span class="gl-loading gl-loading-bar" role="status" aria-label="Memuat Top pick…"><span class="gl-loading-art" aria-hidden="true"><div class="gl-loading-bars"><i style="height:35%"></i><i style="height:68%"></i><i style="height:52%"></i><i style="height:85%"></i><i style="height:42%"></i><i style="height:73%"></i><i style="height:61%"></i><i style="height:94%"></i><i style="height:49%"></i><i style="height:76%"></i></div></span><span class="gl-loading-label" aria-hidden="true"><span style="--char-delay:0.0000s;--char-pause:0.80s">M</span><span style="--char-delay:0.0625s;--char-pause:0.80s">e</span><span style="--char-delay:0.1250s;--char-pause:0.80s">m</span><span style="--char-delay:0.1875s;--char-pause:0.80s">u</span><span style="--char-delay:0.2500s;--char-pause:0.80s">a</span><span style="--char-delay:0.3125s;--char-pause:0.80s">t</span><span style="--char-delay:0.3750s;--char-pause:0.80s"> </span><span style="--char-delay:0.4375s;--char-pause:0.80s">T</span><span style="--char-delay:0.5000s;--char-pause:0.80s">o</span><span style="--char-delay:0.5625s;--char-pause:0.80s">p</span><span style="--char-delay:0.6250s;--char-pause:0.80s"> </span><span style="--char-delay:0.6875s;--char-pause:0.80s">p</span><span style="--char-delay:0.7500s;--char-pause:0.80s">i</span><span style="--char-delay:0.8125s;--char-pause:0.80s">c</span><span style="--char-delay:0.8750s;--char-pause:0.80s">k</span><span style="--char-delay:0.9375s;--char-pause:0.80s">…</span></span></span></div>
           </div>
           <div class="bars" id="toppick-bars"></div>
-          <div class="card-foot"><span id="toppick-footer-left"></span><span class="link">Lihat detail</span></div>
+          <div class="card-foot"><span id="toppick-footer-left"></span><button type="button" class="link" id="top-detail-button" onclick="openOverviewDetail(this, 'score')" disabled>Lihat detail</button></div>
         </div>
 
         <section class="card ihsg-card" id="ihsg-card" aria-label="IHSG sesi screening terakhir">
@@ -802,7 +806,7 @@ html { overflow-x: hidden; }
               <span class="gl-loading gl-loading-bar" role="status" aria-label="Memuat jumlah sinyal…"><span class="gl-loading-art" aria-hidden="true"><div class="gl-loading-bars"><i style="height:35%"></i><i style="height:68%"></i><i style="height:52%"></i><i style="height:85%"></i><i style="height:42%"></i><i style="height:73%"></i><i style="height:61%"></i><i style="height:94%"></i><i style="height:49%"></i><i style="height:76%"></i></div></span><span class="gl-loading-label" aria-hidden="true"><span style="--char-delay:0.0000s;--char-pause:1.05s">M</span><span style="--char-delay:0.0476s;--char-pause:1.05s">e</span><span style="--char-delay:0.0952s;--char-pause:1.05s">m</span><span style="--char-delay:0.1429s;--char-pause:1.05s">u</span><span style="--char-delay:0.1905s;--char-pause:1.05s">a</span><span style="--char-delay:0.2381s;--char-pause:1.05s">t</span><span style="--char-delay:0.2857s;--char-pause:1.05s"> </span><span style="--char-delay:0.3333s;--char-pause:1.05s">j</span><span style="--char-delay:0.3810s;--char-pause:1.05s">u</span><span style="--char-delay:0.4286s;--char-pause:1.05s">m</span><span style="--char-delay:0.4762s;--char-pause:1.05s">l</span><span style="--char-delay:0.5238s;--char-pause:1.05s">a</span><span style="--char-delay:0.5714s;--char-pause:1.05s">h</span><span style="--char-delay:0.6190s;--char-pause:1.05s"> </span><span style="--char-delay:0.6667s;--char-pause:1.05s">s</span><span style="--char-delay:0.7143s;--char-pause:1.05s">i</span><span style="--char-delay:0.7619s;--char-pause:1.05s">n</span><span style="--char-delay:0.8095s;--char-pause:1.05s">y</span><span style="--char-delay:0.8571s;--char-pause:1.05s">a</span><span style="--char-delay:0.9048s;--char-pause:1.05s">l</span><span style="--char-delay:0.9524s;--char-pause:1.05s">…</span></span></span>
             </div>
           </div>
-          <div class="card-foot" style="margin-top:12px"><span></span><span class="link">Lihat semua sinyal</span></div>
+          <div class="card-foot" style="margin-top:12px"><span></span><button type="button" class="link" onclick="openOverviewList('signal')">Lihat semua sinyal</button></div>
         </div>
 
         <div class="card">
@@ -815,7 +819,7 @@ html { overflow-x: hidden; }
           <div class="card-body" id="watchlist-rows">
             <span class="gl-loading gl-loading-rows" role="status" aria-label="Memuat watchlist…"><span class="gl-loading-art" aria-hidden="true"><div class="gl-loading-rows"><i></i><i></i><i></i></div></span><span class="gl-loading-label" aria-hidden="true"><span style="--char-delay:0.0000s;--char-pause:0.85s">M</span><span style="--char-delay:0.0588s;--char-pause:0.85s">e</span><span style="--char-delay:0.1176s;--char-pause:0.85s">m</span><span style="--char-delay:0.1765s;--char-pause:0.85s">u</span><span style="--char-delay:0.2353s;--char-pause:0.85s">a</span><span style="--char-delay:0.2941s;--char-pause:0.85s">t</span><span style="--char-delay:0.3529s;--char-pause:0.85s"> </span><span style="--char-delay:0.4118s;--char-pause:0.85s">w</span><span style="--char-delay:0.4706s;--char-pause:0.85s">a</span><span style="--char-delay:0.5294s;--char-pause:0.85s">t</span><span style="--char-delay:0.5882s;--char-pause:0.85s">c</span><span style="--char-delay:0.6471s;--char-pause:0.85s">h</span><span style="--char-delay:0.7059s;--char-pause:0.85s">l</span><span style="--char-delay:0.7647s;--char-pause:0.85s">i</span><span style="--char-delay:0.8235s;--char-pause:0.85s">s</span><span style="--char-delay:0.8824s;--char-pause:0.85s">t</span><span style="--char-delay:0.9412s;--char-pause:0.85s">…</span></span></span>
           </div>
-          <div class="card-foot"><span></span><span class="link">Kelola watchlist</span></div>
+          <div class="card-foot"><span></span><button type="button" class="link" onclick="openOverviewList('watchlist')">Lihat watchlist</button></div>
         </div>
       </div>
 
@@ -837,7 +841,7 @@ html { overflow-x: hidden; }
             <div id="trend-text"><span class="gl-loading gl-loading-rows" role="status" aria-label="Memuat struktur tren…"><span class="gl-loading-art" aria-hidden="true"><div class="gl-loading-rows"><i></i><i></i><i></i></div></span><span class="gl-loading-label" aria-hidden="true"><span style="--char-delay:0.0000s;--char-pause:1.05s">M</span><span style="--char-delay:0.0476s;--char-pause:1.05s">e</span><span style="--char-delay:0.0952s;--char-pause:1.05s">m</span><span style="--char-delay:0.1429s;--char-pause:1.05s">u</span><span style="--char-delay:0.1905s;--char-pause:1.05s">a</span><span style="--char-delay:0.2381s;--char-pause:1.05s">t</span><span style="--char-delay:0.2857s;--char-pause:1.05s"> </span><span style="--char-delay:0.3333s;--char-pause:1.05s">s</span><span style="--char-delay:0.3810s;--char-pause:1.05s">t</span><span style="--char-delay:0.4286s;--char-pause:1.05s">r</span><span style="--char-delay:0.4762s;--char-pause:1.05s">u</span><span style="--char-delay:0.5238s;--char-pause:1.05s">k</span><span style="--char-delay:0.5714s;--char-pause:1.05s">t</span><span style="--char-delay:0.6190s;--char-pause:1.05s">u</span><span style="--char-delay:0.6667s;--char-pause:1.05s">r</span><span style="--char-delay:0.7143s;--char-pause:1.05s"> </span><span style="--char-delay:0.7619s;--char-pause:1.05s">t</span><span style="--char-delay:0.8095s;--char-pause:1.05s">r</span><span style="--char-delay:0.8571s;--char-pause:1.05s">e</span><span style="--char-delay:0.9048s;--char-pause:1.05s">n</span><span style="--char-delay:0.9524s;--char-pause:1.05s">…</span></span></span></div>
           </div>
           <div class="trend-gauge" id="trend-gauge" aria-live="polite"></div>
-          <div class="card-foot"><span></span><span class="link">Lihat struktur</span></div>
+          <div class="card-foot"><span></span><button type="button" class="link" onclick="openOverviewList('trend')">Lihat struktur</button></div>
         </div>
 
         <div class="card">
@@ -850,7 +854,7 @@ html { overflow-x: hidden; }
           <div class="card-body">
             <div id="wyckoff-text"><span class="gl-loading gl-loading-rows" role="status" aria-label="Memuat Wyckoff…"><span class="gl-loading-art" aria-hidden="true"><div class="gl-loading-rows"><i></i><i></i><i></i></div></span><span class="gl-loading-label" aria-hidden="true"><span style="--char-delay:0.0000s;--char-pause:0.75s">M</span><span style="--char-delay:0.0667s;--char-pause:0.75s">e</span><span style="--char-delay:0.1333s;--char-pause:0.75s">m</span><span style="--char-delay:0.2000s;--char-pause:0.75s">u</span><span style="--char-delay:0.2667s;--char-pause:0.75s">a</span><span style="--char-delay:0.3333s;--char-pause:0.75s">t</span><span style="--char-delay:0.4000s;--char-pause:0.75s"> </span><span style="--char-delay:0.4667s;--char-pause:0.75s">W</span><span style="--char-delay:0.5333s;--char-pause:0.75s">y</span><span style="--char-delay:0.6000s;--char-pause:0.75s">c</span><span style="--char-delay:0.6667s;--char-pause:0.75s">k</span><span style="--char-delay:0.7333s;--char-pause:0.75s">o</span><span style="--char-delay:0.8000s;--char-pause:0.75s">f</span><span style="--char-delay:0.8667s;--char-pause:0.75s">f</span><span style="--char-delay:0.9333s;--char-pause:0.75s">…</span></span></span></div>
           </div>
-          <div class="card-foot"><span id="wyckoff-footer"></span><span class="link">Lihat detail</span></div>
+          <div class="card-foot"><span id="wyckoff-footer"></span><button type="button" class="link" id="wyckoff-detail-button" onclick="openOverviewDetail(this, 'wyckoff')" disabled>Lihat detail</button></div>
         </div>
 
         <div class="card vwap-card" id="vwap-card" tabindex="0" aria-label="Daftar analisis Rolling VWAP; arahkan pointer lalu gulir untuk melihat saham lain">
@@ -865,27 +869,26 @@ html { overflow-x: hidden; }
             <div class="vwap-signal-list" id="vwap-signal-list"></div>
             <div class="vwap-meta" id="vwap-meta">Klik ticker untuk membuka detail Rolling VWAP 5/20/60.</div>
           </div>
-          <div class="card-foot"><span></span><span class="link">Lihat semua VWAP</span></div>
+          <div class="card-foot"><span></span><button type="button" class="link" onclick="openOverviewList('vwap')">Lihat semua VWAP</button></div>
         </div>
 
       </div>
 
       <!-- PILLS -->
       <div class="pills">
-        <div class="pill"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/></svg>Cek trend</div>
-        <div class="pill"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Cek Wyckoff</div>
-        <div class="pill"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>Cek VWAP</div>
-        <div class="pill"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>Duplikat screener</div>
-        <div class="pill" onclick="showView('riwayat')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Riwayat sinyal</div>
+        <button type="button" class="pill" onclick="openOverviewList('trend')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/></svg>Cek trend</button>
+        <button type="button" class="pill" id="wyckoff-shortcut" onclick="openOverviewDetail(document.getElementById('wyckoff-detail-button'), 'wyckoff')" disabled><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Cek Wyckoff</button>
+        <button type="button" class="pill" onclick="openOverviewList('vwap')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>Cek VWAP</button>
+        <button type="button" class="pill" onclick="showView('riwayat')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Riwayat sinyal</button>
       </div>
 
       <!-- PROMPT PANEL -->
       <div class="prompt-panel">
         <div id="chat-log"></div>
 
-        <div class="suggestion" data-q="tahu kenapa skor ANTM turun minggu ini" onclick="askAI(this.dataset.q)"><b>Saya mau</b> tahu kenapa skor ANTM turun minggu ini</div>
+        <div class="suggestion" data-q="jelaskan skor dan sinyal ANTM dari screening terakhir" onclick="askAI(this.dataset.q)"><b>Saya mau</b> jelaskan skor dan sinyal ANTM dari screening terakhir</div>
         <div class="suggestion" data-q="lihat ticker mana yang mendekati resistance" onclick="askAI(this.dataset.q)"><b>Saya mau</b> lihat ticker mana yang mendekati resistance</div>
-        <div class="suggestion" data-q="bandingkan VWAP semua ticker di watchlist" onclick="askAI(this.dataset.q)"><b>Saya mau</b> bandingkan VWAP semua ticker di watchlist</div>
+        <div class="suggestion" data-q="bandingkan VWAP ANTM dan BBRI" onclick="askAI(this.dataset.q)"><b>Saya mau</b> bandingkan VWAP ANTM dan BBRI</div>
 
         <div id="chat-file-chip-wrap"></div>
 
@@ -1422,24 +1425,25 @@ let ALL_WATCHLIST = [];
 let SORT_STATE = { key: "score", dir: -1 };
 
 function renderScreenerTable(rows) {
+  const { scoreKey, signalKey, trendKey, wyckoffKey, csKey, label } = STYLE_CONFIG[currentStyle];
   const tbody = document.getElementById("screener-table-body");
   if (!rows.length) {
     tbody.innerHTML = `<tr><td colspan="8" class="loading-msg">Tidak ada ticker cocok.</td></tr>`;
     return;
   }
   tbody.innerHTML = rows.map(r => {
-    const wyBias = r.wyckoff?.bias === "accumulation" ? "Akumulasi" : r.wyckoff?.bias === "distribution" ? "Distribusi" : "-";
-    const wyPhase = phaseLetter(r.wyckoff?.phase);
+    const wyBias = r[wyckoffKey]?.bias === "accumulation" ? "Akumulasi" : r[wyckoffKey]?.bias === "distribution" ? "Distribusi" : "-";
+    const wyPhase = phaseLetter(r[wyckoffKey]?.phase);
     return `
       <tr>
         <td style="font-weight:600;">${r.ticker}</td>
         <td class="num">${fmtNum(r.last_close)}</td>
-        <td>${TREND_LABEL[r.trend] || r.trend}</td>
+        <td>${TREND_LABEL[r[trendKey]] || r[trendKey]}</td>
         <td style="color:var(--text-secondary);">${wyBias}${wyPhase ? " &middot; " + wyPhase : ""}</td>
         <td title="${escapeHtml((r.vwap_analysis?.reasons || []).join(" "))}">${vwapBadge(r.vwap_signal)}</td>
-        <td>${r.comparative_strength?.relative_strength_trend === "outperforming" ? "Outperform" : r.comparative_strength?.relative_strength_trend === "underperforming" ? "Underperform" : "-"}</td>
-        <td class="num" style="font-weight:600;">${r.score}</td>
-        <td><span class="badge ${r.signal}">${r.signal.charAt(0).toUpperCase()+r.signal.slice(1)}</span></td>
+        <td>${r[csKey]?.relative_strength_trend === "outperforming" ? "Outperform" : r[csKey]?.relative_strength_trend === "underperforming" ? "Underperform" : "-"}</td>
+        <td class="num" style="font-weight:600;">${r[scoreKey]}</td>
+        <td><span class="badge ${r[signalKey]}">${r[signalKey].charAt(0).toUpperCase()+r[signalKey].slice(1)}</span></td>
       </tr>`;
   }).join("");
 }
@@ -1455,8 +1459,10 @@ function applyScreenerFilterAndSort() {
   let rows = ALL_WATCHLIST.filter(r => r.ticker.includes(q));
 
   const { key, dir } = SORT_STATE;
+  const config = STYLE_CONFIG[currentStyle];
+  const activeKey = key === "score" ? config.scoreKey : key === "trend" ? config.trendKey : key;
   rows.sort((a, b) => {
-    const av = a[key], bv = b[key];
+    const av = a[activeKey], bv = b[activeKey];
     if (typeof av === "string") return av.localeCompare(bv) * dir;
     return ((av||0) - (bv||0)) * dir;
   });
@@ -1976,7 +1982,7 @@ function renderStyleDependent(style) {
     ? sortedWl.slice(0, 5).map(r => {
         const sig = r[signalKey];
         return `
-          <div class="wl-row">
+          <div class="wl-row" role="button" tabindex="0" onclick="openTickerAnalysis('${r.ticker}')" onkeydown="if(event.key==='Enter' || event.key===' '){event.preventDefault();openTickerAnalysis('${r.ticker}')}">
             <span class="t">${r.ticker} <span class="s">${fmtNum(r.last_close)}</span></span>
             <span class="badge ${sig}">${sig.charAt(0).toUpperCase()+sig.slice(1)}</span>
           </div>`;
@@ -1984,6 +1990,9 @@ function renderStyleDependent(style) {
     : `<div class="vwap-meta">${waitingMessage}</div>`;
 
   const tp = sortedWl[0];
+  const topButton = document.getElementById("top-detail-button");
+  topButton.dataset.ticker = tp?.ticker || "";
+  topButton.disabled = !tp;
   const topText = document.getElementById("toppick-text");
   const topFooter = document.getElementById("toppick-footer-left");
   const barsEl = document.getElementById("toppick-bars");
@@ -2031,6 +2040,10 @@ function renderStyleDependent(style) {
   const distrib = styleRows.filter(r => r[wyckoffKey]?.bias === "distribution");
   const weighted = styleRows.filter(r => Number(r[bdKey]?.wyckoff) !== 0);
   const bestAccum = [...accum].sort((a, b) => Number(b[scoreKey]) - Number(a[scoreKey]))[0];
+  const wyckoffButton = document.getElementById("wyckoff-detail-button");
+  wyckoffButton.dataset.ticker = bestAccum?.ticker || "";
+  wyckoffButton.disabled = !bestAccum;
+  document.getElementById("wyckoff-shortcut").disabled = !bestAccum;
   if (bestAccum) {
     const selected = bestAccum[wyckoffKey] || {};
     const events = (selected.events || []).map(event => event.type).join(", ") || "-";
@@ -2121,6 +2134,23 @@ function fmtPct(n) {
   if (n === null || n === undefined || Number.isNaN(n)) return "-";
   const sign = n > 0 ? "+" : "";
   return `${sign}${n}%`;
+}
+
+function openOverviewDetail(button, mode) {
+  const ticker = button?.dataset.ticker;
+  if (!ticker || button.disabled || typeof window.openAnalysis !== "function") return;
+  window.openAnalysis(ticker, mode);
+}
+
+function openOverviewList(kind) {
+  const search = document.getElementById("ticker-search");
+  if (search) search.value = "";
+  if (kind === "watchlist") {
+    showView("watchlist");
+    return;
+  }
+  SORT_STATE = { key: kind === "vwap" ? "vwap_signal" : kind === "trend" ? "trend" : "score", dir: kind === "signal" ? -1 : 1 };
+  showView("screener");
 }
 
 function showView(name) {
