@@ -55,7 +55,7 @@ def build_feed(fetcher, previous=None, now=None):
             output.append({**base, **latest, "status": "ok", "fetched_at": now.isoformat()})
             fresh += 1
         except Exception as error:
-            print(f"{symbol}: fetch unavailable ({type(error).__name__})")
+            print(f"{symbol}: fetch unavailable ({type(error).__name__}: {error})")
             cached = old.get(symbol, {})
             try:
                 latest = completed_snapshot(
