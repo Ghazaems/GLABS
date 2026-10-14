@@ -84,10 +84,13 @@ class DashboardContractTests(unittest.TestCase):
             "signal-bar-value",
             "signal-bar-fill",
             "maximumSignalCount",
-            "* 68",
-            "gap:clamp(10px,1.4vw,20px)",
+            "const barWidth = (count / maximumSignalCount) * 100",
+            "width:var(--bar-width)",
+            "grid-template-columns:46px minmax(0,1fr) 38px",
+            "grid-column:1/-1",
         ):
             self.assertIn(marker, self.index)
+        self.assertNotIn("--bar-height:", self.index)
         self.assertNotIn("sig-rows", self.index)
         self.assertNotIn('id="sig-track"', self.index)
         self.assertNotIn('id="count-beli"', self.index)
