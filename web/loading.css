@@ -33,3 +33,10 @@
 @keyframes gl-bklit-grid{0%,100%{stroke-opacity:.35}50%{stroke-opacity:1}}
 @keyframes gl-bklit-char{0%,50%,100%{color:var(--text-muted)}25%{color:var(--text-primary)}}
 @media(prefers-reduced-motion:reduce){.gl-loading-grid,.gl-loading-label span,.gl-loading-line .gl-loading-pulse{animation:none!important;clip-path:none!important}.gl-loading-line .gl-loading-pulse{opacity:.25}}
+
+/* Full-width placeholders, no column-sized loading or broken letters. */
+.gl-loading{min-width:0;box-sizing:border-box}
+.gl-loading-label{overflow-wrap:normal;word-break:normal}
+.gl-loading-label span{white-space:pre}
+.signal-bar-chart>.gl-loading .gl-loading-bars{gap:4%;padding:8px 6px 0}
+.signal-bar-chart>.gl-loading .gl-loading-label{white-space:nowrap}
