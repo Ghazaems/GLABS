@@ -54,7 +54,7 @@
     const value=card.querySelector(".ihsg-value"), caption=card.querySelector(".ihsg-caption"), badge=card.querySelector(".ihsg-trend"),
           chart=card.querySelector(".ihsg-sparkline"), source=card.querySelector(".ihsg-source");
     const session=dashboard?.market_data_date;
-    card.dataset.tone="flat"; value.textContent="—"; badge.textContent="—"; chart.innerHTML=window.GlabsLoading.html("line","Memuat IHSG…");
+    card.dataset.tone="flat"; value.textContent="—"; badge.textContent="—"; chart.innerHTML=(window.GlabsLoading?.html("line","Memuat IHSG…") || "");
     caption.textContent="Memuat penutupan IHSG…"; source.textContent="";
     try {
       if (!session || dashboard.screening_session_date!==session) throw Error("Sesi screening belum terverifikasi");

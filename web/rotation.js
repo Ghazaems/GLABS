@@ -138,7 +138,7 @@ function bind(){
 }
 async function open(){
  if(state.data){render();return;}if(state.loading)return state.loading;
- if(!root())return;root().innerHTML=window.GlabsLoading.html("line","Memuat rotasi sektor…");
+ if(!root())return;root().innerHTML=(window.GlabsLoading?.html("line","Memuat rotasi sektor…") || '<p class="rotation-status" role="status">Memuat hasil rotasi sektor…</p>');
  state.loading=(async()=>{try{if(!C)throw new Error("Rotation core belum dimuat");const response=await fetch("sector_rotation_data.json",{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);const data=await response.json();if(data.schema_version!==1||data.status!=="ok"||!Array.isArray(data.modes?.weekly?.sectors)||!Array.isArray(data.modes?.weekly?.stocks))throw new Error("Kontrak data tidak valid");state.data=data;state.extended=null;state.historyError="";
  try{
   const hr=await fetch("rotation_history_data.json",{cache:"no-store"});if(!hr.ok)throw new Error("HTTP "+hr.status);
