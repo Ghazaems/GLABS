@@ -18,9 +18,11 @@ ATURAN:
 - Ini decision-support, bukan sinyal eksekusi otomatis atau rekomendasi investasi resmi -
   ingatkan itu kalau relevan (misalnya saat user menanyakan apakah harus beli/jual).`;
 
-const MODEL = "gemini-3.6-flash";
+const MODEL = "gemini-3.5-flash-lite";
+const REQUEST_TIMEOUT_MS = 12_000;
+const MAX_ATTEMPTS = 2;
 const MAX_QUESTION_CHARS = 2000;
-const MAX_WATCHLIST_ITEMS = 500;
+const MAX_WATCHLIST_ITEMS = 40;
 const MAX_FILE_BASE64_CHARS = 6_000_000;
 const ALLOWED_FILE_TYPES = new Set([
   "image/png",
@@ -34,6 +36,11 @@ function compactRow(row) {
   if (!row || typeof row !== "object") return null;
   return {
     ticker: row.ticker,
+    trend: row.trend,
+    support: row.support,
+    resistance: row.resistance,
+    wyckoff_bias: row.wyckoff_bias,
+    wyckoff_phase: row.wyckoff_phase,
     last_price_date: row.last_price_date,
     last_close: row.last_close,
     signal_daily: row.signal_daily,
@@ -77,12 +84,23 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const compactWatchlist = (
-    Array.isArray(watchlist) ? watchlist : []
-  ).slice(0, MAX_WATCHLIST_ITEMS).map(compactRow).filter(Boolean);
-
+  const rows = (Array.isArray(watchlist) ? watchlist : [])
+    .filter((row) => row && typeof row.ticker === "string");
+  const words = new Set(question.toUpperCase().match(/[A-Z0-9]+/g) || []);
+  const matched = rows.filter((row) => words.has(row.ticker.toUpperCase().replace(/\.JK$/, "")));
+  const greeting = /^(halo|hai|hi|hello|tes|test|jawab singkat|jawab satu kata)\b/i.test(question.trim());
+  const selected = greeting ? [] : (matched.length ? matched : rows);
+  const compactWatchlist = selected.slice(0, MAX_WATCHLIST_ITEMS).map(compactRow).filter(Boolean);
+  // Explicit scope: a compact sample must never be presented as the complete market.
+  const scope = {
+    total_rows: rows.length,
+    selected_rows: compactWatchlist.length,
+    selection: greeting ? "tanpa data saham" : matched.length ? "ticker yang disebut" : "sampel awal, bukan ranking seluruh pasar",
+    truncated: selected.length > compactWatchlist.length,
+  };
   const dataBlock = `Data watchlist (digenerate ${generated_at || "tidak diketahui"}):\n` +
-    JSON.stringify(compactWatchlist);
+    JSON.stringify({ scope, rows: compactWatchlist }) +
+    "\nJika data hanya sampel, jangan menyimpulkan ranking/jumlah seluruh pasar dari sampel. Nyatakan keterbatasan data.";
 
   const prompt = `${SYSTEM_INSTRUCTION}\n\n${dataBlock}\n\nPertanyaan user: ${question}`;
 
@@ -98,28 +116,56 @@ module.exports = async function handler(req, res) {
     parts.push({ inlineData: { mimeType: file.mimeType, data: file.data } });
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`;
-
-  try {
-    const geminiRes = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ parts }] }),
-    });
-
-    const json = await geminiRes.json();
-
-    if (!geminiRes.ok) {
-      res.status(geminiRes.status).json({
-        error: json?.error?.message || "Gagal memanggil Gemini API.",
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+  const body = JSON.stringify({ contents: [{ parts }] });
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    try {
+      const geminiRes = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+        body,
+        signal: controller.signal,
+      });
+      const json = await geminiRes.json().catch(() => ({}));
+      if (!geminiRes.ok) {
+        const temporary = [502, 503, 504].includes(geminiRes.status);
+        if (temporary && attempt + 1 < MAX_ATTEMPTS) {
+          clearTimeout(timer);
+          await new Promise((resolve) => setTimeout(resolve, 600));
+          continue;
+        }
+        const code = geminiRes.status === 429 ? "quota_exceeded"
+          : temporary ? "provider_busy" : "provider_error";
+        const error = code === "quota_exceeded"
+          ? "Batas pemakaian Gemini tercapai. Tunggu kuota tersedia kembali atau cek limit proyek di AI Studio."
+          : code === "provider_busy"
+          ? "Gemini masih sibuk setelah dicoba ulang sekali. Silakan coba beberapa saat lagi."
+          : "Gemini menolak permintaan. Periksa akses model dan konfigurasi API di server.";
+        res.status(geminiRes.status).json({ error, code, model: MODEL });
+        return;
+      }
+      const answer = (json?.candidates?.[0]?.content?.parts || [])
+        .filter((part) => !part.thought && typeof part.text === "string")
+        .map((part) => part.text).join("\n").trim();
+      if (!answer) {
+        res.status(502).json({ error: "Gemini tidak mengembalikan jawaban teks. Coba pertanyaan lain.", code: "empty_response" });
+        return;
+      }
+      res.status(200).json({ answer, model: MODEL });
+      return;
+    } catch (err) {
+      // Never return fetch errors containing credentials or upstream request URLs.
+      res.status(err.name === "AbortError" ? 504 : 502).json({
+        error: err.name === "AbortError"
+          ? "AI terlalu lama merespons. Silakan coba lagi."
+          : "Koneksi ke Gemini gagal. Silakan coba lagi.",
+        code: err.name === "AbortError" ? "provider_timeout" : "provider_network",
       });
       return;
+    } finally {
+      clearTimeout(timer);
     }
-
-    const answer = json?.candidates?.[0]?.content?.parts?.[0]?.text
-      || "Maaf, tidak ada jawaban dari AI.";
-    res.status(200).json({ answer });
-  } catch (err) {
-    res.status(500).json({ error: err.message || "Terjadi kesalahan server." });
   }
 };

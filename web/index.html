@@ -1196,6 +1196,11 @@ function buildWatchlistContext() {
   const wl = (window.dashboardData && window.dashboardData.watchlist) || [];
   return wl.map((r) => ({
     ticker: r.ticker,
+    last_price_date: r.last_price_date,
+    signal_daily: r.signal_daily,
+    signal_swing: r.signal_swing,
+    score_daily: r.score_daily,
+    score_swing: r.score_swing,
     last_close: r.last_close,
     trend: r.trend,
     support: r.support,
@@ -1273,9 +1278,12 @@ function renderFileChip() {
     : "";
 }
 
+let aiRequestPending = false;
+
 async function askAI(question) {
   question = (question || "").trim();
-  if (!question) return;
+  if (!question || aiRequestPending) return;
+  aiRequestPending = true;
 
   const log = document.getElementById("chat-log");
   const filePayload = pendingFile ? { mimeType: pendingFile.mimeType, data: pendingFile.base64 } : null;
@@ -1311,7 +1319,9 @@ async function askAI(question) {
     const replyDiv = document.createElement("div");
     if (!res.ok) {
       replyDiv.className = "chat-msg error";
-      replyDiv.textContent = data.error || "Terjadi kesalahan saat menghubungi AI.";
+      replyDiv.textContent = res.status === 401
+        ? "Sesi login berakhir. Muat ulang halaman dan masukkan kode akses lagi."
+        : data.error || "Terjadi kesalahan saat menghubungi AI.";
     } else {
       replyDiv.className = "chat-msg ai";
       replyDiv.innerHTML = renderMarkdown(data.answer || "Maaf, tidak ada jawaban.");
@@ -1321,10 +1331,13 @@ async function askAI(question) {
   } catch (e) {
     loadingDiv.className = "chat-msg error";
     loadingDiv.textContent = "Gagal menghubungi server. Coba lagi.";
+  } finally {
+    aiRequestPending = false;
   }
 }
 
 function sendChat() {
+  if (aiRequestPending) return;
   const input = document.getElementById("chat-input");
   const q = input.value;
   input.value = "";

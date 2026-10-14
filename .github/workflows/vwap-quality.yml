@@ -39,6 +39,7 @@ jobs:
           node tests/test_rotation_ui.js
           node --check web/cockpit.js
           node --check web/api/chat.js
+          node tests/test_chat_api.js
           node --check web/api/unlock.js
           node --check web/support.js
           node tests/test_support.js
