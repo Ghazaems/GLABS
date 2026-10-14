@@ -1,6 +1,6 @@
 import unittest
 from datetime import datetime, timezone
-from data.global_indices import completed_snapshot, build_feed, INDICES
+from data.global_indices import completed_snapshot, build_feed, INDICES, usable_history
 
 class GlobalIndexTests(unittest.TestCase):
     def setUp(self):
@@ -39,6 +39,10 @@ class GlobalIndexTests(unittest.TestCase):
     def test_total_failure_does_not_publish(self):
         def fail(symbol): raise OSError("provider")
         with self.assertRaises(ValueError): build_feed(fail,now=self.now)
+    def test_yahoo_placeholder_prices_are_not_filled(self):
+        rows=self.rows+[{"date":"2026-10-16","close":float("nan")},{"date":"2026-10-17","close":0}]
+        self.assertEqual(usable_history(rows),self.rows)
+
     def test_exact_catalog(self):
         self.assertEqual(len(INDICES),8)
         self.assertEqual(len({r[0] for r in INDICES}),8)

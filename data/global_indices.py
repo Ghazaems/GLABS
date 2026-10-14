@@ -16,6 +16,12 @@ INDICES = [
     ("^FTSE", "FTSE 100", "Inggris", "Europe/London"),
 ]
 
+def usable_history(rows):
+    """Skip provider placeholders; never fill missing prices or invent a date."""
+    return [row for row in rows if isinstance(row.get("close"), (int, float))
+            and not isinstance(row["close"], bool) and math.isfinite(row["close"])
+            and row["close"] > 0]
+
 def completed_snapshot(rows, now, exchange_timezone, regular_end=None):
     local_today = now.astimezone(ZoneInfo(exchange_timezone)).date()
     valid = {}
@@ -78,6 +84,7 @@ def run():
             raise ValueError("Empty history")
         rows = [{"date": index.strftime("%Y-%m-%d"), "close": float(row["Close"])}
                 for index, row in frame.iterrows()]
+        rows = usable_history(rows)
         metadata = ticker.history_metadata or {}
         regular = metadata.get("currentTradingPeriod", {}).get("regular", {})
         return rows, regular.get("end")
