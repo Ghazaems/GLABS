@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const source=fs.readFileSync(path.join(__dirname,'../web/global-indices.js'),'utf8');
+const ctx={module:{exports:{}}};vm.runInNewContext(source,ctx);
+const render=ctx.module.exports.render;
+let output=render({schema_version:1,indices:[{symbol:'^GSPC',date:'2026-10-14',close:100,change_pct:2,status:'ok'},{symbol:'^IXIC',date:'2026-10-14',close:100,change_pct:-2,status:'cached'}]});
+assert.equal((output.match(/class="global-index-row"/g)||[]).length,8);
+assert.ok(output.includes('change up'));assert.ok(output.includes('change down'));assert.ok(output.includes('tersimpan'));
+assert.ok(!output.includes('NaN'));assert.ok(render(null).includes('Data belum tersedia'));
+assert.ok(!render({schema_version:1,indices:[{symbol:'^GSPC',date:'<img>',close:100,change_pct:1,status:'ok'}]}).includes('<img>'));
+console.log('Global index UI: 8 rows, colors, cached/unavailable state and invalid data passed.');

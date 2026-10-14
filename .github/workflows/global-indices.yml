@@ -1,0 +1,47 @@
+name: Global Indices Card
+on:
+  schedule:
+    - cron: "30 0,8,16,21 * * 1-5"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "data/global_indices.py"
+      - "web/global-indices.js"
+      - "tests/test_global_indices.py"
+      - "tests/test_global_indices_ui.js"
+      - ".github/workflows/global-indices.yml"
+permissions:
+  contents: write
+concurrency:
+  group: global-indices-card-main
+  cancel-in-progress: false
+jobs:
+  card:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Test independent global index feed
+        run: |
+          python -m unittest discover -s tests -p "test_global_indices.py" -v
+          node tests/test_global_indices_ui.js
+      - name: Fetch completed global closes via yfinance only
+        run: python -m data.global_indices
+      - name: Publish global index card only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/global_indices_data.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "chore: update independent global index card"
+          git pull --rebase origin main
+          git push

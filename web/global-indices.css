@@ -1,0 +1,11 @@
+.global-indices-card{min-width:0}
+.global-indices-card .card-head .label svg{width:16px;height:16px;stroke:currentColor}
+.global-index-row{display:grid;grid-template-columns:minmax(0,1fr) auto 66px;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-soft)}
+.global-index-row:last-child{border-bottom:0}
+.global-index-name{font-size:12px;color:var(--text-primary);line-height:1.35}
+.global-index-name small{display:block;color:var(--text-muted);font-size:10px;margin-top:3px}
+.global-index-close,.global-index-change{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;font-size:12px}
+.global-index-change.up{color:var(--success)}.global-index-change.down{color:var(--danger)}.global-index-change.flat{color:var(--text-muted)}
+.global-indices-card .card-foot{display:block;font-size:10px;line-height:1.5}
+.global-indices-card .global-source{color:var(--text-muted);margin-top:3px}
+@media(max-width:480px){.global-index-row{gap:8px;grid-template-columns:minmax(0,1fr) auto 62px}}

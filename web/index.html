@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="radar.css">
 <link rel="stylesheet" href="support.css">
 <link rel="stylesheet" href="ihsg-card.css">
+<link rel="stylesheet" href="global-indices.css">
 <link rel="stylesheet" href="loading.css">
 <script src="loading.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
@@ -844,18 +845,14 @@ html { overflow-x: hidden; }
           <div class="card-foot"><span></span><button type="button" class="link" onclick="openOverviewList('trend')">Lihat struktur</button></div>
         </div>
 
-        <div class="card">
-          <div class="card-head">
-            <div class="label">
-              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
-              Wyckoff snapshot
-            </div>
-          </div>
-          <div class="card-body">
-            <div id="wyckoff-text"><span class="gl-loading gl-loading-rows" role="status" aria-label="Memuat Wyckoff…"><span class="gl-loading-art" aria-hidden="true"><div class="gl-loading-rows"><i></i><i></i><i></i></div></span><span class="gl-loading-label" aria-hidden="true"><span style="--char-delay:0.0000s;--char-pause:0.75s">M</span><span style="--char-delay:0.0667s;--char-pause:0.75s">e</span><span style="--char-delay:0.1333s;--char-pause:0.75s">m</span><span style="--char-delay:0.2000s;--char-pause:0.75s">u</span><span style="--char-delay:0.2667s;--char-pause:0.75s">a</span><span style="--char-delay:0.3333s;--char-pause:0.75s">t</span><span style="--char-delay:0.4000s;--char-pause:0.75s"> </span><span style="--char-delay:0.4667s;--char-pause:0.75s">W</span><span style="--char-delay:0.5333s;--char-pause:0.75s">y</span><span style="--char-delay:0.6000s;--char-pause:0.75s">c</span><span style="--char-delay:0.6667s;--char-pause:0.75s">k</span><span style="--char-delay:0.7333s;--char-pause:0.75s">o</span><span style="--char-delay:0.8000s;--char-pause:0.75s">f</span><span style="--char-delay:0.8667s;--char-pause:0.75s">f</span><span style="--char-delay:0.9333s;--char-pause:0.75s">…</span></span></span></div>
-          </div>
-          <div class="card-foot"><span id="wyckoff-footer"></span><button type="button" class="link" id="wyckoff-detail-button" onclick="openOverviewDetail(this, 'wyckoff')" disabled>Lihat detail</button></div>
-        </div>
+        <section class="card global-indices-card" aria-label="Indeks global pilihan">
+          <div class="card-head"><div class="label">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 6.5h14M5 17.5h14"/></svg>
+            Global Indices
+          </div></div>
+          <div class="card-body" id="global-indices-body" aria-live="polite">Memuat indeks global…</div>
+          <div class="card-foot"><span id="global-indices-note">Penutupan terakhir · tanggal tiap pasar berbeda</span><div class="global-source">Yahoo Finance · bukan real-time</div></div>
+        </section>
 
         <div class="card vwap-card" id="vwap-card" tabindex="0" aria-label="Daftar analisis Rolling VWAP; arahkan pointer lalu gulir untuk melihat saham lain">
           <div class="card-head">
@@ -877,7 +874,7 @@ html { overflow-x: hidden; }
       <!-- PILLS -->
       <div class="pills">
         <button type="button" class="pill" onclick="openOverviewList('trend')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/></svg>Cek trend</button>
-        <button type="button" class="pill" id="wyckoff-shortcut" onclick="openOverviewDetail(document.getElementById('wyckoff-detail-button'), 'wyckoff')" disabled><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Cek Wyckoff</button>
+        <button type="button" class="pill" id="wyckoff-shortcut" onclick="openOverviewDetail(this, 'wyckoff')" disabled><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Cek Wyckoff</button>
         <button type="button" class="pill" onclick="openOverviewList('vwap')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>Cek VWAP</button>
         <button type="button" class="pill" onclick="showView('riwayat')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Riwayat sinyal</button>
       </div>
@@ -2041,25 +2038,9 @@ function renderStyleDependent(style) {
   const distrib = styleRows.filter(r => r[wyckoffKey]?.bias === "distribution");
   const weighted = styleRows.filter(r => Number(r[bdKey]?.wyckoff) !== 0);
   const bestAccum = [...accum].sort((a, b) => Number(b[scoreKey]) - Number(a[scoreKey]))[0];
-  const wyckoffButton = document.getElementById("wyckoff-detail-button");
+  const wyckoffButton = document.getElementById("wyckoff-shortcut");
   wyckoffButton.dataset.ticker = bestAccum?.ticker || "";
   wyckoffButton.disabled = !bestAccum;
-  document.getElementById("wyckoff-shortcut").disabled = !bestAccum;
-  if (bestAccum) {
-    const selected = bestAccum[wyckoffKey] || {};
-    const events = (selected.events || []).map(event => event.type).join(", ") || "-";
-    document.getElementById("wyckoff-text").innerHTML =
-      `<b>${bestAccum.ticker}</b> menunjukkan konteks akumulasi ${label} — ` +
-      `fase ${phaseLetter(selected.phase)}, event: ${events}. ` +
-      (weighted.length ? "Bobot statistik aktif hanya untuk event yang tervalidasi." :
-        "Belum ada event tervalidasi yang memengaruhi skor.");
-  } else {
-    document.getElementById("wyckoff-text").textContent =
-      hasStyleData ? `Belum ada konteks akumulasi kuat (${label}).` : waitingMessage;
-  }
-  document.getElementById("wyckoff-footer").textContent =
-    `${accum.length} akumulasi · ${distrib.length} distribusi · ` +
-    (weighted.length ? `${weighted.length} berbobot` : "konteks visual");
 
   const vwapTitleEl = document.getElementById("vwap-card-title");
   if (vwapTitleEl) vwapTitleEl.textContent = `Rolling VWAP 5/20/60 · Fokus ${label} ${vwapFocus}`;
@@ -2493,6 +2474,7 @@ function renderForwardICSummary(bodyId, selectId, data) {
 </section>
 <div class="toast" id="toast" role="status"></div>
 <script src="ihsg-card.js"></script>
+<script src="global-indices.js"></script>
 <script src="activity.js"></script>
 <script src="cockpit.js"></script>
 <script src="rotation-core.js"></script>
