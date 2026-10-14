@@ -284,18 +284,18 @@ body {
 .bars .bar { width: 9px; border-radius: 3px 3px 0 0; background: rgba(255,255,255,0.16); transition: background .2s var(--ease); }
 .bars .bar.hi { background: var(--text-primary); box-shadow: 0 0 10px rgba(255,255,255,0.35); }
 
-/* signal breakdown: three horizontal bars */
-.signal-breakdown-card .card-body{display:flex;align-items:center;min-height:156px}
-.signal-bar-chart{width:100%;min-width:0;min-height:156px;display:grid;grid-template-columns:minmax(0,1fr);gap:18px;padding:12px 0}
-.signal-bar-item{min-width:0;display:grid;grid-template-columns:46px minmax(0,1fr) 38px;align-items:center;gap:10px}
-.signal-bar-label{color:var(--text-secondary);font-size:12px;white-space:nowrap}
-.signal-bar-stage{height:18px;min-width:0;position:relative;background:rgba(255,255,255,.035);border-radius:6px;overflow:hidden}
-.signal-bar-fill{display:block;width:var(--bar-width);height:100%;border-radius:6px;background:var(--bar-color);transition:width .4s var(--ease)}
-.signal-bar-value{font-size:14px;font-weight:650;text-align:right;color:var(--text-primary);font-variant-numeric:tabular-nums}
+/* signal breakdown: plain vertical columns, no background tracks or glow */
+.signal-breakdown-card .card-body{display:flex;align-items:center;min-height:210px}
+.signal-bar-chart{width:100%;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding:12px 0}
+.signal-bar-item{min-width:0;display:flex;flex-direction:column;align-items:center;gap:10px}
+.signal-bar-label{color:var(--text-secondary);font-size:12px;white-space:nowrap;text-align:center}
+.signal-bar-stage{height:180px;width:100%;position:relative;display:flex;align-items:flex-end;justify-content:center;background:transparent;box-shadow:none}
+.signal-bar-fill{display:block;width:clamp(22px,4vw,38px);height:var(--bar-height);border-radius:5px 5px 0 0;background:var(--bar-color);box-shadow:none;transition:height .4s var(--ease)}
+.signal-bar-value{position:absolute;bottom:calc(var(--bar-height) + 8px);left:0;right:0;text-align:center;font-size:14px;font-weight:650;color:var(--text-primary);font-variant-numeric:tabular-nums;transition:bottom .4s var(--ease)}
 .signal-bar-chart>.gl-loading{grid-column:1/-1;width:100%;min-width:0}
-.signal-bar-chart .gl-loading-art{height:104px}
+.signal-bar-chart .gl-loading-art{height:140px}
 .signal-bar-chart .gl-loading-label{width:100%;white-space:nowrap;text-align:center}
-@media(prefers-reduced-motion:reduce){.signal-bar-fill{transition:none}}
+@media(prefers-reduced-motion:reduce){.signal-bar-fill,.signal-bar-value{transition:none}}
 
 /* watchlist mini table */
 .wl-row {
@@ -1954,15 +1954,16 @@ function renderStyleDependent(style) {
   const maximumSignalCount = Math.max(...signalBars.map(item => sc[item.key]), 1);
   document.getElementById("signal-bar-chart").innerHTML = signalBars.map(item => {
     const count = sc[item.key] || 0;
-    const barWidth = (count / maximumSignalCount) * 100;
+    // Reserve space above the tallest column for its count.
+    const barHeight = (count / maximumSignalCount) * 82;
     return `
-      <div class="signal-bar-item" style="--bar-width:${barWidth}%; --bar-color:${item.color}"
+      <div class="signal-bar-item" style="--bar-height:${barHeight}%; --bar-color:${item.color}"
            title="${item.label}: ${count} ticker ${label}">
-        <span class="signal-bar-label">${item.label}</span>
         <div class="signal-bar-stage">
+          <span class="signal-bar-value">${count}</span>
           <span class="signal-bar-fill" aria-hidden="true"></span>
         </div>
-        <span class="signal-bar-value">${count}</span>
+        <span class="signal-bar-label">${item.label}</span>
       </div>`;
   }).join("");
 

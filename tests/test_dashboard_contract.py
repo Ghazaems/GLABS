@@ -84,13 +84,18 @@ class DashboardContractTests(unittest.TestCase):
             "signal-bar-value",
             "signal-bar-fill",
             "maximumSignalCount",
-            "const barWidth = (count / maximumSignalCount) * 100",
-            "width:var(--bar-width)",
-            "grid-template-columns:46px minmax(0,1fr) 38px",
+            "const barHeight = (count / maximumSignalCount) * 82",
+            "height:var(--bar-height)",
+            "grid-template-columns:repeat(3,minmax(0,1fr))",
             "grid-column:1/-1",
         ):
             self.assertIn(marker, self.index)
-        self.assertNotIn("--bar-height:", self.index)
+        self.assertNotIn("--bar-width:", self.index)
+        stage_css = self.index.split(".signal-bar-stage{", 1)[1].split("}", 1)[0]
+        fill_css = self.index.split(".signal-bar-fill{", 1)[1].split("}", 1)[0]
+        self.assertIn("background:transparent", stage_css)
+        self.assertIn("box-shadow:none", stage_css)
+        self.assertIn("box-shadow:none", fill_css)
         self.assertNotIn("sig-rows", self.index)
         self.assertNotIn('id="sig-track"', self.index)
         self.assertNotIn('id="count-beli"', self.index)
