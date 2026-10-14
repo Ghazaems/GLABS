@@ -54,7 +54,7 @@
     const value=card.querySelector(".ihsg-value"), caption=card.querySelector(".ihsg-caption"), badge=card.querySelector(".ihsg-trend"),
           chart=card.querySelector(".ihsg-sparkline"), source=card.querySelector(".ihsg-source");
     const session=dashboard?.market_data_date;
-    card.dataset.tone="flat"; value.textContent="—"; badge.textContent="—"; chart.replaceChildren();
+    card.dataset.tone="flat"; value.textContent="—"; badge.textContent="—"; chart.innerHTML=window.GlabsLoading.html("line","Memuat IHSG…");
     caption.textContent="Memuat penutupan IHSG…"; source.textContent="";
     try {
       if (!session || dashboard.screening_session_date!==session) throw Error("Sesi screening belum terverifikasi");
@@ -94,6 +94,7 @@
       chart.onblur=chart.onpointerleave;
     } catch(error) {
       if(token!==version)return;
+      chart.replaceChildren();
       caption.textContent=session?"Data IHSG sesi "+dateLabel(session)+" belum tersedia":"Sesi screening belum tersedia";
       source.textContent="Tidak memakai angka atau tanggal pengganti.";
     }

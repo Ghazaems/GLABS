@@ -73,7 +73,7 @@
     if(styles[style])state.style=style;
     const el=document.getElementById("radar-home-body");if(!el)return;
     const d=state.data;
-    if(!d){el.innerHTML='<p class="radar-note">Memuat perubahan screening…</p>';return;}
+    if(!d){el.innerHTML=window.GlabsLoading.html("rows","Memuat perubahan screening…");return;}
     const date=window.dashboardData?.market_data_date;
     if(date&&date!==d.market_data_date){el.innerHTML='<p class="radar-note">Radar masih bertanggal '+esc(d.market_data_date)+', belum menyamai screening '+esc(date)+'.</p>';return;}
     const list=groups(d.modes[state.style].events).slice(0,3);

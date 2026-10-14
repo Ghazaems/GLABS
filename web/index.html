@@ -11,6 +11,8 @@
 <link rel="stylesheet" href="radar.css">
 <link rel="stylesheet" href="support.css">
 <link rel="stylesheet" href="ihsg-card.css">
+<link rel="stylesheet" href="loading.css">
+<script src="loading.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js"></script>
 <style>
@@ -792,7 +794,7 @@ html { overflow-x: hidden; }
             </div>
           </div>
           <div class="card-body">
-            <p id="toppick-text">Memuat...</p>
+            <div id="toppick-text"><span class="gl-loading gl-loading-bar" role="status" aria-label="Memuat Top pick…"><span class="gl-loading-art" aria-hidden="true"><div class="gl-loading-bars"><i style="height:35%"></i><i style="height:68%"></i><i style="height:52%"></i><i style="height:85%"></i><i style="height:42%"></i><i style="height:73%"></i><i style="height:61%"></i><i style="height:94%"></i><i style="height:49%"></i><i style="height:76%"></i></div></span><span class="gl-loading-label" aria-hidden="true"><span style="--char-delay:0.0000s;--char-pause:0.80s">M</span><span style="--char-delay:0.0625s;--char-pause:0.80s">e</span><span style="--char-delay:0.1250s;--char-pause:0.80s">m</span><span style="--char-delay:0.1875s;--char-pause:0.80s">u</span><span style="--char-delay:0.2500s;--char-pause:0.80s">a</span><span style="--char-delay:0.3125s;--char-pause:0.80s">t</span><span style="--char-delay:0.3750s;--char-pause:0.80s"> </span><span style="--char-delay:0.4375s;--char-pause:0.80s">T</span><span style="--char-delay:0.5000s;--char-pause:0.80s">o</span><span style="--char-delay:0.5625s;--char-pause:0.80s">p</span><span style="--char-delay:0.6250s;--char-pause:0.80s"> </span><span style="--char-delay:0.6875s;--char-pause:0.80s">p</span><span style="--char-delay:0.7500s;--char-pause:0.80s">i</span><span style="--char-delay:0.8125s;--char-pause:0.80s">c</span><span style="--char-delay:0.8750s;--char-pause:0.80s">k</span><span style="--char-delay:0.9375s;--char-pause:0.80s">…</span></span></span></div>
           </div>
           <div class="bars" id="toppick-bars"></div>
           <div class="card-foot"><span id="toppick-footer-left"></span><span class="link">Lihat detail</span></div>
@@ -805,7 +807,7 @@ html { overflow-x: hidden; }
             <div class="ihsg-caption">Memuat penutupan IHSG…</div>
             <div class="ihsg-source"></div>
           </div>
-          <div class="ihsg-sparkline"></div>
+          <div class="ihsg-sparkline"><span class="gl-loading gl-loading-line" role="status" aria-label="Memuat IHSG…"><span class="gl-loading-art" aria-hidden="true"><svg viewBox="0 0 300 100" aria-hidden="true"><path class="gl-loading-grid" d="M0 20H300 M0 50H300 M0 80H300"/><path class="gl-loading-base" d="M5 72C45 60 70 23 115 36S190 72 235 45S270 20 295 32"/><path class="gl-loading-pulse" pathLength="1" d="M5 72C45 60 70 23 115 36S190 72 235 45S270 20 295 32"/></svg></span><span class="gl-loading-label" aria-hidden="true"><span style="--char-delay:0.0000s;--char-pause:0.60s">M</span><span style="--char-delay:0.0833s;--char-pause:0.60s">e</span><span style="--char-delay:0.1667s;--char-pause:0.60s">m</span><span style="--char-delay:0.2500s;--char-pause:0.60s">u</span><span style="--char-delay:0.3333s;--char-pause:0.60s">a</span><span style="--char-delay:0.4167s;--char-pause:0.60s">t</span><span style="--char-delay:0.5000s;--char-pause:0.60s"> </span><span style="--char-delay:0.5833s;--char-pause:0.60s">I</span><span style="--char-delay:0.6667s;--char-pause:0.60s">H</span><span style="--char-delay:0.7500s;--char-pause:0.60s">S</span><span style="--char-delay:0.8333s;--char-pause:0.60s">G</span><span style="--char-delay:0.9167s;--char-pause:0.60s">…</span></span></span></div>
         </section>
 
         <div class="card signal-breakdown-card">
@@ -817,7 +819,7 @@ html { overflow-x: hidden; }
           </div>
           <div class="card-body">
             <div class="signal-bar-chart" id="signal-bar-chart" role="img" aria-label="Distribusi jumlah sinyal beli, pantau, dan jual">
-              <span class="loading-msg">Memuat...</span>
+              <span class="gl-loading gl-loading-bar" role="status" aria-label="Memuat jumlah sinyal…"><span class="gl-loading-art" aria-hidden="true"><div class="gl-loading-bars"><i style="height:35%"></i><i style="height:68%"></i><i style="height:52%"></i><i style="height:85%"></i><i style="height:42%"></i><i style="height:73%"></i><i style="height:61%"></i><i style="height:94%"></i><i style="height:49%"></i><i style="height:76%"></i></div></span><span class="gl-loading-label" aria-hidden="true"><span style="--char-delay:0.0000s;--char-pause:1.05s">M</span><span style="--char-delay:0.0476s;--char-pause:1.05s">e</span><span style="--char-delay:0.0952s;--char-pause:1.05s">m</span><span style="--char-delay:0.1429s;--char-pause:1.05s">u</span><span style="--char-delay:0.1905s;--char-pause:1.05s">a</span><span style="--char-delay:0.2381s;--char-pause:1.05s">t</span><span style="--char-delay:0.2857s;--char-pause:1.05s"> </span><span style="--char-delay:0.3333s;--char-pause:1.05s">j</span><span style="--char-delay:0.3810s;--char-pause:1.05s">u</span><span style="--char-delay:0.4286s;--char-pause:1.05s">m</span><span style="--char-delay:0.4762s;--char-pause:1.05s">l</span><span style="--char-delay:0.5238s;--char-pause:1.05s">a</span><span style="--char-delay:0.5714s;--char-pause:1.05s">h</span><span style="--char-delay:0.6190s;--char-pause:1.05s"> </span><span style="--char-delay:0.6667s;--char-pause:1.05s">s</span><span style="--char-delay:0.7143s;--char-pause:1.05s">i</span><span style="--char-delay:0.7619s;--char-pause:1.05s">n</span><span style="--char-delay:0.8095s;--char-pause:1.05s">y</span><span style="--char-delay:0.8571s;--char-pause:1.05s">a</span><span style="--char-delay:0.9048s;--char-pause:1.05s">l</span><span style="--char-delay:0.9524s;--char-pause:1.05s">…</span></span></span>
             </div>
           </div>
           <div class="card-foot" style="margin-top:12px"><span></span><span class="link">Lihat semua sinyal</span></div>
@@ -831,7 +833,7 @@ html { overflow-x: hidden; }
             </div>
           </div>
           <div class="card-body" id="watchlist-rows">
-            <div class="wl-row"><span class="t">Memuat...</span></div>
+            <span class="gl-loading gl-loading-rows" role="status" aria-label="Memuat watchlist…"><span class="gl-loading-art" aria-hidden="true"><div class="gl-loading-rows"><i></i><i></i><i></i></div></span><span class="gl-loading-label" aria-hidden="true"><span style="--char-delay:0.0000s;--char-pause:0.85s">M</span><span style="--char-delay:0.0588s;--char-pause:0.85s">e</span><span style="--char-delay:0.1176s;--char-pause:0.85s">m</span><span style="--char-delay:0.1765s;--char-pause:0.85s">u</span><span style="--char-delay:0.2353s;--char-pause:0.85s">a</span><span style="--char-delay:0.2941s;--char-pause:0.85s">t</span><span style="--char-delay:0.3529s;--char-pause:0.85s"> </span><span style="--char-delay:0.4118s;--char-pause:0.85s">w</span><span style="--char-delay:0.4706s;--char-pause:0.85s">a</span><span style="--char-delay:0.5294s;--char-pause:0.85s">t</span><span style="--char-delay:0.5882s;--char-pause:0.85s">c</span><span style="--char-delay:0.6471s;--char-pause:0.85s">h</span><span style="--char-delay:0.7059s;--char-pause:0.85s">l</span><span style="--char-delay:0.7647s;--char-pause:0.85s">i</span><span style="--char-delay:0.8235s;--char-pause:0.85s">s</span><span style="--char-delay:0.8824s;--char-pause:0.85s">t</span><span style="--char-delay:0.9412s;--char-pause:0.85s">…</span></span></span>
           </div>
           <div class="card-foot"><span></span><span class="link">Kelola watchlist</span></div>
         </div>
@@ -839,7 +841,7 @@ html { overflow-x: hidden; }
 
       <section class="radar-home" aria-label="Perubahan sinyal terbaru">
         <div class="radar-home-head"><h2>Perubahan terbaru</h2><button class="radar-action" onclick="showView('radar')">Lihat Radar →</button></div>
-        <div id="radar-home-body"><p class="radar-note">Memuat perubahan screening…</p></div>
+        <div id="radar-home-body"><span class="gl-loading gl-loading-rows" role="status" aria-label="Memuat perubahan screening…"><span class="gl-loading-art" aria-hidden="true"><div class="gl-loading-rows"><i></i><i></i><i></i></div></span><span class="gl-loading-label" aria-hidden="true"><span style="--char-delay:0.0000s;--char-pause:1.35s">M</span><span style="--char-delay:0.0370s;--char-pause:1.35s">e</span><span style="--char-delay:0.0741s;--char-pause:1.35s">m</span><span style="--char-delay:0.1111s;--char-pause:1.35s">u</span><span style="--char-delay:0.1481s;--char-pause:1.35s">a</span><span style="--char-delay:0.1852s;--char-pause:1.35s">t</span><span style="--char-delay:0.2222s;--char-pause:1.35s"> </span><span style="--char-delay:0.2593s;--char-pause:1.35s">p</span><span style="--char-delay:0.2963s;--char-pause:1.35s">e</span><span style="--char-delay:0.3333s;--char-pause:1.35s">r</span><span style="--char-delay:0.3704s;--char-pause:1.35s">u</span><span style="--char-delay:0.4074s;--char-pause:1.35s">b</span><span style="--char-delay:0.4444s;--char-pause:1.35s">a</span><span style="--char-delay:0.4815s;--char-pause:1.35s">h</span><span style="--char-delay:0.5185s;--char-pause:1.35s">a</span><span style="--char-delay:0.5556s;--char-pause:1.35s">n</span><span style="--char-delay:0.5926s;--char-pause:1.35s"> </span><span style="--char-delay:0.6296s;--char-pause:1.35s">s</span><span style="--char-delay:0.6667s;--char-pause:1.35s">c</span><span style="--char-delay:0.7037s;--char-pause:1.35s">r</span><span style="--char-delay:0.7407s;--char-pause:1.35s">e</span><span style="--char-delay:0.7778s;--char-pause:1.35s">e</span><span style="--char-delay:0.8148s;--char-pause:1.35s">n</span><span style="--char-delay:0.8519s;--char-pause:1.35s">i</span><span style="--char-delay:0.8889s;--char-pause:1.35s">n</span><span style="--char-delay:0.9259s;--char-pause:1.35s">g</span><span style="--char-delay:0.9630s;--char-pause:1.35s">…</span></span></span></div>
       </section>
 
       <!-- ROW 2 -->
@@ -852,7 +854,7 @@ html { overflow-x: hidden; }
             </div>
           </div>
           <div class="card-body">
-            <p id="trend-text">Memuat...</p>
+            <div id="trend-text"><span class="gl-loading gl-loading-rows" role="status" aria-label="Memuat struktur tren…"><span class="gl-loading-art" aria-hidden="true"><div class="gl-loading-rows"><i></i><i></i><i></i></div></span><span class="gl-loading-label" aria-hidden="true"><span style="--char-delay:0.0000s;--char-pause:1.05s">M</span><span style="--char-delay:0.0476s;--char-pause:1.05s">e</span><span style="--char-delay:0.0952s;--char-pause:1.05s">m</span><span style="--char-delay:0.1429s;--char-pause:1.05s">u</span><span style="--char-delay:0.1905s;--char-pause:1.05s">a</span><span style="--char-delay:0.2381s;--char-pause:1.05s">t</span><span style="--char-delay:0.2857s;--char-pause:1.05s"> </span><span style="--char-delay:0.3333s;--char-pause:1.05s">s</span><span style="--char-delay:0.3810s;--char-pause:1.05s">t</span><span style="--char-delay:0.4286s;--char-pause:1.05s">r</span><span style="--char-delay:0.4762s;--char-pause:1.05s">u</span><span style="--char-delay:0.5238s;--char-pause:1.05s">k</span><span style="--char-delay:0.5714s;--char-pause:1.05s">t</span><span style="--char-delay:0.6190s;--char-pause:1.05s">u</span><span style="--char-delay:0.6667s;--char-pause:1.05s">r</span><span style="--char-delay:0.7143s;--char-pause:1.05s"> </span><span style="--char-delay:0.7619s;--char-pause:1.05s">t</span><span style="--char-delay:0.8095s;--char-pause:1.05s">r</span><span style="--char-delay:0.8571s;--char-pause:1.05s">e</span><span style="--char-delay:0.9048s;--char-pause:1.05s">n</span><span style="--char-delay:0.9524s;--char-pause:1.05s">…</span></span></span></div>
           </div>
           <div class="trend-gauge" id="trend-gauge" aria-live="polite"></div>
           <div class="card-foot"><span></span><span class="link">Lihat struktur</span></div>
@@ -866,7 +868,7 @@ html { overflow-x: hidden; }
             </div>
           </div>
           <div class="card-body">
-            <p id="wyckoff-text">Memuat...</p>
+            <div id="wyckoff-text"><span class="gl-loading gl-loading-rows" role="status" aria-label="Memuat Wyckoff…"><span class="gl-loading-art" aria-hidden="true"><div class="gl-loading-rows"><i></i><i></i><i></i></div></span><span class="gl-loading-label" aria-hidden="true"><span style="--char-delay:0.0000s;--char-pause:0.75s">M</span><span style="--char-delay:0.0667s;--char-pause:0.75s">e</span><span style="--char-delay:0.1333s;--char-pause:0.75s">m</span><span style="--char-delay:0.2000s;--char-pause:0.75s">u</span><span style="--char-delay:0.2667s;--char-pause:0.75s">a</span><span style="--char-delay:0.3333s;--char-pause:0.75s">t</span><span style="--char-delay:0.4000s;--char-pause:0.75s"> </span><span style="--char-delay:0.4667s;--char-pause:0.75s">W</span><span style="--char-delay:0.5333s;--char-pause:0.75s">y</span><span style="--char-delay:0.6000s;--char-pause:0.75s">c</span><span style="--char-delay:0.6667s;--char-pause:0.75s">k</span><span style="--char-delay:0.7333s;--char-pause:0.75s">o</span><span style="--char-delay:0.8000s;--char-pause:0.75s">f</span><span style="--char-delay:0.8667s;--char-pause:0.75s">f</span><span style="--char-delay:0.9333s;--char-pause:0.75s">…</span></span></span></div>
           </div>
           <div class="card-foot"><span id="wyckoff-footer"></span><span class="link">Lihat detail</span></div>
         </div>
@@ -879,7 +881,7 @@ html { overflow-x: hidden; }
             </div>
           </div>
           <div class="card-body">
-            <p id="vwap-text">Memuat keputusan VWAP...</p>
+            <div id="vwap-text"><span class="gl-loading gl-loading-rows" role="status" aria-label="Memuat keputusan VWAP…"><span class="gl-loading-art" aria-hidden="true"><div class="gl-loading-rows"><i></i><i></i><i></i></div></span><span class="gl-loading-label" aria-hidden="true"><span style="--char-delay:0.0000s;--char-pause:1.10s">M</span><span style="--char-delay:0.0455s;--char-pause:1.10s">e</span><span style="--char-delay:0.0909s;--char-pause:1.10s">m</span><span style="--char-delay:0.1364s;--char-pause:1.10s">u</span><span style="--char-delay:0.1818s;--char-pause:1.10s">a</span><span style="--char-delay:0.2273s;--char-pause:1.10s">t</span><span style="--char-delay:0.2727s;--char-pause:1.10s"> </span><span style="--char-delay:0.3182s;--char-pause:1.10s">k</span><span style="--char-delay:0.3636s;--char-pause:1.10s">e</span><span style="--char-delay:0.4091s;--char-pause:1.10s">p</span><span style="--char-delay:0.4545s;--char-pause:1.10s">u</span><span style="--char-delay:0.5000s;--char-pause:1.10s">t</span><span style="--char-delay:0.5455s;--char-pause:1.10s">u</span><span style="--char-delay:0.5909s;--char-pause:1.10s">s</span><span style="--char-delay:0.6364s;--char-pause:1.10s">a</span><span style="--char-delay:0.6818s;--char-pause:1.10s">n</span><span style="--char-delay:0.7273s;--char-pause:1.10s"> </span><span style="--char-delay:0.7727s;--char-pause:1.10s">V</span><span style="--char-delay:0.8182s;--char-pause:1.10s">W</span><span style="--char-delay:0.8636s;--char-pause:1.10s">A</span><span style="--char-delay:0.9091s;--char-pause:1.10s">P</span><span style="--char-delay:0.9545s;--char-pause:1.10s">…</span></span></span></div>
             <div class="vwap-signal-list" id="vwap-signal-list"></div>
             <div class="vwap-meta" id="vwap-meta">Klik ticker untuk membuka detail Rolling VWAP 5/20/60.</div>
           </div>
@@ -1091,7 +1093,7 @@ html { overflow-x: hidden; }
             <span style="display:flex; align-items:center; gap:5px;"><i id="riwayat-trend-swatch" style="width:14px;height:2px;background:#32d74b;display:inline-block;border-radius:99px;"></i><span id="riwayat-trend-label">Harga historis</span></span>
             <span style="display:flex; align-items:center; gap:5px;"><i style="width:14px;height:0;border-top:2px dotted #60a5fa;display:inline-block;"></i>Rentang volatilitas GARCH 95%</span>
           </div>
-          <div id="riwayat-chart-wrap"><p class="loading-msg">Memuat...</p></div>
+          <div id="riwayat-chart-wrap"><span class="gl-loading gl-loading-line" role="status" aria-label="Memuat grafik harga…"><span class="gl-loading-art" aria-hidden="true"><svg viewBox="0 0 300 100" aria-hidden="true"><path class="gl-loading-grid" d="M0 20H300 M0 50H300 M0 80H300"/><path class="gl-loading-base" d="M5 72C45 60 70 23 115 36S190 72 235 45S270 20 295 32"/><path class="gl-loading-pulse" pathLength="1" d="M5 72C45 60 70 23 115 36S190 72 235 45S270 20 295 32"/></svg></span><span class="gl-loading-label" aria-hidden="true"><span style="--char-delay:0.0000s;--char-pause:1.00s">M</span><span style="--char-delay:0.0500s;--char-pause:1.00s">e</span><span style="--char-delay:0.1000s;--char-pause:1.00s">m</span><span style="--char-delay:0.1500s;--char-pause:1.00s">u</span><span style="--char-delay:0.2000s;--char-pause:1.00s">a</span><span style="--char-delay:0.2500s;--char-pause:1.00s">t</span><span style="--char-delay:0.3000s;--char-pause:1.00s"> </span><span style="--char-delay:0.3500s;--char-pause:1.00s">g</span><span style="--char-delay:0.4000s;--char-pause:1.00s">r</span><span style="--char-delay:0.4500s;--char-pause:1.00s">a</span><span style="--char-delay:0.5000s;--char-pause:1.00s">f</span><span style="--char-delay:0.5500s;--char-pause:1.00s">i</span><span style="--char-delay:0.6000s;--char-pause:1.00s">k</span><span style="--char-delay:0.6500s;--char-pause:1.00s"> </span><span style="--char-delay:0.7000s;--char-pause:1.00s">h</span><span style="--char-delay:0.7500s;--char-pause:1.00s">a</span><span style="--char-delay:0.8000s;--char-pause:1.00s">r</span><span style="--char-delay:0.8500s;--char-pause:1.00s">g</span><span style="--char-delay:0.9000s;--char-pause:1.00s">a</span><span style="--char-delay:0.9500s;--char-pause:1.00s">…</span></span></span></div>
           <p class="loading-msg" id="riwayat-note" style="padding:12px 0 0;"></p>
         </div>
       </div><!-- /view-riwayat -->
@@ -1843,6 +1845,12 @@ async function loadDashboard() {
     data = await res.json();
   } catch (e) {
     document.getElementById("greet-sub").textContent = "Data belum dapat dimuat. Coba muat ulang; pembaruan screening berjalan di server.";
+    ["toppick-text","signal-bar-chart","watchlist-rows","trend-text","wyckoff-text","vwap-text","riwayat-chart-wrap"].forEach(id=>{
+      const el=document.getElementById(id);if(el?.querySelector(".gl-loading"))el.textContent="Data belum dapat dimuat. Coba muat ulang.";
+    });
+    const ihsg=document.getElementById("ihsg-card");
+    if(ihsg){ihsg.querySelector(".ihsg-sparkline").replaceChildren();ihsg.querySelector(".ihsg-caption").textContent="Data screening belum tersedia.";}
+
     return;
   }
 
