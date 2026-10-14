@@ -26,3 +26,16 @@ for(const kind of ['signal','watchlist','trend','vwap']) {
  if(kind!=='watchlist') assert.equal(context.SORT_STATE.key,{signal:'score',trend:'trend',vwap:'vwap_signal'}[kind]);
 }
 console.log('Dashboard actions: routes, ticker selection, empty state, syntax and placeholder checks passed.');
+
+const fixture = {ticker:'ADES',score:30,signal:'pantau',score_daily:70,signal_daily:'beli',trend_daily:'uptrend',wyckoff_daily:{bias:'distribution'},score_breakdown_daily:{trend:30}};
+const config = {scoreKey:'score_daily',signalKey:'signal_daily',trendKey:'trend_daily',wyckoffKey:'wyckoff_daily',bdKey:'score_breakdown_daily',supportKey:'support_daily',resistanceKey:'resistance_daily',csKey:'comparative_strength_daily',vwapKey:'vwap'};
+const begin=cockpit.indexOf('  const current =');
+const ending=cockpit.indexOf('  const colorForSignal',begin);
+const getterContext={state:{data:{watchlist:[fixture]},ticker:'ADES'},window:{getAnalysisStyle:()=>config}};
+vm.createContext(getterContext);
+vm.runInContext(cockpit.slice(begin,ending)+'; result = current();',getterContext);
+assert.equal(getterContext.result.score,70);
+assert.equal(getterContext.result.signal,'beli');
+assert.equal(fixture.score,30);
+assert.equal(fixture.signal,'pantau');
+console.log('Drawer horizon projection: no mutation, Daily matches overview.');

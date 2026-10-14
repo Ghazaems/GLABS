@@ -1934,6 +1934,7 @@ const STYLE_CONFIG = {
 };
 
 let currentStyle = "daily";
+window.getAnalysisStyle = () => STYLE_CONFIG[currentStyle];
 
 function renderStyleDependent(style) {
   window.GLABSRadar?.home(style);

@@ -15,7 +15,17 @@
 
   const fmt = n => n == null ? "—" : Number(n).toLocaleString("id-ID", { maximumFractionDigits: 2 });
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-  const current = () => state.data.watchlist.find(x => x.ticker === state.ticker) || state.data.watchlist[0];
+  const current = () => {
+    const raw = state.data.watchlist.find(x => x.ticker === state.ticker) || state.data.watchlist[0];
+    const config = window.getAnalysisStyle?.();
+    if (!raw || !config) return raw;
+    // Project the selected horizon for display only; never mutate screening data.
+    return { ...raw, score: raw[config.scoreKey], signal: raw[config.signalKey],
+      trend: raw[config.trendKey], wyckoff: raw[config.wyckoffKey],
+      score_breakdown: raw[config.bdKey], support: raw[config.supportKey],
+      resistance: raw[config.resistanceKey], comparative_strength: raw[config.csKey],
+      vwap: raw[config.vwapKey] };
+  };
   const colorForSignal = s => s === "beli" ? "#4ade80" : s === "jual" ? "#f87171" : "#facc15";
   const colorForVwap = signal => signal === "BUY" ? "#4ade80" : signal === "HOLD" ? "#60a5fa" : signal === "WAIT" ? "#facc15" : signal === "REDUCE" ? "#ff9f0a" : "#f87171";
   const positionLabel = p => p === "above" ? "Harga di atas" : p === "below" ? "Harga di bawah" : "Harga setara";
