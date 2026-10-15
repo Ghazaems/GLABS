@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: generated-data-writer
+  group: historical-backtest-main
   cancel-in-progress: false
 
 jobs:
@@ -23,6 +23,9 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -53,3 +56,5 @@ jobs:
             sleep $((attempt * 15))
           done
           exit 1
+
+

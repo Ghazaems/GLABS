@@ -1,12 +1,17 @@
 name: Daily Stock Screening (500 Emiten IDX)
+run-name: ${{ inputs.recovery_session && format('Recovery screening {0}', inputs.recovery_session) || github.workflow }}
 
 on:
   schedule:
-    # Watchdog setiap 30 menit pada 14:07-22:37 WIB, Senin-Jumat.
-    # Slot sebelum penutupan hanya melakukan freshness check ringan.
-    # Banyak slot mengurangi risiko event cron GitHub terlambat atau terlewat.
-    - cron: "7,37 7-15 * * 1-5"
+    # First EOD attempt around 16:41 WIB; later slots are idempotent recovery.
+    - cron: "11,41 9-16 * * 1-5"
   workflow_dispatch:
+    inputs:
+      recovery_session:
+        description: "Expected completed session (automatic bounded recovery)"
+        required: false
+        default: ""
+        type: string
   workflow_run:
     workflows:
       - "Daily Backtest (500 Emiten IDX)"
@@ -18,6 +23,8 @@ on:
     paths:
       - ".github/workflows/daily-screening.yml"
       - "main.py"
+      - "automation/**.py"
+      - "tests/test_pipeline_recovery.py"
       - "idx_tickers.py"
       - "idx_tickers_500.py"
       - "data/**.py"
@@ -43,75 +50,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
       - name: Decide whether screening is required
         id: freshness
         env:
-          EVENT_NAME: ${{ github.event_name }}
-        run: |
-          python - <<'PY'
-          import json
-          import os
-          from datetime import datetime, time, timedelta
-          from zoneinfo import ZoneInfo
-
-          from idx_tickers_500 import IDX_SCREENING_TICKERS
-
-          WIB = ZoneInfo("Asia/Jakarta")
-          MARKET_CLOSE = time(16, 15)
-          LATE_RECOVERY_END = time(5, 0)
-          now_wib = datetime.now(WIB)
-
-          def previous_weekday(value):
-              candidate = value - timedelta(days=1)
-              while candidate.weekday() >= 5:
-                  candidate -= timedelta(days=1)
-              return candidate
-
-          if now_wib.time() < LATE_RECOVERY_END:
-              session_date = previous_weekday(now_wib.date())
-              eligible = True
-              timing_reason = "late-recovery"
-          elif now_wib.time() < MARKET_CLOSE:
-              session_date = previous_weekday(now_wib.date())
-              eligible = os.environ.get("EVENT_NAME") != "schedule"
-              timing_reason = "market-not-closed"
-          else:
-              session_date = (now_wib.date() if now_wib.weekday() < 5
-                              else previous_weekday(now_wib.date()))
-              eligible = True
-              timing_reason = "after-market-close"
-
-          should_run = eligible
-          reason = timing_reason
-
-          if eligible and os.environ.get("EVENT_NAME") != "workflow_dispatch":
-              try:
-                  with open("web/dashboard_data.json", encoding="utf-8") as source:
-                      payload = json.load(source)
-                  completed_session = payload.get("screening_session_date")
-                  should_run = (completed_session != session_date.isoformat()
-                                or payload.get("market_data_date") != session_date.isoformat()
-                                or set(payload.get("universe_tickers", [])) != set(IDX_SCREENING_TICKERS))
-                  reason = (
-                      "session-stale"
-                      if should_run
-                      else "session-already-complete"
-                  )
-              except (OSError, TypeError, ValueError) as exc:
-                  should_run = True
-                  reason = f"freshness-check-failed-{type(exc).__name__}"
-
-          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
-              print(f"run={str(should_run).lower()}", file=output)
-              print(f"reason={reason}", file=output)
-              print(f"session_date={session_date.isoformat()}", file=output)
-
-          print(
-              f"Run screening: {should_run}; "
-              f"session={session_date.isoformat()}; reason={reason}"
-          )
-          PY
+          RECOVERY_SESSION: ${{ inputs.recovery_session }}
+        run: python -m automation.pipeline_health
 
       - name: Setup Python
         if: steps.freshness.outputs.run == 'true'
@@ -298,3 +245,5 @@ jobs:
           if [ "$JOB_STATUS" != "success" ]; then
             echo "::error::Screening/publication failed. The website retains its previous dataset."
           fi
+
+

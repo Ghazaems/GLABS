@@ -1,4 +1,5 @@
 name: Signal Radar
+run-name: ${{ inputs.recovery_session && format('Recovery radar {0}', inputs.recovery_session) || github.workflow }}
 # Compare published market sessions; UI contracts are verified before publishing.
 
 on:
@@ -9,6 +10,12 @@ on:
     # Retry independently after the EOD jobs; comparisons use published sessions only.
     - cron: "17 14 * * 1-5"
   workflow_dispatch:
+    inputs:
+      recovery_session:
+        description: "Expected completed session (automatic bounded recovery)"
+        required: false
+        default: ""
+        type: string
   push:
     branches: [main]
     paths:
@@ -76,7 +83,9 @@ jobs:
           if git diff --cached --quiet; then exit 0; fi
           git commit -m "chore: publish latest signal radar"
           # Working tree is clean before rebase; reject data computed from stale inputs.
-          git pull --rebase origin main
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git rebase origin/main || { git rebase --abort; exit 1; }
           python - <<'PY'
           import hashlib,json
           from pathlib import Path
@@ -93,10 +102,15 @@ jobs:
               assert valid_session(report["previous_session"]) < report["market_data_date"]
           PY
           # Avoid rebasing a computed snapshot onto newer source data.
-          git push
+            git push origin HEAD:main && exit 0
+            sleep 10
+          done
+          exit 1
       - name: Report result
         if: always()
         env:
           JOB_STATUS: ${{ job.status }}
         run: |
           echo "Signal radar: $JOB_STATUS. No weekend session or invented baseline." >> "$GITHUB_STEP_SUMMARY"
+
+

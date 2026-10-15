@@ -1,9 +1,16 @@
 name: IHSG Overview Card
+run-name: ${{ inputs.recovery_session && format('Recovery ihsg {0}', inputs.recovery_session) || github.workflow }}
 on:
   workflow_run:
     workflows: ["Daily Stock Screening (500 Emiten IDX)"]
     types: [completed]
   workflow_dispatch:
+    inputs:
+      recovery_session:
+        description: "Expected completed session (automatic bounded recovery)"
+        required: false
+        default: ""
+        type: string
   push:
     branches: [main]
     paths:
@@ -63,3 +70,5 @@ jobs:
             sleep 10
           done
           exit 1
+
+

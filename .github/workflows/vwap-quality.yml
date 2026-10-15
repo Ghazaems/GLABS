@@ -57,5 +57,11 @@ jobs:
           if (html.indexOf('id="nav-rotation"') < html.indexOf('id="nav-laporan"'))
             throw new Error('Rotation must be below Laporan');
           JS
+      - name: Validate recovery workflows
+        run: |
+          pip install 'PyYAML>=6,<7'
+          python -m automation.validate_workflows
       - name: Unit tests
         run: python -m unittest discover -s tests -v
+
+

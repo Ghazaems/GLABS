@@ -1,0 +1,44 @@
+name: Published Data Reconciliation
+# Independent fallback when another workflow/event was missed. No AI agent required.
+run-name: Published Data Reconciliation
+on:
+  schedule:
+    # 17:23-03:53 WIB, every day: also recover Friday after midnight / holidays.
+    - cron: "23,53 10-20 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "automation/**"
+      - "tests/test_pipeline_recovery.py"
+      - ".github/workflows/data-reconciliation.yml"
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: published-data-reconciliation
+  cancel-in-progress: false
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Test recovery decisions without dispatching
+        run: python -m unittest discover -s tests -p test_pipeline_recovery.py -v
+      - name: Reconcile publication from latest main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -m automation.reconcile
+      - name: Keep compact health evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-health-${{ github.run_id }}
+          path: pipeline-health.json
+          if-no-files-found: warn
+          retention-days: 14
+
+

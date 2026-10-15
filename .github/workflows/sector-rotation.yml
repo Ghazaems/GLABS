@@ -1,4 +1,5 @@
 name: Sector Rotation
+run-name: ${{ inputs.recovery_session && format('Recovery rotation {0}', inputs.recovery_session) || github.workflow }}
 
 on:
   workflow_run:
@@ -8,6 +9,12 @@ on:
     # Independent recovery after close; no manual run required.
     - cron: "47 13 * * 1-5"
   workflow_dispatch:
+    inputs:
+      recovery_session:
+        description: "Expected completed session (automatic bounded recovery)"
+        required: false
+        default: ""
+        type: string
   push:
     branches: [main]
     paths:
@@ -162,3 +169,5 @@ jobs:
           if [ "$JOB_STATUS" != "success" ]; then
             echo "::error::Rotation failed; last valid dataset retained."
           fi
+
+
