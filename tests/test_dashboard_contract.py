@@ -129,19 +129,24 @@ class DashboardContractTests(unittest.TestCase):
             self.assertIn(marker, self.main)
 
         for marker in (
-            'cron: "7,37 7-15 * * 1-5"',
-            "MARKET_CLOSE = time(16, 15)",
-            "LATE_RECOVERY_END = time(5, 0)",
-            "previous_weekday",
-            'payload.get("screening_session_date")',
-            "session-already-complete",
+            'cron: "11,41 9-16 * * 1-5"',
+            "python -m automation.pipeline_health",
+            "RECOVERY_SESSION:",
+            "ref: main",
             "SCREENING_SESSION_DATE:",
             "EXPECTED_SESSION_DATE:",
             "workflow_run:",
             '"Daily Backtest (500 Emiten IDX)"',
-            'os.environ.get("EVENT_NAME") != "workflow_dispatch"',
         ):
             self.assertIn(marker, self.screening_workflow)
+
+        # Session logic moved out of YAML into executable, behavior-tested code.
+        health = (ROOT / "automation" / "pipeline_health.py").read_text(encoding="utf-8")
+        calendar = (ROOT / "automation" / "market_calendar.py").read_text(encoding="utf-8")
+        for marker in ("completed_session", "screening_errors", "session-already-complete", "obsolete-recovery-request"):
+            self.assertIn(marker, health)
+        for marker in ('ZoneInfo("Asia/Jakarta")', "time(16, 15)", "HOLIDAYS", "calendar not verified"):
+            self.assertIn(marker, calendar)
 
         self.assertNotIn(
             'generated.astimezone(ZoneInfo("Asia/Jakarta")).date()',
@@ -319,3 +324,5 @@ class DashboardContractTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
