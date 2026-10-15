@@ -34,6 +34,26 @@ async function run(){
   assert.ok(js.includes('shell.inert=true'));assert.ok(js.includes('shell.inert=previousInert'));
   const css=fs.readFileSync('web/support.css','utf8');
   assert.ok(css.includes('position:fixed'));assert.ok(css.includes('.support-backdrop[hidden]{display:none}'));
+
+  // Simulate the browser submit flow without CAPTCHA or external messages.
+  const vm=require('node:vm');
+  async function browserSubmit(response){
+    const events={},dialogEvents={};
+    let closed=0,resets=0;
+    const dialog={open:true,addEventListener:(name,fn)=>{dialogEvents[name]=fn;},close(){closed++;this.open=false;dialogEvents.close?.();}};
+    const form={addEventListener:(name,fn)=>{events[name]=fn;},reportValidity:()=>true,setAttribute(){},removeAttribute(){},reset(){resets++;}};
+    const nodes={'support-dialog':dialog,'support-form':form,'support-status':{textContent:'',dataset:{}},'support-send':{disabled:false},'support-message':{value:valid.message,addEventListener(){}},'support-count':{textContent:''},'support-backdrop':{hidden:false},'support-close':{addEventListener(){},focus(){}}};
+    const sandbox={document:{getElementById:id=>nodes[id],querySelector:()=>({inert:false}),querySelectorAll:()=>[],body:{style:{overflow:''}}},window:{fetch:async()=>response},FormData:class{[Symbol.iterator](){return Object.entries(valid)[Symbol.iterator]();}},AbortController,setTimeout,clearTimeout};
+    vm.runInNewContext(js,sandbox);
+    await events.submit({preventDefault(){}});
+    return {closed,resets,nodes};
+  }
+  let browser=await browserSubmit({ok:true,status:200,json:async()=>({success:true})});
+  assert.equal(browser.closed,1);assert.equal(browser.resets,1);assert.equal(browser.nodes['support-dialog'].open,false);assert.equal(browser.nodes['support-send'].disabled,false);
+  for(const response of [{ok:false,status:500,json:async()=>({success:false})},{ok:true,status:200,json:async()=>({success:false})}]){
+    browser=await browserSubmit(response);
+    assert.equal(browser.closed,0);assert.equal(browser.resets,0);assert.equal(browser.nodes['support-dialog'].open,true);assert.equal(browser.nodes['support-message'].value,valid.message);
+  }
   console.log('Support payload, rejection, HTML wiring and CAPTCHA layer checks passed.');
 }
 module.exports=run();

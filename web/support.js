@@ -42,6 +42,7 @@
   let returnFocus=null, previousOverflow='', previousInert=false;
   function openSupport(button) {
     if(dialog.open) return;
+    report("");
     returnFocus=button;
     previousOverflow=document.body.style.overflow;
     previousInert=shell ? shell.inert : false;
@@ -76,6 +77,7 @@
       await sendMessage(data,window.fetch.bind(window),controller.signal);
       form.reset();count.textContent='0/4000';
       report('Pesan diterima layanan untuk diteruskan ke pengelola. Balasan melalui email; ini belum memastikan pesan masuk Inbox.','success');
+      if(dialog.open)dialog.close();
     }catch(error){
       report(error.name==='AbortError' || error instanceof TypeError ? 'Koneksi terputus atau waktu habis. Status pengiriman belum pasti; periksa sebelum mengirim ulang agar tidak duplikat.' : error.message,'error');
     }finally{
