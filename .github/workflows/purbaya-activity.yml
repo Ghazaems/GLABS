@@ -46,6 +46,8 @@ jobs:
           import json
           d=json.load(open("web/dashboard_data.json"))
           a=json.load(open("web/purbaya_activity_data.json"))
+          from data.purbaya_activity import VERSION
+          assert a["method_version"]==VERSION
           assert a["provider"]=="purbayasadewa.id"
           assert a["market_data_date"]==d["market_data_date"]==d["screening_session_date"]
           assert set(a["universe_tickers"])==set(d["universe_tickers"])==set(a["stocks"])

@@ -6,9 +6,9 @@ const cockpit=fs.readFileSync(path.join(__dirname,'../web/cockpit.js'),'utf8');
 new vm.Script(source);new vm.Script(cockpit);
 async function run(){
   let calls=0;
-  const history=Array.from({length:80},(_,i)=>({date:i===79?'2026-10-09':'2026-09-01',open:100,high:110,low:90,close:105,volume:100,pressure:50,money_flow_bar:50,money_flow_line:i*50,intensity:.5}));
+  const history=Array.from({length:80},(_,i)=>({date:i===79?'2026-10-09':'2026-09-01',open:100,high:110,low:90,close:105,volume:100,pressure:50,money_flow_bar:50,money_flow_line:i*50,intensity:.5,relative_volume:1.7,volume_rotation:1.2}));
   const item={status:'ok',source:{provider:'purbayasadewa.id',url:'https://purbayasadewa.id/idx/saham/VKTR',session:'2026-10-09'},latest:history.at(-1),history,history_start:'2026-06-01',bars:80};
-  const data={provider:'purbayasadewa.id',method_version:1,market_data_date:'2026-10-09',stocks:{VKTR:item}};
+  const data={provider:'purbayasadewa.id',method_version:2,market_data_date:'2026-10-09',stocks:{VKTR:item}};
   const context={window:{dispatchEvent(){}},Event:class{},fetch:async url=>{calls++;assert.equal(url,'purbaya_activity_data.json');return {ok:true,json:async()=>data}}};
   vm.createContext(context);vm.runInContext(source,context);
   const api=context.window.GlabsActivity;
@@ -18,9 +18,12 @@ async function run(){
   assert.equal(api.record('VKTR','2026-10-08'),null);
   assert.equal(api.record('BBCA','2026-10-09'),null);
   let html=api.panel({ticker:'VKTR'},'2026-10-09');
-  for(const label of ['Tekanan Likuiditas GLABS','Money Flow · bar','Money Flow · line','Intensity GLABS','bukan LPM Bandarmetrics','Tidak masuk skor komposit'])assert.ok(html.includes(label));
-  assert.equal((html.match(/<svg/g)||[]).length,4);
+  for(const label of ['Tekanan Kumulatif GLABS','Money Flow · bar','Money Flow · line','Intensity GLABS','Rotasi Aktivitas · proxy','bukan LPM Bandarmetrics','Tidak masuk skor komposit'])assert.ok(html.includes(label));
+  assert.equal((html.match(/<svg/g)||[]).length,5);
   assert.ok(!html.includes('NaN'));
+  assert.ok(!html.includes('Infinity'));
+  assert.ok(html.includes('belum divalidasi statistik'));
+  data.method_version=1;assert.equal(api.record('VKTR','2026-10-09'),null);data.method_version=2;
   assert.ok(api.panel({ticker:'BBCA'},'2026-10-09').includes('belum tersedia'));
   item.source.provider='Yahoo';
   assert.equal(api.record('VKTR','2026-10-09'),null);
