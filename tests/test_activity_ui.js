@@ -38,7 +38,7 @@ async function run(){
   assert.ok(!cockpit.includes('syntheticHistory'));
   assert.ok(!cockpit.includes('generated_at?.slice'));
   assert.ok(cockpit.includes('TERTINGGAL'));
-  const chartContext={window:{addEventListener(){}},document:{},console};
+  const chartContext={window:{addEventListener(){},GlabsFreshness:require('../web/freshness.js')},document:{},console};
   vm.createContext(chartContext);
   vm.runInContext(cockpit.replace('  window.openAnalysis = open;', '  window.chartTest={makeChart,state,layerControls,render}; window.openAnalysis = open;'),chartContext);
   const original=JSON.stringify({ticker:'VKTR',score:42,signal:'beli',price_history:history.map(r=>({...r,vwap_5:102,vwap_20:103,vwap_60:104})),support:80,resistance:120,wyckoff:{tr_low:85,tr_high:115,events:[{date:'2026-10-09',type:'SOS'}]}});

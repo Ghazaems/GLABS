@@ -40,6 +40,7 @@ jobs:
           node --check web/cockpit.js
           node --check web/api/chat.js
           node tests/test_chat_api.js
+          node tests/test_phone_chat_freshness.js
           node tests/test_activity_ui.js
           node tests/test_data_loading.js
           node tests/test_web_build.js

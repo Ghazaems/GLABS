@@ -8,6 +8,7 @@ comparative strength vs IHSG, skor komposit, dan sinyal beli/pantau/jual) untuk 
 IDX yang dipantau sistem ini.
 
 ATURAN:
+- Tanggal sesi ditentukan screening_session_date. Harga/sinyal hanya terkini jika last_price_date valid dan sama persis dengan sesi itu. Tanggal hilang, berbeda, atau masa depan adalah historis/tidak terverifikasi; jangan menyebutnya sinyal beli hari ini.
 - Kalau pertanyaan menyangkut ticker atau data yang ada di watchlist, jawab berdasarkan data
   JSON yang diberikan dan sebut angka spesifiknya (skor, breakdown, dsb). Jangan mengarang
   angka yang tidak ada di data.
@@ -24,7 +25,7 @@ const REQUEST_TIMEOUT_MS = 22_000;
 const MAX_ATTEMPTS = 2;
 const MAX_QUESTION_CHARS = 2000;
 const MAX_WATCHLIST_ITEMS = 40;
-const MAX_FILE_BASE64_CHARS = 6_000_000;
+const MAX_FILE_BASE64_CHARS = 3_900_000;
 const ALLOWED_FILE_TYPES = new Set([
   "image/png",
   "image/jpeg",
@@ -33,7 +34,12 @@ const ALLOWED_FILE_TYPES = new Set([
   "text/plain",
 ]);
 
-function compactRow(row) {
+function currentPrice(row,session) {
+  const valid=value=>typeof value==="string" && /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+    Number.isFinite(Date.parse(value+"T00:00:00Z")) && new Date(value+"T00:00:00Z").toISOString().slice(0,10)===value;
+  return valid(session)&&valid(row.last_price_date)&&session===row.last_price_date;
+}
+function compactRow(row,session) {
   if (!row || typeof row !== "object") return null;
   return {
     ticker: row.ticker,
@@ -43,6 +49,7 @@ function compactRow(row) {
     wyckoff_bias: row.wyckoff_bias,
     wyckoff_phase: row.wyckoff_phase,
     last_price_date: row.last_price_date,
+    is_current_session: currentPrice(row,session),
     last_close: row.last_close,
     signal_daily: row.signal_daily,
     signal: row.signal,
@@ -53,7 +60,7 @@ function compactRow(row) {
       signal: row.vwap_analysis.signal,
       regime: row.vwap_analysis.regime,
       protective_stop: row.vwap_analysis.protective_stop,
-      reasons: row.vwap_analysis.reasons,
+      reasons: Array.isArray(row.vwap_analysis.reasons) ? row.vwap_analysis.reasons.slice(0, 4).map(x => String(x).slice(0, 240)) : [],
     },
     score_daily: row.score_daily,
     score: row.score,
@@ -75,7 +82,11 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const { question, watchlist, generated_at, file } = req.body || {};
+  if (new TextEncoder().encode(JSON.stringify(req.body || {})).byteLength > 4_000_000) {
+    res.status(413).json({ error: "Permintaan melebihi batas aman 4 MB.", code: "payload_too_large" });
+    return;
+  }
+  const { question, watchlist, generated_at, file, screening_session_date, market_data_date, current_style } = req.body || {};
   if (!question || typeof question !== "string" || !question.trim()) {
     res.status(400).json({ error: "Pertanyaan kosong." });
     return;
@@ -89,18 +100,23 @@ module.exports = async function handler(req, res) {
     .filter((row) => row && typeof row.ticker === "string");
   const words = new Set(question.toUpperCase().match(/[A-Z0-9]+/g) || []);
   const matched = rows.filter((row) => words.has(row.ticker.toUpperCase().replace(/\.JK$/, "")));
-  const greeting = /^(halo|hai|hi|hello|tes|test|jawab singkat|jawab satu kata)\b/i.test(question.trim());
+  const greeting = /^(halo|hai|hi|hello|tes|test)\s*[!.?]*$/i.test(question.trim());
   const selected = greeting ? [] : (matched.length ? matched : rows);
-  const compactWatchlist = selected.slice(0, MAX_WATCHLIST_ITEMS).map(compactRow).filter(Boolean);
+  const compactWatchlist = selected.slice(0, MAX_WATCHLIST_ITEMS).map(row=>compactRow(row,screening_session_date)).filter(Boolean);
   // Explicit scope: a compact sample must never be presented as the complete market.
+  const suppliedTotal = Number(req.body?.scope?.total_rows);
   const scope = {
-    total_rows: rows.length,
+    total_rows: Number.isInteger(suppliedTotal) && suppliedTotal >= rows.length && suppliedTotal <= 10000 ? suppliedTotal : rows.length,
     selected_rows: compactWatchlist.length,
     selection: greeting ? "tanpa data saham" : matched.length ? "ticker yang disebut" : "sampel awal, bukan ranking seluruh pasar",
-    truncated: selected.length > compactWatchlist.length,
+    truncated: selected.length > compactWatchlist.length || req.body?.scope?.truncated === true,
   };
+  const rawSummary=req.body?.summary || {}, count = value => Number.isInteger(value) && value>=0 && value<=10000 ? value : null;
+  const summary={processed:count(rawSummary.processed),current_rows:count(rawSummary.current_rows),historical_rows:count(rawSummary.historical_rows),
+    signal_counts:Object.fromEntries(["daily","weekly","swing"].map(h=>[h,Object.fromEntries(["beli","pantau","jual"].map(k=>[k,count(rawSummary.signal_counts?.[h]?.[k])]))])),
+    note:"Agregat dashboard mencakup data historis; jangan disamakan dengan sinyal baru sesi terkini."};
   const dataBlock = `Data watchlist (digenerate ${generated_at || "tidak diketahui"}):\n` +
-    JSON.stringify({ scope, rows: compactWatchlist }) +
+    JSON.stringify({ scope, summary, screening_session_date, market_data_date, current_style, rows: compactWatchlist }) +
     "\nJika data hanya sampel, jangan menyimpulkan ranking/jumlah seluruh pasar dari sampel. Nyatakan keterbatasan data." +
     "\nJika selection adalah tanpa data saham, data sengaja tidak dilampirkan untuk sapaan/tes; jangan mengatakan dashboard atau watchlist kosong.";
 

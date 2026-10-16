@@ -4,10 +4,10 @@ const fs = require("node:fs");
 const vm = require("node:vm");
 const path = require("node:path");
 const source = fs.readFileSync(path.join(__dirname, "../web/api/chat.js"), "utf8");
-async function call(responses, question = "halo", watchlist = [], env = { GEMINI_API_KEY: "test-only" }, file) {
+async function call(responses, question = "halo", watchlist = [], env = { GEMINI_API_KEY: "test-only" }, file, metadata = {}) {
   const requests = [];
   const sandbox = {
-    module: { exports: {} }, process: { env }, AbortController,
+    module: { exports: {} }, process: { env }, AbortController, TextEncoder,
     setTimeout: (fn, ms) => ms === 600 ? setTimeout(fn, 0) : setTimeout(fn, ms),
     clearTimeout,
     fetch: async (url, options) => {
@@ -20,7 +20,7 @@ async function call(responses, question = "halo", watchlist = [], env = { GEMINI
   };
   vm.runInNewContext(source, sandbox);
   const res = { setHeader() {}, status(n) { this.code = n; return this; }, json(x) { this.data = x; } };
-  await sandbox.module.exports({ method: "POST", body: { question, watchlist, file } }, res);
+  await sandbox.module.exports({ method: "POST", body: { question, watchlist, file, ...metadata } }, res);
   return { res, requests };
 }
 const ok = () => ({ status: 200, json: { candidates: [{ content: { parts: [{text:"hidden",thought:true},{text:"Halo!"},{text:"Siap."}] } }] } });
@@ -67,5 +67,13 @@ const ok = () => ({ status: 200, json: { candidates: [{ content: { parts: [{text
   r = await call([],"halo",[],{}); assert.equal(r.res.code,500); assert.equal(r.requests.length,0);
   r = await call([],"halo",[],undefined,{data:"a",mimeType:"text/csv"});
   assert.equal(r.res.code,413); assert.equal(r.requests.length,0);
+  r = await call([],"halo",[],undefined,{data:"a".repeat(4_000_000),mimeType:"application/pdf"});
+  assert.equal(r.res.code,413); assert.equal(r.requests.length,0);
+  r = await call([ok()],"ANTM",[{ticker:"ANTM",last_price_date:"2026-10-16"}],undefined,undefined,{screening_session_date:"2026-10-16"});
+  prompt = JSON.parse(r.requests[0].options.body).contents[0].parts[0].text;
+  assert.ok(prompt.includes('"is_current_session":true'));
+  r = await call([ok()],"ANTM",[{ticker:"ANTM",last_price_date:"2026-10-15",is_current_session:true}],undefined,undefined,{screening_session_date:"2026-10-16"});
+  prompt = JSON.parse(r.requests[0].options.body).contents[0].parts[0].text;
+  assert.ok(prompt.includes('"is_current_session":false'));
   console.log("Chat model, bounded retry, quota, timeout, redaction, context and validation tests passed.");
 })().catch(e=>{console.error(e);process.exitCode=1;});

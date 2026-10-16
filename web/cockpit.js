@@ -182,7 +182,7 @@
     const activityRecord=window.GlabsActivity.record(stock.ticker,state.data.market_data_date);
     const chartStock=stock;
     const priceDate=stock.last_price_date||stock.price_history?.at(-1)?.date||'tidak diketahui';
-    const stale=priceDate!==state.data.market_data_date;
+    const stale=!window.GlabsFreshness.isCurrent(stock,state.data);
     const isForecast=state.mode==='volatility'&&stock.volatility?.status==='ok';
     const chart=isForecast?makeVolatilityChart(stock):makeChart(chartStock);
     const pct=Math.max(0,Math.min(100,(stock.score+100)/2));
@@ -190,7 +190,7 @@
     bindDrawer();
   }
 
-  function decisionText(s){if(s.signal==='beli')return '<b>Kandidat untuk dipantau.</b> Tunggu konfirmasi sebelum entry.';if(s.signal==='jual')return '<b>Risiko lebih dominan.</b> Evaluasi posisi dan batas risiko.';return '<b>Pantau dulu.</b> Belum ada dukungan indikator yang kuat.'}
+  function decisionText(s){if(!window.GlabsFreshness.isCurrent(s,state.data))return '<b>Sinyal historis.</b> Harga terakhir bukan sesi screening terkini atau tanggalnya belum terverifikasi. Jangan dipakai sebagai keputusan sesi hari ini.';if(s.signal==='beli')return '<b>Kandidat untuk dipantau.</b> Tunggu konfirmasi sebelum entry.';if(s.signal==='jual')return '<b>Risiko lebih dominan.</b> Evaluasi posisi dan batas risiko.';return '<b>Pantau dulu.</b> Belum ada dukungan indikator yang kuat.'}
   function bindDrawer(){document.querySelectorAll('[data-layer-toggle]').forEach(b=>b.onclick=()=>{const key=b.dataset.layerToggle;if(Object.hasOwn(state.layers,key)){state.layers[key]=!state.layers[key];render()}});document.querySelector('.close-btn').onclick=close;document.querySelectorAll('.ticker-chip').forEach(b=>b.onclick=()=>{state.ticker=b.dataset.ticker;showSelected()});document.querySelectorAll('.mode-tab').forEach(b=>b.onclick=()=>{state.mode=b.dataset.mode;render()})}
   let detailRequest=0;
   async function showSelected(){

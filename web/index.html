@@ -2,6 +2,11 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8" />
+<!-- Preserve the existing tablet/desktop viewport; enable device sizing only on phones. -->
+<script>if(Math.min(screen.width,screen.height)<600){const v=document.createElement('meta');v.name='viewport';v.content='width=device-width, initial-scale=1, viewport-fit=cover';document.head.appendChild(v)}</script>
+<link rel="stylesheet" href="phone-nav.css">
+<script src="freshness.js"></script>
+<script src="chat-core.js"></script>
 <script>try{if(!sessionStorage.getItem('gk_ok'))location.replace('/gate.html?relock=1')}catch(e){}</script>
 <title>Ghazker — Stock Screener</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1081,6 +1086,19 @@ html { overflow-x: hidden; }
 
     </div>
   </div>
+  <nav id="phone-nav" class="phone-nav" aria-label="Navigasi HP">
+    <button type="button" data-phone-view="overview">Beranda</button>
+    <button type="button" data-phone-view="screener">Screener</button>
+    <button type="button" data-phone-view="watchlist">Watchlist</button>
+    <button type="button" id="phone-more-toggle" aria-expanded="false" aria-controls="phone-more">Lainnya</button>
+  </nav>
+  <div id="phone-more" class="phone-more" hidden aria-label="Menu lainnya">
+    <button type="button" data-phone-view="radar">Radar Sinyal</button>
+    <button type="button" data-phone-view="rotation">Rotasi sektor</button>
+    <button type="button" data-phone-view="riwayat">Volatilitas</button>
+    <button type="button" data-phone-view="laporan">Laporan</button>
+    <button type="button" class="support-trigger" aria-haspopup="dialog" aria-controls="support-dialog">Support</button>
+  </div>
 </div>
 
 <script>
@@ -1129,6 +1147,12 @@ function renderTrendGauge(value, healthy, total) {
 
 function vwapTone(signal) {
   return "vwap-" + String(signal || "WAIT").toLowerCase();
+}
+
+function isCurrentRow(row) { return window.GlabsFreshness.isCurrent(row, window.dashboardData); }
+function freshnessLabel(row) {
+  const date = window.GlabsFreshness.validDate(row.last_price_date) ? row.last_price_date : "tanggal tidak diketahui";
+  return `<small class="data-date ${isCurrentRow(row) ? "" : "historical"}">${isCurrentRow(row) ? "Sesi" : "Historis ·"} ${escapeHtml(date)}</small>`;
 }
 
 function vwapBadge(rawSignal) {
@@ -1190,14 +1214,23 @@ function phaseLetter(phaseStr) {
 }
 
 // ---------- Chat AI (prompt panel) ----------
-const MAX_FILE_BYTES = 3 * 1024 * 1024; // 3MB mentah (~4MB setelah base64, aman di bawah limit 4.5MB Vercel)
+const MAX_FILE_BYTES = 3 * 1024 * 1024; // Final UTF-8 JSON is checked separately, including base64 overhead.
 let pendingFile = null; // { name, mimeType, base64 }
 
-function buildWatchlistContext() {
+function chatMarketSummary() {
+  const rows = window.dashboardData?.watchlist || [];
+  const current = rows.filter(isCurrentRow).length;
+  const counts = key => rows.reduce((out,r) => { if (["beli","pantau","jual"].includes(r[key])) out[r[key]]++; return out; }, {beli:0,pantau:0,jual:0});
+  return { processed: rows.length, current_rows: current, historical_rows: rows.length-current,
+    signal_counts: {daily:counts("signal_daily"),weekly:counts("signal"),swing:counts("signal_swing")},
+    note:"Agregat hasil screening termasuk data historis; bukan jumlah sinyal baru sesi ini." };
+}
+function buildWatchlistContext(question) {
   const wl = (window.dashboardData && window.dashboardData.watchlist) || [];
-  return wl.map((r) => ({
+  return window.GlabsChatCore.select(wl, question, currentStyle).rows.map((r) => ({
     ticker: r.ticker,
     last_price_date: r.last_price_date,
+    is_current_session: isCurrentRow(r),
     signal_daily: r.signal_daily,
     signal_swing: r.signal_swing,
     score_daily: r.score_daily,
@@ -1247,24 +1280,45 @@ function triggerFileUpload() {
   document.getElementById("chat-file-input").click();
 }
 
-function handleFileSelect(e) {
-  const file = e.target.files[0];
+let fileSelectionVersion = 0;
+let filePreparing = false;
+async function handleFileSelect(e) {
+  const file = e.target.files[0], version = ++fileSelectionVersion;
   if (!file) return;
-  if (file.size > MAX_FILE_BYTES) {
-    alert(`File terlalu besar (maks ${(MAX_FILE_BYTES / 1024 / 1024).toFixed(0)}MB).`);
-    e.target.value = "";
-    return;
+  const mimeType = file.type || (/\.pdf$/i.test(file.name) ? "application/pdf" : /\.(txt|csv)$/i.test(file.name) ? "text/plain" : "");
+  if (file.size > MAX_FILE_BYTES || !["image/png","image/jpeg","image/webp","application/pdf","text/plain","text/csv"].includes(mimeType)) {
+    alert("Gunakan PNG, JPEG, WebP, PDF, TXT atau CSV maksimal 3 MB.");
+    e.target.value = ""; return;
   }
-  const reader = new FileReader();
-  reader.onload = () => {
-    const base64 = reader.result.split(",")[1];
-    pendingFile = { name: file.name, mimeType: file.type || "application/octet-stream", base64 };
+  filePreparing = true;
+  try {
+    let blob = file, outputType = mimeType === "text/csv" ? "text/plain" : mimeType;
+    if (mimeType.startsWith("image/") && typeof createImageBitmap === "function") {
+      const bitmap = await createImageBitmap(file);
+      try {
+        const ratio = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(bitmap.width * ratio));
+        canvas.height = Math.max(1, Math.round(bitmap.height * ratio));
+        canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        const compressed = await new Promise(resolve => canvas.toBlob(resolve, "image/webp", .86));
+        if (compressed && compressed.size < file.size) { blob = compressed; outputType = compressed.type; }
+      } finally { bitmap.close(); }
+    }
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader(); reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error("File tidak dapat dibaca.")); reader.readAsDataURL(blob);
+    });
+    if (version !== fileSelectionVersion) return;
+    pendingFile = { name: file.name, mimeType: outputType, base64: dataUrl.split(",")[1] };
     renderFileChip();
-  };
-  reader.readAsDataURL(file);
+  } catch (err) { if (version === fileSelectionVersion) alert("Lampiran gagal disiapkan. Pilih ulang file."); }
+  finally { if (version === fileSelectionVersion) filePreparing = false; }
 }
 
 function clearPendingFile() {
+  ++fileSelectionVersion;
+  filePreparing = false;
   pendingFile = null;
   const input = document.getElementById("chat-file-input");
   if (input) input.value = "";
@@ -1281,72 +1335,68 @@ function renderFileChip() {
 
 let aiRequestPending = false;
 
-async function askAI(question) {
+async function askAI(question, retryFile) {
   question = (question || "").trim();
   if (!question || aiRequestPending) return;
+  if (filePreparing) { alert("Tunggu lampiran selesai disiapkan."); return; }
+  const input = document.getElementById("chat-input");
+  const snapshot = retryFile === undefined ? pendingFile : retryFile;
+  const selection = window.GlabsChatCore.select(window.dashboardData?.watchlist || [], question, currentStyle);
+  let body;
+  try {
+    body = window.GlabsChatCore.serialize({
+      question, watchlist: buildWatchlistContext(question), scope: selection.scope,
+      generated_at: window.dashboardData?.generated_at,
+      screening_session_date: window.dashboardData?.screening_session_date,
+      market_data_date: window.dashboardData?.market_data_date, current_style: currentStyle,
+      summary: chatMarketSummary(),
+      file: snapshot ? { mimeType: snapshot.mimeType, data: snapshot.base64 } : null,
+    });
+  } catch (e) { alert(e.message); return; }
   aiRequestPending = true;
-
   const log = document.getElementById("chat-log");
-  const filePayload = pendingFile ? { mimeType: pendingFile.mimeType, data: pendingFile.base64 } : null;
-  const attachedName = pendingFile?.name;
-  clearPendingFile();
-
   const userDiv = document.createElement("div");
   userDiv.className = "chat-msg user";
   userDiv.innerHTML = `<b>Anda:</b> ${escapeHtml(question)}` +
-    (attachedName ? `<span class="attach">📎 ${escapeHtml(attachedName)}</span>` : "");
+    (snapshot ? `<span class="attach">📎 ${escapeHtml(snapshot.name)}</span>` : "");
   log.appendChild(userDiv);
-
   const loadingDiv = document.createElement("div");
-  loadingDiv.className = "chat-msg loading";
-  loadingDiv.textContent = "Memikirkan...";
+  loadingDiv.className = "chat-msg loading"; loadingDiv.textContent = "Memikirkan...";
   log.appendChild(loadingDiv);
   loadingDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 55_000);
+  const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 55_000);
+  let retryAfter = 0;
   try {
-    const res = await fetch("/api/chat", {
-      signal: controller.signal,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        question,
-        watchlist: buildWatchlistContext(),
-        generated_at: window.dashboardData?.generated_at,
-        file: filePayload,
-      }),
-    });
-    const data = await res.json();
-    loadingDiv.remove();
-
-    const replyDiv = document.createElement("div");
+    const res = await fetch("/api/chat", {signal: controller.signal, method:"POST",
+      headers:{"Content-Type":"application/json"}, body});
+    const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      replyDiv.className = "chat-msg error";
-      replyDiv.textContent = res.status === 401
-        ? "Sesi login berakhir. Muat ulang halaman dan masukkan kode akses lagi."
-        : data.error || "Terjadi kesalahan saat menghubungi AI.";
-    } else {
-      replyDiv.className = "chat-msg ai";
-      replyDiv.innerHTML = renderMarkdown(data.answer || "Maaf, tidak ada jawaban.");
+      retryAfter = res.status === 429 ? Math.min(600, Math.max(1, Number(res.headers?.get("Retry-After")) || 60)) : 0;
+      throw new Error(res.status === 401 ? "Sesi login berakhir. Muat ulang halaman dan masukkan kode akses lagi."
+        : res.status === 413 ? "Permintaan terlalu besar. Gunakan lampiran lebih kecil."
+        : data.error || (res.status === 429 ? "Terlalu banyak permintaan. Tunggu sebentar sebelum mencoba lagi."
+        : "Layanan AI belum dapat merespons. Silakan coba lagi."));
     }
-    log.appendChild(replyDiv);
-    replyDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    if (typeof data.answer !== "string" || !data.answer.trim()) throw new Error("AI tidak memberikan jawaban teks.");
+    loadingDiv.className = "chat-msg ai"; loadingDiv.innerHTML = renderMarkdown(data.answer);
+    if (input.value.trim() === question) input.value = "";
+    if (pendingFile === snapshot) clearPendingFile();
   } catch (e) {
     loadingDiv.className = "chat-msg error";
-    loadingDiv.textContent = e.name === "AbortError" ? "Waktu tunggu AI habis. Silakan coba lagi." : "Gagal menghubungi server. Coba lagi.";
-  } finally {
-    clearTimeout(timeout);
-    aiRequestPending = false;
-  }
+    loadingDiv.textContent = e.name === "AbortError" ? "Waktu tunggu AI habis. Pertanyaan dan lampiran tetap tersimpan."
+      : e instanceof TypeError ? "Koneksi ke server gagal. Pertanyaan dan lampiran tetap tersimpan." : e.message;
+    if (!input.value) input.value = question;
+    const retry = document.createElement("button");
+    retry.type = "button"; retry.className = "chat-retry"; retry.textContent = "Coba lagi";
+    retry.disabled = retryAfter > 0;
+    if (retryAfter) { retry.textContent = `Coba lagi setelah ${retryAfter} detik`; setTimeout(() => { retry.disabled = false; retry.textContent = "Coba lagi"; }, retryAfter * 1000); }
+    retry.addEventListener("click", () => { if (!aiRequestPending) { retry.disabled = true; askAI(question, snapshot); } });
+    loadingDiv.appendChild(retry);
+  } finally { clearTimeout(timeout); aiRequestPending = false; }
 }
-
 function sendChat() {
   if (aiRequestPending) return;
-  const input = document.getElementById("chat-input");
-  const q = input.value;
-  input.value = "";
-  askAI(q);
+  askAI(document.getElementById("chat-input").value);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1403,7 +1453,7 @@ function renderWatchlistCards(rows) {
     return `
       <div class="card" style="cursor:pointer" onclick="event.stopPropagation(); openTickerAnalysis('${r.ticker}')">
         <div class="wl-card-head">
-          <span class="wl-ticker">${r.ticker}</span>
+          <span class="wl-ticker">${r.ticker}${freshnessLabel(r)}</span>
           <span class="wl-price">${fmtNum(r.last_close)} &middot; skor ${r.score}</span>
         </div>
         <div class="wl-comp-row">
@@ -1438,7 +1488,7 @@ function renderScreenerTable(rows) {
     const wyPhase = phaseLetter(r[wyckoffKey]?.phase);
     return `
       <tr>
-        <td style="font-weight:600;">${r.ticker}</td>
+        <td style="font-weight:600;">${r.ticker}${freshnessLabel(r)}</td>
         <td class="num">${fmtNum(r.last_close)}</td>
         <td>${TREND_LABEL[r[trendKey]] || r[trendKey]}</td>
         <td style="color:var(--text-secondary);">${wyBias}${wyPhase ? " &middot; " + wyPhase : ""}</td>
@@ -1604,7 +1654,7 @@ async function renderRiwayatDetail(stock) {
   const last = v.upper_band_95.length - 1;
   document.getElementById("riwayat-note").innerHTML =
     `Harga terakhir ${escapeHtml(stock.last_price_date || v.last_date || "tidak diketahui")}. ` +
-    (stock.last_price_date !== window.dashboardData?.market_data_date ? "Data saham tertinggal dari sesi screening; forecast bukan untuk sesi terkini. " : "") +
+    (!isCurrentRow(stock) ? "Data saham tertinggal dari sesi screening; forecast bukan untuk sesi terkini. " : "") +
     `GARCH(1,1), berdasarkan histori harian yang tersedia. ` +
     `Band 10 hari (95%): <b>${fmtNum(v.lower_band_95[last])} &ndash; ${fmtNum(v.upper_band_95[last])}</b>. ` +
     `Ini rentang wajar pergerakan harga berdasar pola volatilitas historis, BUKAN tebakan harga pasti ` +
@@ -2000,13 +2050,13 @@ function renderStyleDependent(style) {
         const sig = r[signalKey];
         return `
           <div class="wl-row" role="button" tabindex="0" onclick="openTickerAnalysis('${r.ticker}')" onkeydown="if(event.key==='Enter' || event.key===' '){event.preventDefault();openTickerAnalysis('${r.ticker}')}">
-            <span class="t">${r.ticker} <span class="s">${fmtNum(r.last_close)}</span></span>
+            <span class="t">${r.ticker} <span class="s">${fmtNum(r.last_close)}</span>${freshnessLabel(r)}</span>
             <span class="badge ${sig}">${sig.charAt(0).toUpperCase()+sig.slice(1)}</span>
           </div>`;
       }).join("")
     : `<div class="vwap-meta">${waitingMessage}</div>`;
 
-  const tp = sortedWl[0];
+  const tp = sortedWl.find(isCurrentRow);
   const topButton = document.getElementById("top-detail-button");
   topButton.dataset.ticker = tp?.ticker || "";
   topButton.disabled = !tp;
@@ -2019,11 +2069,11 @@ function renderStyleDependent(style) {
       selectedWyckoff.bias === "distribution" ? "distribusi" : "belum jelas";
     const wyText = `, Wyckoff ${wyBias} (${phaseLetter(selectedWyckoff.phase)})`;
     topText.innerHTML =
-      `<b>${tp.ticker}</b> memimpin skor screener ${label} di <b>${tp[scoreKey]}</b>, ` +
+      `<b>${tp.ticker}</b> memimpin skor data sesi terkini ${label} di <b>${tp[scoreKey]}</b>, ` +
       `trend ${TREND_LABEL[tp[trendKey]]||tp[trendKey]}${wyText}, harga ` +
       `${tp[vwapKey]?.position === "above" ? "di atas" : "di bawah"} VWAP ${vwapFocus}.`;
     topFooter.textContent = `${tp.ticker} · ${fmtNum(tp.last_close)} · ${tp.last_price_date || "tanggal belum diketahui"}` +
-      (tp.last_price_date !== window.dashboardData?.market_data_date ? " · data tertinggal" : "");
+      (!isCurrentRow(tp) ? " · data tertinggal" : "");
     const bd = tp[bdKey] || {};
     const vals = Object.values(bd).map(v => Math.abs(v));
     const maxVal = Math.max(...vals, 1);
@@ -2033,7 +2083,7 @@ function renderStyleDependent(style) {
       return `<div class="${cls}" style="height:${height}%" title="${key}: ${value}"></div>`;
     }).join("");
   } else {
-    topText.textContent = waitingMessage;
+    topText.textContent = hasStyleData ? "Belum ada kandidat dengan harga terverifikasi untuk sesi screening ini. Data historis tetap tersedia di Screener." : waitingMessage;
     topFooter.textContent = label;
     barsEl.innerHTML = "";
   }
@@ -2057,7 +2107,7 @@ function renderStyleDependent(style) {
   const accum = styleRows.filter(r => r[wyckoffKey]?.bias === "accumulation");
   const distrib = styleRows.filter(r => r[wyckoffKey]?.bias === "distribution");
   const weighted = styleRows.filter(r => Number(r[bdKey]?.wyckoff) !== 0);
-  const bestAccum = [...accum].sort((a, b) => Number(b[scoreKey]) - Number(a[scoreKey]))[0];
+  const bestAccum = accum.filter(isCurrentRow).sort((a, b) => Number(b[scoreKey]) - Number(a[scoreKey]))[0];
   const wyckoffButton = document.getElementById("wyckoff-shortcut");
   wyckoffButton.dataset.ticker = bestAccum?.ticker || "";
   wyckoffButton.disabled = !bestAccum;
@@ -2084,14 +2134,14 @@ function renderStyleDependent(style) {
         return `
           <div class="vwap-signal-row" onclick="event.stopPropagation(); openTickerAnalysis('${r.ticker}')"
                title="${escapeHtml(focusText)}">
-            <span class="vwap-row-ticker">${r.ticker}</span>
+            <span class="vwap-row-ticker">${r.ticker}${freshnessLabel(r)}</span>
             <span class="vwap-row-price">${fmtNum(r.last_close)}</span>
             ${vwapBadge(r.vwap_signal)}
           </div>`;
       }).join("")
     : `<div class="vwap-meta">${waitingMessage}</div>`;
   document.getElementById("vwap-meta").textContent =
-    `Badge = keputusan Rolling VWAP 5/20/60; urutan difokuskan ke ${label} ${vwapFocus}.`;
+    `Badge = keputusan Rolling VWAP 5/20/60; urutan difokuskan ke ${label} ${vwapFocus}. Data historis diberi tanggal dan tetap masuk jumlah, bukan sinyal baru sesi ini.`;
 
 
 }
@@ -2180,6 +2230,7 @@ function showView(name) {
     loadBacktestReport();
     loadForwardReport();
   }
+  window.GlabsPhoneNav?.changed(name);
 }
 
 // ---------- Donut chart (SVG murni, gaya glass/Apple) ----------
@@ -2517,6 +2568,7 @@ function renderForwardICSummary(bodyId, selectId, data) {
 <p id="support-status" class="support-status" role="status" aria-live="polite" aria-atomic="true"></p><button type="submit" id="support-send" class="support-send">Kirim pesan</button>
 </form></dialog>
 
+<script src="phone-nav.js"></script>
 <script src="support.js"></script>
 </body>
 </html>
