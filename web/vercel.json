@@ -1,4 +1,5 @@
 {
   "buildCommand": "node build-data.cjs",
+  "outputDirectory": ".",
   "functions": { "api/chat.js": { "maxDuration": 60 } }
 }

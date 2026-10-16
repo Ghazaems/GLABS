@@ -1,6 +1,10 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs'), path = require('node:path'), os = require('node:os');
 const {build} = require('../web/build-data.cjs');
+const webConfig = JSON.parse(fs.readFileSync(path.join(__dirname,'../web/vercel.json'),'utf8'));
+assert.equal(webConfig.outputDirectory,'.','Vercel project root is web, not public');
+assert.equal(webConfig.buildCommand,'node build-data.cjs');
+assert.equal(webConfig.functions['api/chat.js'].maxDuration,60);
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'glabs-build-test-'));
 const write = (name, value) => fs.writeFileSync(path.join(root, name), JSON.stringify(value));
 const history = [{date:'2026-10-15',close:105,benchmark:7000}];
