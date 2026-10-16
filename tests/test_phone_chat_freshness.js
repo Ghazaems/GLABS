@@ -38,7 +38,7 @@ async function checkChat(){
  const file={name:'test.pdf',mimeType:'application/pdf',base64:'YQ=='},payloads=[];
  let fail=true,cleared=0;
  const ctx={window:{dashboardData:{watchlist:rows,screening_session_date:'2026-10-16'},GlabsChatCore:chat},currentStyle:'daily',
- pendingFile:file,filePreparing:false,AbortController,setTimeout,clearTimeout,TypeError,
+ pendingFile:file,filePreparing:false,fileSelectionVersion:0,AbortController,setTimeout,clearTimeout,TypeError,
  document:{getElementById:id=>id==='chat-input'?input:log,createElement:el},
  chatMarketSummary:()=>({processed:rows.length}),buildWatchlistContext:q=>chat.select(rows,q).rows,escapeHtml:s=>s,renderMarkdown:s=>s,
  clearPendingFile(){ctx.pendingFile=null;cleared++},
@@ -52,6 +52,10 @@ async function checkChat(){
  // Edits typed during an in-flight request must survive success.
  ctx.fetch=async()=>{input.value='pertanyaan baru';ctx.pendingFile={name:'baru.txt'};return {ok:true,json:async()=>({answer:'ok'})}};
  input.value='lama';await ctx.askAI('lama');assert.equal(input.value,'pertanyaan baru');assert.equal(ctx.pendingFile.name,'baru.txt');
+ // A new file still being prepared must not be cancelled by the old response.
+ ctx.pendingFile=file;ctx.filePreparing=false;
+ ctx.fetch=async()=>{ctx.fileSelectionVersion++;ctx.filePreparing=true;return {ok:true,json:async()=>({answer:'ok'})}};
+ input.value='lama';await ctx.askAI('lama');assert.equal(ctx.pendingFile,file);assert.equal(ctx.filePreparing,true);
 }
 // Actual navigation code with phone/tablet mocked media; verify history and routing.
 function checkNav(phone){

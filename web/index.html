@@ -1347,6 +1347,7 @@ async function askAI(question, retryFile) {
   if (filePreparing) { alert("Tunggu lampiran selesai disiapkan."); return; }
   const input = document.getElementById("chat-input");
   const snapshot = retryFile === undefined ? pendingFile : retryFile;
+  const snapshotVersion = fileSelectionVersion;
   const selection = window.GlabsChatCore.select(window.dashboardData?.watchlist || [], question, currentStyle);
   let body;
   try {
@@ -1386,7 +1387,7 @@ async function askAI(question, retryFile) {
     if (typeof data.answer !== "string" || !data.answer.trim()) throw new Error("AI tidak memberikan jawaban teks.");
     loadingDiv.className = "chat-msg ai"; loadingDiv.innerHTML = renderMarkdown(data.answer);
     if (input.value.trim() === question) input.value = "";
-    if (pendingFile === snapshot) clearPendingFile();
+    if (snapshot && pendingFile === snapshot && fileSelectionVersion === snapshotVersion) clearPendingFile();
   } catch (e) {
     loadingDiv.className = "chat-msg error";
     loadingDiv.textContent = e.name === "AbortError" ? "Waktu tunggu AI habis. Pertanyaan dan lampiran tetap tersimpan."
@@ -1396,7 +1397,7 @@ async function askAI(question, retryFile) {
     retry.type = "button"; retry.className = "chat-retry"; retry.textContent = "Coba lagi";
     retry.disabled = retryAfter > 0;
     if (retryAfter) { retry.textContent = `Coba lagi setelah ${retryAfter} detik`; setTimeout(() => { retry.disabled = false; retry.textContent = "Coba lagi"; }, retryAfter * 1000); }
-    retry.addEventListener("click", () => { if (!aiRequestPending) { retry.disabled = true; askAI(question, snapshot); } });
+    retry.addEventListener("click", () => { if (!aiRequestPending && !filePreparing) { retry.disabled = true; askAI(question, snapshot); } });
     loadingDiv.appendChild(retry);
   } finally { clearTimeout(timeout); aiRequestPending = false; }
 }
