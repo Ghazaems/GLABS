@@ -31,19 +31,9 @@
   const positionLabel = p => p === "above" ? "Harga di atas" : p === "below" ? "Harga di bawah" : "Harga setara";
   const slopeLabel = n => n == null ? "—" : `${n > 0 ? "+" : ""}${Number(n).toFixed(2)}%`;
 
-  function syntheticHistory(stock) {
-    const count = 90, end = stock.last_close || 1000, low = stock.wyckoff?.tr_low || end * .82, high = stock.wyckoff?.tr_high || end * 1.13;
-    let value = Math.min(high, Math.max(low, end * .9));
-    return Array.from({length: count}, (_, i) => {
-      const drift = (end - value) / (count - i);
-      const wave = Math.sin(i * .57) * (high-low) * .018;
-      const open = value; value = Math.min(high*1.02, Math.max(low*.98, value + drift + wave));
-      const syntheticVwap=(open+value)/2; return {date:`T-${count-i}`,open,high:Math.max(open,value)*1.008,low:Math.min(open,value)*.992,close:value,volume:1000000*(1+Math.abs(Math.sin(i*.33))),vwap:syntheticVwap,vwap_5:syntheticVwap,vwap_20:syntheticVwap,vwap_60:syntheticVwap};
-    });
-  }
-
   function makeChart(stock, layers=state.layers) {
-    const raw = stock.price_history?.length ? stock.price_history : syntheticHistory(stock);
+    if (!stock.price_history?.length) return {svg:'<p class="empty-event">Histori harga asli belum tersedia. Tidak ada chart estimasi.</p>',isReal:false};
+    const raw = stock.price_history;
     const data = raw.slice(-100), W=820,H=390, top=22,bottom=34,left=12,right=68, volH=68, volGap=28;
     const plotH=H-bottom-top-volH-volGap, plotW=W-left-right;
     const volBottom=H-bottom, volTop=volBottom-volH;
@@ -190,21 +180,49 @@
   function render() {
     const stock=current();
     const activityRecord=window.GlabsActivity.record(stock.ticker,state.data.market_data_date);
-    const screenedByDate=new Map((stock.price_history||[]).map(row=>[row.date,row]));
-    const chartStock=activityRecord?{...stock,price_history:activityRecord.history.map(row=>({...screenedByDate.get(row.date),...row}))}:stock;
+    const chartStock=stock;
+    const priceDate=stock.last_price_date||stock.price_history?.at(-1)?.date||'tidak diketahui';
+    const stale=priceDate!==state.data.market_data_date;
     const isForecast=state.mode==='volatility'&&stock.volatility?.status==='ok';
     const chart=isForecast?makeVolatilityChart(stock):makeChart(chartStock);
     const pct=Math.max(0,Math.min(100,(stock.score+100)/2));
-    document.getElementById('analysis-content').innerHTML=`<div class="drawer-shell"><div class="drawer-top"><div><div class="drawer-kicker">Decision-support cockpit · eksekusi manual</div><h2 class="drawer-title">${esc(stock.ticker)} <span style="color:var(--text-secondary)">${fmt(stock.last_close)}</span></h2><div class="drawer-sub">Skor ${stock.score} · komposit <span style="color:${colorForSignal(stock.signal)}">${esc(stock.signal.toUpperCase())}</span> · Full VWAP <span style="color:${colorForVwap(stock.vwap_signal)}">${esc(stock.vwap_signal||'WAIT')}</span> · data ${esc(state.data.generated_at?.slice(0,10)||'')}</div></div><button class="close-btn" aria-label="Tutup">×</button></div><div class="ticker-strip">${state.data.watchlist.map(x=>`<button class="ticker-chip ${x.ticker===stock.ticker?'active':''}" data-ticker="${esc(x.ticker)}">${esc(x.ticker)}</button>`).join('')}</div><div class="chart-wrap"><div class="chart-toolbar"><b>${activityRecord&&!isForecast?'Harga & volume · Purbaya':state.mode==='volatility'?'Forecast volatilitas':'Price structure'}</b><div class="chart-legend">${state.mode==='volatility'?'<span><i class="legend-dot" style="background:#4ade80"></i>Harga historis</span><span><i class="legend-dot" style="background:#60a5fa"></i>Band 95%</span>':'<span><i class="legend-dot" style="background:#4ade80"></i>Naik</span><span><i class="legend-dot" style="background:#f87171"></i>Turun</span>'+(state.layers.vwap?'<span><i class="legend-dot" style="background:#60a5fa"></i>VWAP 5D</span><span><i class="legend-dot" style="background:#a78bfa"></i>VWAP 20D</span><span><i class="legend-dot" style="background:#f59e0b"></i>VWAP 60D</span>':'')}</div></div>${!isForecast?layerControls():''}${chart.svg}${!isForecast?window.GlabsActivity.panel(stock,state.data.market_data_date):''}<div class="chart-note">${activityRecord&&!isForecast?'Harga dan volume Purbaya · indikator tambahan tidak masuk skor.':state.mode==='volatility'?'Band = rentang wajar 95%, bukan tebakan harga pasti.':(chart.isReal?'OHLC hasil screening otomatis.':'Preview estimasi; jalankan main.py agar chart memakai OHLC asli.')}</div></div><div class="mode-tabs">${[['wyckoff','Wyckoff'],['trend','Trend'],['vwap','VWAP'],['strength','Vs IHSG'],['volatility','Volatilitas'],['score','Skor']].map(([k,l])=>`<button class="mode-tab ${state.mode===k?'active':''}" data-mode="${k}">${l}</button>`).join('')}</div><div class="analysis-grid">${modePanel(stock)}<div class="panel analysis-overall"><h3>SINYAL GABUNGAN</h3><div class="decision-box">${decisionText(stock)}</div><p class="analysis-risk-note">Sinyal tiap tab bisa berbeda. Keputusan akhir tetap perlu konfirmasi harga dan batas risiko.</p></div></div></div>`;
+    document.getElementById('analysis-content').innerHTML=`<div class="drawer-shell"><div class="drawer-top"><div><div class="drawer-kicker">Decision-support cockpit · eksekusi manual</div><h2 class="drawer-title">${esc(stock.ticker)} <span style="color:var(--text-secondary)">${fmt(stock.last_close)}</span></h2><div class="drawer-sub">Skor ${stock.score} · komposit <span style="color:${colorForSignal(stock.signal)}">${esc(stock.signal.toUpperCase())}</span> · Full VWAP <span style="color:${colorForVwap(stock.vwap_signal)}">${esc(stock.vwap_signal||'WAIT')}</span> · data ${esc(priceDate)}${stale?' · <strong>TERTINGGAL · sinyal historis, bukan sesi terkini</strong>':''}</div></div><button class="close-btn" aria-label="Tutup">×</button></div><div class="ticker-strip">${state.data.watchlist.map(x=>`<button class="ticker-chip ${x.ticker===stock.ticker?'active':''}" data-ticker="${esc(x.ticker)}">${esc(x.ticker)}</button>`).join('')}</div><div class="chart-wrap"><div class="chart-toolbar"><b>${state.mode==='volatility'?'Forecast volatilitas':'Price structure'}</b><div class="chart-legend">${state.mode==='volatility'?'<span><i class="legend-dot" style="background:#4ade80"></i>Harga historis</span><span><i class="legend-dot" style="background:#60a5fa"></i>Band 95%</span>':'<span><i class="legend-dot" style="background:#4ade80"></i>Naik</span><span><i class="legend-dot" style="background:#f87171"></i>Turun</span>'+(state.layers.vwap?'<span><i class="legend-dot" style="background:#60a5fa"></i>VWAP 5D</span><span><i class="legend-dot" style="background:#a78bfa"></i>VWAP 20D</span><span><i class="legend-dot" style="background:#f59e0b"></i>VWAP 60D</span>':'')}</div></div>${!isForecast?layerControls():''}${chart.svg}${!isForecast?window.GlabsActivity.panel(stock,state.data.market_data_date):''}<div class="chart-note">${state.mode==='volatility'?'Band = rentang wajar 95%, bukan tebakan harga pasti.':(chart.isReal?'OHLC hasil screening otomatis.':'Histori harga asli tidak tersedia; tidak ada estimasi buatan.')}</div></div><div class="mode-tabs">${[['wyckoff','Wyckoff'],['trend','Trend'],['vwap','VWAP'],['strength','Vs IHSG'],['volatility','Volatilitas'],['score','Skor']].map(([k,l])=>`<button class="mode-tab ${state.mode===k?'active':''}" data-mode="${k}">${l}</button>`).join('')}</div><div class="analysis-grid">${modePanel(stock)}<div class="panel analysis-overall"><h3>SINYAL GABUNGAN</h3><div class="decision-box">${decisionText(stock)}</div><p class="analysis-risk-note">Sinyal tiap tab bisa berbeda. Keputusan akhir tetap perlu konfirmasi harga dan batas risiko.</p></div></div></div>`;
     bindDrawer();
   }
 
   function decisionText(s){if(s.signal==='beli')return '<b>Kandidat untuk dipantau.</b> Tunggu konfirmasi sebelum entry.';if(s.signal==='jual')return '<b>Risiko lebih dominan.</b> Evaluasi posisi dan batas risiko.';return '<b>Pantau dulu.</b> Belum ada dukungan indikator yang kuat.'}
-  function bindDrawer(){document.querySelectorAll('[data-layer-toggle]').forEach(b=>b.onclick=()=>{const key=b.dataset.layerToggle;if(Object.hasOwn(state.layers,key)){state.layers[key]=!state.layers[key];render()}});document.querySelector('.close-btn').onclick=close;document.querySelectorAll('.ticker-chip').forEach(b=>b.onclick=()=>{state.ticker=b.dataset.ticker;render()});document.querySelectorAll('.mode-tab').forEach(b=>b.onclick=()=>{state.mode=b.dataset.mode;render()})}
-  function open(ticker,mode){state.ticker=ticker||state.data.watchlist[0]?.ticker;state.mode=mode==='activity'?'wyckoff':mode||'wyckoff';render();document.getElementById('analysis-drawer').classList.add('open');document.getElementById('drawer-backdrop').classList.add('open');document.getElementById('analysis-drawer').setAttribute('aria-hidden','false')}
-  function close(){document.getElementById('analysis-drawer').classList.remove('open');document.getElementById('drawer-backdrop').classList.remove('open');document.getElementById('analysis-drawer').setAttribute('aria-hidden','true')}
+  function bindDrawer(){document.querySelectorAll('[data-layer-toggle]').forEach(b=>b.onclick=()=>{const key=b.dataset.layerToggle;if(Object.hasOwn(state.layers,key)){state.layers[key]=!state.layers[key];render()}});document.querySelector('.close-btn').onclick=close;document.querySelectorAll('.ticker-chip').forEach(b=>b.onclick=()=>{state.ticker=b.dataset.ticker;showSelected()});document.querySelectorAll('.mode-tab').forEach(b=>b.onclick=()=>{state.mode=b.dataset.mode;render()})}
+  let detailRequest=0;
+  async function showSelected(){
+    const request=++detailRequest,ticker=state.ticker;
+    const content=document.getElementById('analysis-content');
+    if(window.GlabsData){
+      content.innerHTML='<div class="panel"><button class="close-btn" aria-label="Tutup">×</button><p role="status">Memuat histori '+esc(ticker)+'…</p></div>';
+      content.querySelector('.close-btn').onclick=close;
+      try{await window.GlabsData.detail(ticker);}
+      catch(_){
+        if(request!==detailRequest)return;
+        content.innerHTML='<div class="panel"><button class="close-btn" aria-label="Tutup">×</button><p>Histori belum dapat dimuat. Muat ulang halaman jika pembaruan data baru saja diterbitkan.</p></div>';
+        content.querySelector('.close-btn').onclick=close;
+        return;
+      }
+    }
+    if(request!==detailRequest)return;
+    render();
+    window.GlabsActivity.load(state.data.market_data_date,ticker);
+  }
+  function open(ticker,mode){
+    if(!state.data)return;
+    state.ticker=ticker||state.data.watchlist[0]?.ticker;
+    state.mode=mode==='activity'?'wyckoff':mode||'wyckoff';
+    document.getElementById('analysis-drawer').classList.add('open');
+    document.getElementById('drawer-backdrop').classList.add('open');
+    document.getElementById('analysis-drawer').setAttribute('aria-hidden','false');
+    showSelected();
+  }
+  function close(){detailRequest++;document.getElementById('analysis-drawer').classList.remove('open');document.getElementById('drawer-backdrop').classList.remove('open');document.getElementById('analysis-drawer').setAttribute('aria-hidden','true')}
   function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2300)}
-  function boot(data){state.data=data;window.GlabsActivity.load(data.market_data_date);document.querySelectorAll('.wl-row').forEach(row=>{const name=row.querySelector('.t')?.childNodes[0]?.textContent?.trim();if(data.watchlist.some(x=>x.ticker===name)){row.dataset.ticker=name;row.onclick=()=>open(name)}});const search=document.getElementById('ticker-search');search.onkeydown=e=>{if(e.key==='Enter'){const q=search.value.trim().toUpperCase();const found=data.watchlist.find(x=>x.ticker.includes(q));found?open(found.ticker,'score'):toast('Ticker belum ada di watchlist.')}};document.getElementById('drawer-backdrop').onclick=close;document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});}
+  function boot(data){state.data=data;document.querySelectorAll('.wl-row').forEach(row=>{const name=row.querySelector('.t')?.childNodes[0]?.textContent?.trim();if(data.watchlist.some(x=>x.ticker===name)){row.dataset.ticker=name;row.onclick=()=>open(name)}});const search=document.getElementById('ticker-search');search.onkeydown=e=>{if(e.key==='Enter'){const q=search.value.trim().toUpperCase();const found=data.watchlist.find(x=>x.ticker.includes(q));found?open(found.ticker,'score'):toast('Ticker belum ada di watchlist.')}};document.getElementById('drawer-backdrop').onclick=close;document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});}
   window.addEventListener('activity-ready',()=>{if(state.data&&document.getElementById('analysis-drawer').classList.contains('open'))render()});
   window.addEventListener('dashboard-ready',e=>boot(e.detail));
   if(window.dashboardData) boot(window.dashboardData);

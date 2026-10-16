@@ -1,3 +1,4 @@
 {
-  "outputDirectory": "web"
+  "outputDirectory": "web",
+  "buildCommand": "node web/build-data.cjs"
 }

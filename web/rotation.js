@@ -136,13 +136,13 @@ function bind(){
  root().querySelectorAll("[data-relative]").forEach(el=>el.onclick=()=>{state.relative=el.dataset.relative==="true";render();});
  bindRows();bindMap();bindMovement();
 }
+async function fetchData(url){const response=await fetch(url,{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);return response.json();}
 async function open(){
  if(state.data){render();return;}if(state.loading)return state.loading;
  if(!root())return;root().innerHTML=(window.GlabsLoading?.html("line","Memuat rotasi sektor…") || '<p class="rotation-status" role="status">Memuat hasil rotasi sektor…</p>');
- state.loading=(async()=>{try{if(!C)throw new Error("Rotation core belum dimuat");const response=await fetch("sector_rotation_data.json",{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);const data=await response.json();if(data.schema_version!==1||data.status!=="ok"||!Array.isArray(data.modes?.weekly?.sectors)||!Array.isArray(data.modes?.weekly?.stocks))throw new Error("Kontrak data tidak valid");state.data=data;state.extended=null;state.historyError="";
+ state.loading=(async()=>{try{if(!C)throw new Error("Rotation core belum dimuat");const data=window.GlabsData?await window.GlabsData.rotation():await fetchData("sector_rotation_data.json");if(data.schema_version!==1||data.status!=="ok"||!Array.isArray(data.modes?.weekly?.sectors)||!Array.isArray(data.modes?.weekly?.stocks))throw new Error("Kontrak data tidak valid");state.data=data;state.extended=null;state.historyError="";
  try{
-  const hr=await fetch("rotation_history_data.json",{cache:"no-store"});if(!hr.ok)throw new Error("HTTP "+hr.status);
-  const h=await hr.json();
+  const h=window.GlabsData?await window.GlabsData.rotation(true):await fetchData("rotation_history_data.json");
   if(h.schema_version!==1||h.status!=="ok"||h.market_data_date!==data.market_data_date||h.dashboard_sha256!==data.dashboard_sha256||!h.views?.COMPOSITE||!h.benchmarks||!Array.isArray(h.stocks))throw new Error("Riwayat belum sesuai screening");
   state.extended=h;
  }catch(error){state.historyError=error.message;}

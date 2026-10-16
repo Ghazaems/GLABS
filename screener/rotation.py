@@ -216,33 +216,8 @@ def build_rotation(prices, benchmark, classification, session):
 
 
 def load_classification(path=Path("data/idx_sector_classification.json")):
-    import requests
-    cache = json.loads(path.read_text(encoding="utf-8"))
-    age = (datetime.now(timezone.utc).date() -
-           datetime.fromisoformat(cache["as_of"]).date()).days
-    cache["refresh_status"] = "cached"
-    if age < 7:
-        return cache
-    try:
-        response = requests.get(SOURCE, params={"start": 0, "length": 9999, "language": "id-id"},
-                                timeout=20, headers={"Accept": "application/json"})
-        response.raise_for_status()
-        rows = response.json()["data"]
-        reverse = {name: code for code, name in SECTORS.items()}
-        companies = {
-            row["KodeEmiten"]: {"name": row["NamaEmiten"], "sector": reverse[row["Sektor"]]}
-            for row in rows if row.get("EfekEmiten_Saham") and row.get("Sektor") in reverse
-        }
-        if len(companies) < len(cache["companies"]) * .95:
-            raise ValueError("IDX classification coverage regression")
-        cache.update({"companies": companies, "as_of": datetime.now(timezone.utc).date().isoformat(),
-                      "refresh_status": "live", "source_url": SOURCE})
-        path.write_text(json.dumps(cache, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    except (requests.RequestException, KeyError, ValueError, TypeError) as error:
-        cache["refresh_status"] = "cached_refresh_failed"
-        cache["refresh_error"] = str(error)[:180]
-        print(f"[rotation] Official classification refresh failed; using dated cache: {error}")
-    return cache
+    from screener.sector_classification import load_classification as refresh
+    return refresh(SECTORS, path)
 
 
 def run():

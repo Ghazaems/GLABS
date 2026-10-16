@@ -14,7 +14,7 @@ gh repo create stock-screener --private --source=. --push
 
 ## 2. Cron job otomatis (sudah dikonfigurasi)
 File `.github/workflows/daily-screening.yml` sudah ada — otomatis jalan
-tiap Senin-Jumat jam 16:30 WIB, generate `web/dashboard_data.json` baru,
+target pertama tiap Senin-Jumat jam 16:15 WIB (GitHub dapat terlambat), generate `web/dashboard_data.json` baru,
 lalu commit balik ke repo. Gratis (GitHub Actions free tier: 2000 menit/bulan
 untuk repo privat, unlimited untuk repo publik).
 
@@ -33,7 +33,7 @@ GitHub repo -> tab **Actions** -> pilih "Daily Stock Screening" -> **Run workflo
 ### Opsi B — Vercel/Netlify (kalau nanti mau custom domain/lebih cepat)
 1. Import repo di vercel.com atau netlify.com
 2. Root directory: `web`
-3. Build command: kosongkan (static file, tidak perlu build)
+3. Build command: `node build-data.cjs` (diatur oleh `web/vercel.json`; menghasilkan ringkasan ringan dan histori lazy-load)
 4. Deploy otomatis tiap kali ada push baru ke `main`
 
 ## Catatan penting

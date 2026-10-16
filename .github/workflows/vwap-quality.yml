@@ -40,6 +40,9 @@ jobs:
           node --check web/cockpit.js
           node --check web/api/chat.js
           node tests/test_chat_api.js
+          node tests/test_activity_ui.js
+          node tests/test_data_loading.js
+          node tests/test_web_build.js
           node tests/test_dashboard_actions.js
           node tests/test_global_indices_ui.js
           node --check web/api/unlock.js
@@ -63,5 +66,3 @@ jobs:
           python -m automation.validate_workflows
       - name: Unit tests
         run: python -m unittest discover -s tests -v
-
-

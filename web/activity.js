@@ -1,5 +1,6 @@
 (() => {
-  let dataset=null,loading=false,error=false;
+  let dataset=null;
+  const pending=new Map(),failures=new Set();
   const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt=n=>Number.isFinite(n)?n.toLocaleString('id-ID',{maximumFractionDigits:2}):'—';
   const compact=n=>Math.abs(n)>=1e9?fmt(n/1e9)+' miliar':Math.abs(n)>=1e6?fmt(n/1e6)+' jt':Math.abs(n)>=1e3?fmt(n/1e3)+' rb':fmt(n);
@@ -7,17 +8,27 @@
     const item=dataset?.stocks?.[ticker];
     return dataset?.provider==='purbayasadewa.id'&&dataset.method_version===2&&dataset.market_data_date===session&&item?.status==='ok'&&item.source?.provider==='purbayasadewa.id'&&item.source.session===session&&item.latest?.date===session&&Array.isArray(item.history)&&item.history.length?item:null;
   }
-  async function load(session){
-    if(loading)return;
-    if(dataset?.market_data_date===session)return;
-    loading=true;error=false;
-    try{
-      const response=await fetch('purbaya_activity_data.json',{cache:'no-store'});
-      if(!response.ok)throw Error('unavailable');
-      const data=await response.json();
-      if(data.provider!=='purbayasadewa.id'||data.method_version!==2)throw Error('invalid_source');
-      dataset=data;
-    }catch(_){error=true;}finally{loading=false;window.dispatchEvent(new Event('activity-ready'));}
+  async function load(session,ticker){
+    const key=session+':'+(ticker||'*');
+    if(dataset?.market_data_date===session&&(!ticker||Object.hasOwn(dataset.stocks||{},ticker)))return;
+    if(pending.has(key))return pending.get(key);
+    failures.delete(key);
+    const task=(async()=>{
+      try{
+        let data;
+        if(window.GlabsData&&ticker)data=await window.GlabsData.activity(session,ticker);
+        else{
+          const response=await fetch('purbaya_activity_data.json',{cache:'no-store'});
+          if(!response.ok)throw Error('unavailable');
+          data=await response.json();
+        }
+        if(data.provider!=='purbayasadewa.id'||data.method_version!==2||data.market_data_date!==session)throw Error('invalid_source');
+        dataset=window.GlabsData?{...data,stocks:{...(dataset?.market_data_date===session?dataset.stocks:{}),...data.stocks}}:data;
+      }catch(_){failures.add(key);}
+      finally{pending.delete(key);window.dispatchEvent(new Event('activity-ready'));}
+    })();
+    pending.set(key,task);
+    return task;
   }
   function series(history,key,color,bars=false){
     const rows=history.slice(-100),width=820,height=106,left=12,right=68,top=12,bottom=22;
@@ -45,6 +56,7 @@
   }
   function panel(stock,session){
     const item=record(stock.ticker,session);
+    const key=session+':'+stock.ticker,loading=pending.has(key)||pending.has(session+':*'),error=failures.has(key)||failures.has(session+':*');
     if(!item)return '<div class="activity-unavailable"><h4>Data Purbaya belum tersedia</h4><p class="empty-event">'+(loading?'Sedang memuat hasil indikator.':error?'Hasil indikator belum dapat dimuat.':'Belum ada hasil yang cocok dengan screening terakhir untuk saham ini.')+'</p><p class="empty-event">Tidak memakai pengganti Yahoo atau data buatan.</p></div>';
     const last=item.latest;
     const card=(title,value,note,chart)=>'<section class="activity-block"><div class="activity-heading"><h4>'+title+'</h4><b>'+escape(value)+'</b><span class="activity-hint" title="'+escape(note)+'">ⓘ</span></div>'+chart+'</section>';

@@ -19,7 +19,8 @@ ATURAN:
   ingatkan itu kalau relevan (misalnya saat user menanyakan apakah harus beli/jual).`;
 
 const MODEL = "gemini-3.5-flash-lite";
-const REQUEST_TIMEOUT_MS = 12_000;
+// Two attempts fit inside the explicitly configured 60s function budget.
+const REQUEST_TIMEOUT_MS = 22_000;
 const MAX_ATTEMPTS = 2;
 const MAX_QUESTION_CHARS = 2000;
 const MAX_WATCHLIST_ITEMS = 40;
@@ -118,7 +119,9 @@ module.exports = async function handler(req, res) {
   }
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
-  const body = JSON.stringify({ contents: [{ parts }] });
+  const body = JSON.stringify({ contents: [{ parts }], generationConfig: {
+    maxOutputTokens: 1536, thinkingConfig: { thinkingLevel: "minimal" },
+  } });
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -157,6 +160,12 @@ module.exports = async function handler(req, res) {
       res.status(200).json({ answer, model: MODEL });
       return;
     } catch (err) {
+      // A connection reset or timeout is transient too, not just HTTP 5xx.
+      if (attempt + 1 < MAX_ATTEMPTS) {
+        clearTimeout(timer);
+        await new Promise((resolve) => setTimeout(resolve, 600));
+        continue;
+      }
       // Never return fetch errors containing credentials or upstream request URLs.
       res.status(err.name === "AbortError" ? 504 : 502).json({
         error: err.name === "AbortError"
@@ -170,3 +179,5 @@ module.exports = async function handler(req, res) {
     }
   }
 };
+
+module.exports.config = { maxDuration: 60 };

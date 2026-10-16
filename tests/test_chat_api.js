@@ -40,10 +40,16 @@ const ok = () => ({ status: 200, json: { candidates: [{ content: { parts: [{text
     assert.equal(r.requests.length,1); assert.equal(r.res.code,status);
     if(status===429) assert.equal(r.res.data.code,"quota_exceeded");
   }
-  r = await call([new Error("SECRET request URL")]);
+  r = await call([new Error("SECRET request URL"),new Error("SECRET request URL")]);
   assert.equal(r.res.code,502); assert.ok(!JSON.stringify(r.res.data).includes("SECRET"));
   const aborted = new Error("abort"); aborted.name = "AbortError";
-  r = await call([aborted]); assert.equal(r.res.data.code,"provider_timeout");
+  r = await call([aborted,aborted]); assert.equal(r.res.data.code,"provider_timeout");
+  assert.equal(r.requests.length,2);
+  r = await call([aborted,ok()]); assert.equal(r.res.code,200);
+  r = await call([new Error('reset'),ok()]); assert.equal(r.res.code,200);
+  const generation = JSON.parse(r.requests[0].options.body).generationConfig;
+  assert.equal(generation.thinkingConfig.thinkingLevel,'minimal');
+  assert.equal(generation.maxOutputTokens,1536);
   r = await call([{status:200,json:{candidates:[]}}]); assert.equal(r.res.data.code,"empty_response");
   const rows = Array.from({length:600},(_,i)=>({ticker:"X"+i,last_close:i+1}));
   rows.push({ticker:"ANTM",last_close:3050,score_daily:12,last_price_date:"2026-10-14"});

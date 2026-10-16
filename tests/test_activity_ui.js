@@ -34,7 +34,10 @@ async function run(){
   assert.ok(!cockpit.includes("['activity','Arus & Aktivitas']"));
   assert.ok(cockpit.includes('data-layer-toggle'));
   assert.ok(cockpit.indexOf('${chart.svg}${!isForecast?window.GlabsActivity.panel')>=0);
-  assert.ok(cockpit.includes('price_history:activityRecord.history.map'));
+  assert.ok(cockpit.includes('const chartStock=stock'));
+  assert.ok(!cockpit.includes('syntheticHistory'));
+  assert.ok(!cockpit.includes('generated_at?.slice'));
+  assert.ok(cockpit.includes('TERTINGGAL'));
   const chartContext={window:{addEventListener(){}},document:{},console};
   vm.createContext(chartContext);
   vm.runInContext(cockpit.replace('  window.openAnalysis = open;', '  window.chartTest={makeChart,state,layerControls,render}; window.openAnalysis = open;'),chartContext);

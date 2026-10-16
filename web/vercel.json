@@ -1,0 +1,4 @@
+{
+  "buildCommand": "node build-data.cjs",
+  "functions": { "api/chat.js": { "maxDuration": 60 } }
+}

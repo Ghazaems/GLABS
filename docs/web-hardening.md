@@ -1,0 +1,13 @@
+# Screening and web hardening
+
+The first screening target is 09:15 UTC / 16:15 WIB, followed by idempotent half-hour slots. The existing completed-session calendar and bounded reconciler remain authoritative; GitHub schedules may be delayed or dropped, so this does not guarantee runner start at exactly 16:15. An independent scheduler requires separate service/account authorization. No Codex heartbeat is needed or enabled.
+
+Vercel builds deployment-local UI assets with `node build-data.cjs` when the project root is `web` (see `web/vercel.json`), or `node web/build-data.cjs` from the repository root. No extra packages or services are required. For a local static preview, run the build command before serving `web`.
+
+`dashboard_overview.json` preserves every watchlist row, universe identity, score, signal and summary; only nested price histories are deferred. Full per-stock detail and activity are content-addressed by the SHA-256 of their original committed feed. The frontend rejects inconsistent sessions or hashes and retries failed fetches only when the user requests the detail again. Build failures fail deployment rather than publishing a partial manifest. Authoritative full JSON feeds stay unchanged for auditing and backend contracts. Rotation downloads only the weekly base used by the custom-setting UI, with lossless packed price rows; all other base modes remain in the original audit feed.
+
+The drawer keeps screening prices separate from supplemental Purbaya panels, displays the actual stock price date, marks stale signals historical and never constructs synthetic candles. The menu previously labelled signal history is now labelled Volatilitas, matching its actual GARCH feature.
+
+Chat uses the existing Flash-Lite model and key, minimal thinking, a 22-second per-attempt budget and at most two attempts for network errors, timeouts or HTTP 502/503/504. HTTP 429 is not retried. The function budget is 60 seconds; the browser stops waiting at 55 seconds. This cannot eliminate provider outages or free-tier quota limits. See [Google thinking controls](https://ai.google.dev/gemini-api/docs/thinking) and [Vercel function duration](https://vercel.com/docs/functions/configuring-functions/duration).
+
+Sector classification uses the last verified IDX-IC snapshot if the official endpoint is blocked/unavailable. Failed refreshes retain its date and company set, record a machine-readable cause, and back off until the next UTC day. Successful refreshes validate ticker identity retention and all sector mappings before updating the verification date. No protection bypass or inferred classification is used.

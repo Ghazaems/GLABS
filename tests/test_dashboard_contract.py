@@ -129,7 +129,7 @@ class DashboardContractTests(unittest.TestCase):
             self.assertIn(marker, self.main)
 
         for marker in (
-            'cron: "11,41 9-16 * * 1-5"',
+            'cron: "15,45 9-16 * * 1-5"',
             "python -m automation.pipeline_health",
             "RECOVERY_SESSION:",
             "ref: main",
@@ -324,5 +324,3 @@ class DashboardContractTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-

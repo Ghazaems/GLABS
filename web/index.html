@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="global-indices.css">
 <link rel="stylesheet" href="loading.css">
 <script src="loading.js"></script>
+<script src="data-loader.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js"></script>
 <style>
@@ -712,7 +713,7 @@ html { overflow-x: hidden; }
       </div>
       <div class="icon-btn" id="nav-riwayat" onclick="showView('riwayat')">
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-        <span class="tip">Riwayat sinyal</span>
+        <span class="tip">Volatilitas</span>
       </div>
       <div class="icon-btn" id="nav-laporan" onclick="showView('laporan')">
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
@@ -876,7 +877,7 @@ html { overflow-x: hidden; }
         <button type="button" class="pill" onclick="openOverviewList('trend')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-9"/></svg>Cek trend</button>
         <button type="button" class="pill" id="wyckoff-shortcut" onclick="openOverviewDetail(this, 'wyckoff')" disabled><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Cek Wyckoff</button>
         <button type="button" class="pill" onclick="openOverviewList('vwap')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>Cek VWAP</button>
-        <button type="button" class="pill" onclick="showView('riwayat')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Riwayat sinyal</button>
+        <button type="button" class="pill" onclick="showView('riwayat')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Volatilitas</button>
       </div>
 
       <!-- PROMPT PANEL -->
@@ -1119,10 +1120,10 @@ function renderTrendGauge(value, healthy, total) {
     return `<line class="gauge-notch" x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="${active ? tone : "rgba(245,245,242,.18)"}" stroke-width="6" opacity="${active ? 1 : .4}" style="animation-delay:${index * 8}ms" />`;
   }).join("");
   root.innerHTML = `
-    <svg viewBox="0 0 320 225" role="img" aria-label="${percent} persen, ${healthy} dari ${total} ticker sehat">
+    <svg viewBox="0 0 320 225" role="img" aria-label="${percent} persen, ${healthy} dari ${total} ticker uptrend atau sideways">
       ${notches}
       <text class="gauge-value" x="160" y="124">${percent}%</text>
-      <text class="gauge-label" x="160" y="149">${healthy} dari ${total} sehat</text>
+      <text class="gauge-label" x="160" y="149">${healthy} dari ${total} tidak downtrend</text>
     </svg>`;
 }
 
@@ -1302,8 +1303,11 @@ async function askAI(question) {
   log.appendChild(loadingDiv);
   loadingDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 55_000);
   try {
     const res = await fetch("/api/chat", {
+      signal: controller.signal,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -1330,8 +1334,9 @@ async function askAI(question) {
     replyDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
   } catch (e) {
     loadingDiv.className = "chat-msg error";
-    loadingDiv.textContent = "Gagal menghubungi server. Coba lagi.";
+    loadingDiv.textContent = e.name === "AbortError" ? "Waktu tunggu AI habis. Silakan coba lagi." : "Gagal menghubungi server. Coba lagi.";
   } finally {
+    clearTimeout(timeout);
     aiRequestPending = false;
   }
 }
@@ -1475,7 +1480,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ---------- Riwayat sinyal (forecast volatilitas GARCH per saham) ----------
+// ---------- Volatilitas (forecast volatilitas GARCH per saham) ----------
 // Dropdown-search dipakai daripada nampilin semua ticker sebagai pill (dulu
 // bikin berat kalau watchlist ratusan saham) - lihat data cuma pas dicari/dipilih.
 let riwayatTicker = null;
@@ -1565,7 +1570,21 @@ function volatilityClosingTrend(stock) {
   };
 }
 
-function renderRiwayatDetail(stock) {
+let volatilityRequest = 0;
+async function renderRiwayatDetail(stock) {
+  const request = ++volatilityRequest;
+  const wrap = document.getElementById("riwayat-chart-wrap");
+  wrap.innerHTML = window.GlabsLoading?.html("line", "Memuat histori volatilitas…") || "Memuat histori…";
+  document.getElementById("riwayat-note").textContent = "";
+  for (const id of ["riwayat-stat-price", "riwayat-stat-vol", "riwayat-stat-regime"])
+    document.getElementById(id).textContent = "—";
+  try {
+    if (window.GlabsData) stock = await window.GlabsData.detail(stock.ticker);
+  } catch (_) {
+    if (request === volatilityRequest) wrap.textContent = "Histori belum dapat dimuat. Muat ulang halaman jika pembaruan data baru saja diterbitkan.";
+    return;
+  }
+  if (request !== volatilityRequest) return;
   const v = stock.volatility;
   document.getElementById("riwayat-stat-price").textContent = "Rp " + fmtNum(stock.last_close);
   document.getElementById("riwayat-stat-vol").innerHTML = v.current_forecast_vol_pct + `<span class="unit">%/hari</span>`;
@@ -1584,7 +1603,9 @@ function renderRiwayatDetail(stock) {
 
   const last = v.upper_band_95.length - 1;
   document.getElementById("riwayat-note").innerHTML =
-    `GARCH(1,1) dari statsmodels/arch, dilatih pakai data harian 500 hari terakhir. ` +
+    `Harga terakhir ${escapeHtml(stock.last_price_date || v.last_date || "tidak diketahui")}. ` +
+    (stock.last_price_date !== window.dashboardData?.market_data_date ? "Data saham tertinggal dari sesi screening; forecast bukan untuk sesi terkini. " : "") +
+    `GARCH(1,1), berdasarkan histori harian yang tersedia. ` +
     `Band 10 hari (95%): <b>${fmtNum(v.lower_band_95[last])} &ndash; ${fmtNum(v.upper_band_95[last])}</b>. ` +
     `Ini rentang wajar pergerakan harga berdasar pola volatilitas historis, BUKAN tebakan harga pasti ` +
     `dan BUKAN sinyal beli/jual — dipakai sebagai referensi risk sizing / lebar stop-loss.`;
@@ -1836,9 +1857,7 @@ document.addEventListener("visibilitychange", () => {
 async function loadDashboard() {
   let data;
   try {
-    const res = await fetch("dashboard_data.json", { cache: "no-store" });
-    if (!res.ok) throw new Error(`Dashboard HTTP ${res.status}`);
-    data = await res.json();
+    data = await window.GlabsData.overview();
   } catch (e) {
     document.getElementById("greet-sub").textContent = "Data belum dapat dimuat. Coba muat ulang; pembaruan screening berjalan di server.";
     ["toppick-text","signal-bar-chart","watchlist-rows","trend-text","wyckoff-text","vwap-text","riwayat-chart-wrap"].forEach(id=>{
@@ -1858,7 +1877,7 @@ async function loadDashboard() {
 
   // Greeting
   document.getElementById("greet-sub").textContent =
-    `${wl.length}/${data.universe_size || 500} saham · Harga terakhir ${data.market_data_date || "belum diketahui"} · Diperbarui ${new Date(data.generated_at).toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })} WIB`;
+    `${wl.length}/${data.universe_size || 500} saham · Sesi screening ${data.market_data_date || "belum diketahui"} · Diperbarui ${new Date(data.generated_at).toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })} WIB`;
 
   // Ticker belum terproses (gagal fetch / data kurang) - cuma daftar kode, tanpa analisis apapun.
   const coverage = s.data_coverage;
@@ -2003,7 +2022,8 @@ function renderStyleDependent(style) {
       `<b>${tp.ticker}</b> memimpin skor screener ${label} di <b>${tp[scoreKey]}</b>, ` +
       `trend ${TREND_LABEL[tp[trendKey]]||tp[trendKey]}${wyText}, harga ` +
       `${tp[vwapKey]?.position === "above" ? "di atas" : "di bawah"} VWAP ${vwapFocus}.`;
-    topFooter.textContent = `${tp.ticker} · ${fmtNum(tp.last_close)}`;
+    topFooter.textContent = `${tp.ticker} · ${fmtNum(tp.last_close)} · ${tp.last_price_date || "tanggal belum diketahui"}` +
+      (tp.last_price_date !== window.dashboardData?.market_data_date ? " · data tertinggal" : "");
     const bd = tp[bdKey] || {};
     const vals = Object.values(bd).map(v => Math.abs(v));
     const maxVal = Math.max(...vals, 1);
@@ -2021,9 +2041,9 @@ function renderStyleDependent(style) {
   const healthy = styleRows.filter(r => r[trendKey] === "uptrend" || r[trendKey] === "sideways").length;
   const unhealthyCount = styleRows.filter(r => r[trendKey] === "downtrend").length;
   const healthyPct = styleRows.length ? Math.round((healthy / styleRows.length) * 100) : 0;
-  const marketTone = healthyPct >= 70 ? "Mayoritas pasar masih sehat."
-    : healthyPct >= 50 ? "Kondisi pasar cukup seimbang."
-    : "Mayoritas pasar sedang melemah.";
+  const marketTone = healthyPct >= 70 ? "Mayoritas saham uptrend atau sideways."
+    : healthyPct >= 50 ? "Uptrend/sideways dan downtrend cukup seimbang."
+    : "Mayoritas saham berada dalam downtrend.";
   document.getElementById("trend-text").textContent = hasStyleData
     ? `${marketTone} ${unhealthyCount} ticker berada dalam downtrend (${label}).`
     : waitingMessage;
