@@ -69,9 +69,12 @@ const ok = () => ({ status: 200, json: { candidates: [{ content: { parts: [{text
   assert.equal(r.res.code,413); assert.equal(r.requests.length,0);
   r = await call([],"halo",[],undefined,{data:"a".repeat(4_000_000),mimeType:"application/pdf"});
   assert.equal(r.res.code,413); assert.equal(r.requests.length,0);
-  r = await call([ok()],"ANTM",[{ticker:"ANTM",last_price_date:"2026-10-16"}],undefined,undefined,{screening_session_date:"2026-10-16"});
+  r = await call([ok()],"ANTM",[{ticker:"ANTM",last_price_date:"2026-10-16",horizons:{daily:{score:-30,signal:"pantau",trend:"sideways",score_breakdown:{trend:0}},weekly:{score:70,signal:"beli"}}}],undefined,undefined,{screening_session_date:"2026-10-16"});
   prompt = JSON.parse(r.requests[0].options.body).contents[0].parts[0].text;
   assert.ok(prompt.includes('"is_current_session":true'));
+  assert.ok(prompt.includes('"daily":{"score":-30,"signal":"pantau"'));
+  assert.ok(prompt.includes('"weekly":{"score":70,"signal":"beli"'));
+  assert.ok(prompt.includes('"swing":null'));
   r = await call([ok()],"ANTM",[{ticker:"ANTM",last_price_date:"2026-10-15",is_current_session:true}],undefined,undefined,{screening_session_date:"2026-10-16"});
   prompt = JSON.parse(r.requests[0].options.body).contents[0].parts[0].text;
   assert.ok(prompt.includes('"is_current_session":false'));

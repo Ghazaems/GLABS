@@ -9,6 +9,7 @@ IDX yang dipantau sistem ini.
 
 ATURAN:
 - Tanggal sesi ditentukan screening_session_date. Harga/sinyal hanya terkini jika last_price_date valid dan sama persis dengan sesi itu. Tanggal hilang, berbeda, atau masa depan adalah historis/tidak terverifikasi; jangan menyebutnya sinyal beli hari ini.
+- Field tanpa suffix (score, signal, trend, support, resistance, wyckoff_bias/phase) adalah Weekly, bukan Daily. Gunakan horizons.daily/weekly/swing untuk horizon terkait. Jika tidak tersedia, nyatakan belum tersedia; jangan mengganti Daily/Swing dengan Weekly.
 - Kalau pertanyaan menyangkut ticker atau data yang ada di watchlist, jawab berdasarkan data
   JSON yang diberikan dan sebut angka spesifiknya (skor, breakdown, dsb). Jangan mengarang
   angka yang tidak ada di data.
@@ -39,10 +40,19 @@ function currentPrice(row,session) {
     Number.isFinite(Date.parse(value+"T00:00:00Z")) && new Date(value+"T00:00:00Z").toISOString().slice(0,10)===value;
   return valid(session)&&valid(row.last_price_date)&&session===row.last_price_date;
 }
+function compactHorizon(value) {
+  if(!value||typeof value!=="object")return null;
+  const scalar=v=>typeof v==="number"&&Number.isFinite(v)?v:typeof v==="string"?v.slice(0,120):null;
+  return Object.fromEntries(["score","signal","trend","support","resistance","wyckoff_bias","wyckoff_phase","score_breakdown"].map(k=>[k,
+    k==="score_breakdown" && value[k] && typeof value[k]==="object"
+      ? Object.fromEntries(Object.entries(value[k]).slice(0,12).map(([key,v])=>[key.slice(0,40),scalar(v)]))
+      : scalar(value[k])]));
+}
 function compactRow(row,session) {
   if (!row || typeof row !== "object") return null;
   return {
     ticker: row.ticker,
+    horizons: Object.fromEntries(["daily","weekly","swing"].map(h=>[h,compactHorizon(row.horizons?.[h])])),
     trend: row.trend,
     support: row.support,
     resistance: row.resistance,

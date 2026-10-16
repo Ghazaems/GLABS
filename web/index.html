@@ -1231,6 +1231,12 @@ function buildWatchlistContext(question) {
     ticker: r.ticker,
     last_price_date: r.last_price_date,
     is_current_session: isCurrentRow(r),
+    horizons: Object.fromEntries(Object.entries(STYLE_CONFIG).map(([h,c]) => [h, {
+      score: r[c.scoreKey], signal: r[c.signalKey], trend: r[c.trendKey],
+      support: r[c.supportKey], resistance: r[c.resistanceKey],
+      wyckoff_bias: r[c.wyckoffKey]?.bias, wyckoff_phase: r[c.wyckoffKey]?.phase,
+      score_breakdown: r[c.bdKey],
+    }])),
     signal_daily: r.signal_daily,
     signal_swing: r.signal_swing,
     score_daily: r.score_daily,

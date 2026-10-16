@@ -21,6 +21,15 @@ assert.equal(chat.select(rows,'Ringkas pasar').rows.length,40);
 assert.equal(JSON.stringify(rows.slice(0,879)),before);
 assert.throws(()=>chat.serialize({file:'é'.repeat(2_000_000)}),/4 MB/);
 assert.ok(chat.serialize({file:'a'.repeat(1000)}).length<2000);
+const horizonFixture={ticker:'ANTM',last_price_date:'2026-10-16',score_daily:-30,signal_daily:'pantau',trend_daily:'sideways',score:70,signal:'beli',trend:'uptrend',price_history:[{close:123}]};
+const config=JSON.parse(html.match(/const STYLE_CONFIG = (\{[\s\S]+?\});/)[1]);
+const projectionContext={window:{dashboardData:{watchlist:[horizonFixture]},GlabsChatCore:chat},currentStyle:'daily',STYLE_CONFIG:config,isCurrentRow:()=>true};
+vm.createContext(projectionContext);vm.runInContext(html.slice(html.indexOf('function buildWatchlistContext('),html.indexOf('function escapeHtml(')),projectionContext);
+const projected=projectionContext.buildWatchlistContext('ANTM')[0];
+assert.equal(projected.horizons.daily.score,-30);assert.equal(projected.horizons.daily.trend,'sideways');
+assert.equal(projected.horizons.weekly.score,70);assert.equal(projected.horizons.weekly.trend,'uptrend');
+assert.equal(projected.horizons.swing.score,undefined);assert.equal(projected.price_history,undefined);
+assert.equal(horizonFixture.price_history.length,1);assert.equal(horizonFixture.score,70);
 // Actual chat UI failure/success: preserve draft + attachment and send bounded context.
 const chatStart=html.indexOf('let aiRequestPending ='),chatEnd=html.indexOf('\ndocument.addEventListener("DOMContentLoaded"',chatStart);
 async function checkChat(){
