@@ -1344,6 +1344,16 @@ let aiRequestPending = false;
 async function askAI(question, retryFile) {
   question = (question || "").trim();
   if (!question || aiRequestPending) return;
+  if (!Array.isArray(window.dashboardData?.watchlist)) {
+    const input = document.getElementById("chat-input");
+    if (!input.value) input.value = question;
+    const log = document.getElementById("chat-log");
+    let notice = document.getElementById("chat-data-notice");
+    if (!notice) { notice = document.createElement("div"); notice.id = "chat-data-notice"; notice.className = "chat-msg"; log.appendChild(notice); }
+    notice.textContent = "Data screening masih dimuat. Pertanyaan dan lampiran tetap tersimpan; kirim lagi setelah data tampil.";
+    return;
+  }
+  document.getElementById("chat-data-notice")?.remove();
   if (filePreparing) { alert("Tunggu lampiran selesai disiapkan."); return; }
   const input = document.getElementById("chat-input");
   const snapshot = retryFile === undefined ? pendingFile : retryFile;

@@ -39,12 +39,15 @@ async function checkChat(){
  let fail=true,cleared=0;
  const ctx={window:{dashboardData:{watchlist:rows,screening_session_date:'2026-10-16'},GlabsChatCore:chat},currentStyle:'daily',
  pendingFile:file,filePreparing:false,fileSelectionVersion:0,AbortController,setTimeout,clearTimeout,TypeError,
- document:{getElementById:id=>id==='chat-input'?input:log,createElement:el},
+ document:{getElementById:id=>id==='chat-input'?input:id==='chat-data-notice'?null:log,createElement:el},
  chatMarketSummary:()=>({processed:rows.length}),buildWatchlistContext:q=>chat.select(rows,q).rows,escapeHtml:s=>s,renderMarkdown:s=>s,
  clearPendingFile(){ctx.pendingFile=null;cleared++},
  fetch:async(url,opts)=>{payloads.push(JSON.parse(opts.body));return {ok:!fail,status:fail?503:200,json:async()=>fail?{error:'Provider sibuk'}:{answer:'Skor -30'}}},
  };
  vm.createContext(ctx);vm.runInContext(html.slice(chatStart,chatEnd),ctx);
+ const dashboard=ctx.window.dashboardData;delete ctx.window.dashboardData;
+ await ctx.askAI(input.value);assert.equal(payloads.length,0);assert.equal(ctx.pendingFile,file);assert.equal(input.value,'Analisis ANTM');
+ ctx.window.dashboardData=dashboard;
  await ctx.askAI(input.value);assert.equal(input.value,'Analisis ANTM');assert.equal(ctx.pendingFile,file);assert.equal(cleared,0);
  assert.ok(elements.at(-1).children.some(b=>b.textContent==='Coba lagi'));
  assert.equal(payloads[0].watchlist.length,1);assert.equal(payloads[0].scope.total_rows,880);
