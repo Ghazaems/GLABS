@@ -47,6 +47,8 @@ jobs:
           node tests/test_dashboard_actions.js
           node tests/test_global_indices_ui.js
           node --check web/api/unlock.js
+          node --check web/api/cron-screening.js
+          node tests/test_cron_api.js
           node --check web/support.js
           node tests/test_support.js
       - name: Validate inline JavaScript and rotation wiring

@@ -7,7 +7,7 @@
 export const config = { matcher: "/((?!_vercel/).*)" };
 
 // boleh dibuka tanpa login
-const PUBLIC = new Set(["/gate.html", "/api/unlock", "/hero.mp4", "/favicon.ico"]);
+const PUBLIC = new Set(["/gate.html", "/api/unlock", "/api/cron-screening", "/hero.mp4", "/favicon.ico"]);
 
 const enc = new TextEncoder();
 

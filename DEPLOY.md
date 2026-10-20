@@ -42,5 +42,22 @@ GitHub repo -> tab **Actions** -> pilih "Daily Stock Screening" -> **Run workflo
   Supabase/Postgres free tier nanti — bukan masalah mendesak di awal.
 - Kalau workflow gagal (misal yfinance rate-limit/berubah struktur), GitHub
   otomatis kirim email notifikasi ke kamu — jadi tidak akan gagal diam-diam.
+
+## Pemicu screening yang andal (opsional, disarankan)
+Cron GitHub Actions bersifat best-effort: pada repo ini hanya 1-2 dari 16 slot
+per hari yang benar-benar jalan, dan sering baru malam WIB. Untuk target 16:15 WIB,
+aktifkan pemicu dari Vercel:
+
+1. Buat fine-grained PAT (GitHub -> Settings -> Developer settings) untuk repo
+   `Ghazaems/GLABS` dengan izin **Actions: write** dan **Contents: read**.
+2. Vercel -> project `glabs-ghazaems` -> Settings -> Environment Variables:
+   - `GH_DISPATCH_TOKEN` = PAT di atas
+   - `CRON_SECRET` = teks acak panjang
+3. Deploy ulang. `web/vercel.json` sudah menjadwalkan `/api/cron-screening`
+   setiap hari 09:20 UTC (16:20 WIB). Endpoint hanya memicu `workflow_dispatch`;
+   gate freshness di workflow tetap menentukan perlu-tidaknya screening.
+
+Tanpa kedua env var, endpoint menjawab 503 dan tidak melakukan apa pun.
+
 - `idx_fetcher.py` masih stub, belum masuk pipeline otomatis — aman untuk
   dijalankan cron sekarang, cuma belum ada data sentimen berita.

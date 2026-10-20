@@ -26,6 +26,22 @@ Missing prices/history remain unavailable; partial coverage is not intrinsically
 a broken pipeline. Supplemental Purbaya indicators do not change scores/signals.
 Historical VWAP/Wyckoff statistical validation schedules are not activated.
 
+## Source markup change (2026-10-20)
+The upstream HTML stopped wrapping candles as `bars:$R[n]=[$R[m]=[...]]` and now
+publishes `bars:"[[...]]"` (a JSON string). Both adapters failed closed on that
+shape, so every Purbaya stock was reported unavailable and the IHSG card silently
+fell back to Yahoo. `data/ihsg_fetcher.decode_bars` now accepts both shapes and
+still rejects malformed, partial or non-numeric arrays; regression tests cover the
+new markup for both readers.
+
+## Reliable 16:15 WIB trigger
+`web/api/cron-screening.js` is a Vercel Cron endpoint that dispatches the screening
+workflow at 09:20 UTC (16:20 WIB) via workflow_dispatch. It only triggers; the
+workflow keeps its own idempotent freshness gate, so an extra dispatch is a cheap
+skip, never a rewrite. It needs `CRON_SECRET` and a fine-grained `GH_DISPATCH_TOKEN`
+in Vercel env; without them it answers 503 and does nothing. GitHub-side recovery,
+bounded dispatch and the 18:00 WIB recovery floor are unchanged.
+
 ## Evidence and remaining external boundaries
 The reconciler uploads a compact pipeline-health artifact and writes Actions
 Summary; a green skipped screening job alone is not proof of fresh data.
