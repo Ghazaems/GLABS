@@ -58,6 +58,3 @@ aktifkan pemicu dari Vercel:
    gate freshness di workflow tetap menentukan perlu-tidaknya screening.
 
 Tanpa kedua env var, endpoint menjawab 503 dan tidak melakukan apa pun.
-
-- `idx_fetcher.py` masih stub, belum masuk pipeline otomatis — aman untuk
-  dijalankan cron sekarang, cuma belum ada data sentimen berita.

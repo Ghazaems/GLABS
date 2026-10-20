@@ -3,3 +3,5 @@ __pycache__/
 .venv/
 venv/
 .DS_Store
+web/dashboard_overview.json
+web/ui-data/
