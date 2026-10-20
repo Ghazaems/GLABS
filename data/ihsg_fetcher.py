@@ -14,6 +14,37 @@ MAX_BYTES = 4_000_000
 MIN_ROWS = 100
 NUMBER = r"-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?"
 ROW = re.compile(r"\$R\[\d+\]=(\[" + NUMBER + r"(?:," + NUMBER + r"){5}\])")
+# The source published candles as a JS array of $R refs; the current markup
+# wraps the same six-number candles in a JSON string. Accept both, fail closed.
+LEGACY_BARS = re.compile(r"\$R\[\d+\]=\[(.*?)\],intraday:", re.S)
+QUOTED_BARS = re.compile(r'"((?:[^"\\]|\\.)*)"')
+
+def decode_bars(html, start):
+    """Candle rows following the `bars:` marker, in either published shape."""
+    rest = html[start:]
+    legacy = LEGACY_BARS.match(rest)
+    if legacy:
+        body = legacy.group(1)
+        matches = list(ROW.finditer(body))
+        # Do not quietly omit a malformed candle.
+        if not matches or ROW.sub("", body).replace(",", "").strip():
+            raise ValueError("Malformed candle array")
+        return [json.loads(match.group(1)) for match in matches]
+    quoted = QUOTED_BARS.match(rest)
+    if quoted:
+        try:
+            rows = json.loads(json.loads('"' + quoted.group(1) + '"'))
+        except (TypeError, ValueError) as error:
+            raise ValueError("Malformed candle array") from error
+        if not isinstance(rows, list) or not rows:
+            raise ValueError("Malformed candle array")
+        for row in rows:
+            if not isinstance(row, list) or len(row) != 6 or any(
+                    isinstance(value, bool) or not isinstance(value, (int, float))
+                    for value in row):
+                raise ValueError("Malformed candle array")
+        return rows
+    raise ValueError("Candle array format changed")
 
 def validate_frame(frame, session):
     cutoff = pd.Timestamp(session)
@@ -40,18 +71,12 @@ def validate_frame(frame, session):
     return frame
 
 def parse_history(html, session):
-    block = re.search(
-        r'security:\$R\[\d+\]=\{code:"COMPOSITE"[^}]*\},bars:\$R\[\d+\]=\[(.*?)\],intraday:',
+    marker = re.search(
+        r'security:\$R\[\d+\]=\{code:"COMPOSITE"[^}]*\},bars:',
         html, re.S)
-    if not block:
+    if not marker:
         raise ValueError("IHSG HTML history format changed or wrong security")
-    body = block.group(1)
-    matches = list(ROW.finditer(body))
-    # Fail closed: do not quietly omit a malformed candle.
-    remainder = ROW.sub("", body).replace(",", "").strip()
-    if not matches or remainder:
-        raise ValueError("Malformed IHSG candle array")
-    rows = [json.loads(m.group(1)) for m in matches]
+    rows = decode_bars(html, marker.end())
     dates = pd.to_datetime([r[0] for r in rows], unit="ms", utc=True).tz_convert("Asia/Jakarta").tz_localize(None).normalize()
     frame = pd.DataFrame([r[1:] for r in rows], index=dates,
                          columns=["Open", "High", "Low", "Close", "Volume"])

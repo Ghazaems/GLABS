@@ -1,4 +1,5 @@
 import unittest
+import json
 from unittest.mock import patch
 import numpy as np
 import pandas as pd
@@ -14,6 +15,21 @@ class ActivityTests(unittest.TestCase):
             ms=int(date.tz_localize("Asia/Jakarta").timestamp()*1000)
             rows.append(f"$R[{i+20}]=[{ms},{row.Open},{row.High},{row.Low},{row.Close},{row.Volume}]")
         return 'security:$R[14]={code:"'+code+'",name:"Example",kind:"stock"},bars:$R[15]=['+','.join(rows)+'],intraday:'
+    def quoted_html(self,frame,code="VKTR"):
+        rows=[[int(date.tz_localize("Asia/Jakarta").timestamp()*1000),*row.tolist()] for date,row in frame.iterrows()]
+        return 'security:$R[14]={code:"'+code+'",name:"Example",kind:"stock"},bars:"'+json.dumps(rows,separators=(",",":"))+"\",intraday:null"
+    def test_quoted_bars_markup(self):
+        frame=self.frame()
+        actual=parse_stock(self.quoted_html(frame),"VKTR","2026-10-09")
+        self.assertEqual(len(actual),80)
+        self.assertEqual(actual.index[-1],pd.Timestamp("2026-10-09"))
+        self.assertTrue(actual.equals(parse_stock(self.html(frame),"VKTR","2026-10-09")))
+        with self.assertRaises(ValueError):parse_stock(self.quoted_html(frame),"BBCA","2026-10-09")
+        with self.assertRaises(ValueError):parse_stock(self.quoted_html(frame),"VKTR","2026-10-12")
+        broken=self.quoted_html(frame).replace("110.0","null",1)
+        with self.assertRaises(ValueError):parse_stock(broken,"VKTR","2026-10-09")
+        short=self.quoted_html(frame)[:-20]
+        with self.assertRaises(ValueError):parse_stock(short,"VKTR","2026-10-09")
     def test_formula(self):
         result=compute(self.frame())
         self.assertAlmostEqual(result["latest"]["pressure"],58,places=5)

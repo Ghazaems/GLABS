@@ -17,6 +17,22 @@ class IHSGTests(unittest.TestCase):
             import json
             rows.append("$R[%d]=" % (i+2) + json.dumps([timestamp,*row.tolist()],separators=(",",":")))
         return 'security:$R[0]={code:"'+code+'",name:"IHSG"},bars:$R[1]=['+','.join(rows)+'],intraday:null'
+    def quoted_html(self, frame=None, code="COMPOSITE"):
+        import json
+        frame = self.frame if frame is None else frame
+        rows = [[int(date.tz_localize("Asia/Jakarta").timestamp()*1000),*row.tolist()] for date,row in frame.iterrows()]
+        return 'security:$R[0]={code:"'+code+'",name:"IHSG"},bars:"'+json.dumps(rows,separators=(",",":"))+'"' + ',intraday:null'
+    def test_quoted_bars_markup(self):
+        actual = parse_history(self.quoted_html(),self.session)
+        self.assertEqual(len(actual),110)
+        self.assertTrue(actual.equals(parse_history(self.html(),self.session)))
+        future = pd.concat([self.frame, self.frame.tail(1).set_axis([self.dates[-1]+pd.offsets.BDay()])])
+        self.assertEqual(parse_history(self.quoted_html(future),self.session).index[-1],self.dates[-1])
+        for html in [self.quoted_html(code="LQ45"),self.quoted_html()[:-30],
+                     self.quoted_html().replace("101.0","null",1),
+                     self.quoted_html().replace('"[[','"[[1,',1)]:
+            with self.assertRaises(ValueError):
+                parse_history(html,self.session)
     def test_zero_volume_index_is_valid(self):
         self.assertEqual(len(parse_history(self.html(),self.session)),110)
     def test_future_candle_is_excluded(self):

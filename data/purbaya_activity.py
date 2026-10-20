@@ -11,7 +11,7 @@ from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 import numpy as np
 import pandas as pd
-from data.ihsg_fetcher import ROW
+from data.ihsg_fetcher import decode_bars
 
 VERSION = 2
 WINDOW = 20
@@ -30,15 +30,12 @@ def source_url(ticker):
 
 def parse_stock(html, ticker, session):
     source_url(ticker)
-    pattern = (r'security:\$R\[\d+\]=\{code:"' + re.escape(ticker)
-               + r'",[^}]*kind:"stock"[^}]*\},bars:\$R\[\d+\]=\[(.*?)\],intraday:')
-    match = re.search(pattern, html, re.S)
-    if not match:
+    marker = re.search(
+        r'security:\$R\[\d+\]=\{code:"' + re.escape(ticker)
+        + r'",[^}]*kind:"stock"[^}]*\},bars:', html, re.S)
+    if not marker:
         raise ValueError("source_format_or_symbol")
-    body = match.group(1)
-    if ROW.sub("", body).replace(",", "").strip():
-        raise ValueError("malformed_candle")
-    rows = [json.loads(m.group(1)) for m in ROW.finditer(body)]
+    rows = decode_bars(html, marker.end())
     if not rows:
         raise ValueError("empty_history")
     dates = pd.to_datetime([r[0] for r in rows], unit="ms", utc=True).tz_convert("Asia/Jakarta").tz_localize(None).normalize()
