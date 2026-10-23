@@ -3835,7 +3835,7 @@
       "sector": "IDXTECHNO"
     }
   },
-  "last_refresh_attempt": "2026-10-22",
+  "last_refresh_attempt": "2026-10-23",
   "refresh_status": "cached_refresh_failed",
   "refresh_error": "official_access_blocked"
 }
