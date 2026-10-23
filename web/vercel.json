@@ -2,5 +2,8 @@
   "buildCommand": "node build-data.cjs",
   "outputDirectory": ".",
   "functions": { "api/chat.js": { "maxDuration": 60 } },
-  "crons": [{ "path": "/api/cron-screening", "schedule": "20 9 * * *" }]
+  "crons": [
+    { "path": "/api/cron-screening", "schedule": "45 9 * * 1-5" },
+    { "path": "/api/cron-screening", "schedule": "50 10 * * 1-5" }
+  ]
 }

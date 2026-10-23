@@ -76,7 +76,10 @@ async function call({ method = "GET", authorization, env = {}, reply = { status:
   assert.equal(r.res.data.error, "github_unreachable");
 
   const vercel = JSON.parse(fs.readFileSync(path.join(__dirname, "../web/vercel.json"), "utf8"));
-  assert.deepEqual(vercel.crons, [{ path: "/api/cron-screening", schedule: "20 9 * * *" }]);
+  assert.deepEqual(vercel.crons, [
+  { path: "/api/cron-screening", schedule: "45 9 * * 1-5" },
+  { path: "/api/cron-screening", schedule: "50 10 * * 1-5" },
+]);
   const middleware = fs.readFileSync(path.join(__dirname, "../web/middleware.js"), "utf8");
   const publicSet = (middleware.match(/const PUBLIC = new Set\(\[([^\]]*)\]\)/) || [])[1] || "";
   assert.ok(publicSet.includes('"/api/cron-screening"'), "cron endpoint must bypass the session gate");

@@ -53,8 +53,13 @@ aktifkan pemicu dari Vercel:
 2. Vercel -> project `glabs-ghazaems` -> Settings -> Environment Variables:
    - `GH_DISPATCH_TOKEN` = PAT di atas
    - `CRON_SECRET` = teks acak panjang
-3. Deploy ulang. `web/vercel.json` sudah menjadwalkan `/api/cron-screening`
-   setiap hari 09:20 UTC (16:20 WIB). Endpoint hanya memicu `workflow_dispatch`;
-   gate freshness di workflow tetap menentukan perlu-tidaknya screening.
+3. Deploy ulang. `web/vercel.json` menjadwalkan `/api/cron-screening`
+   Senin-Jumat 09:45 UTC (16:45 WIB) dan 10:50 UTC (17:50 WIB). Slot kedua
+   adalah jaring pengaman kalau slot pertama meleset; dispatch ganda aman
+   karena gate freshness di workflow tetap menentukan perlu-tidaknya screening.
+   Endpoint hanya memicu `workflow_dispatch`; tidak mengubah skor/ticker/histori.
+4. Uji manual:
+   `curl -H "Authorization: Bearer <CRON_SECRET>" https://glabs-ghazaems.vercel.app/api/cron-screening`
+   harus menjawab `200 {"ok":true,...}`. Tanpa env var, jawabannya `503`.
 
 Tanpa kedua env var, endpoint menjawab 503 dan tidak melakukan apa pun.

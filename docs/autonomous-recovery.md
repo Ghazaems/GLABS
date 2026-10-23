@@ -34,9 +34,11 @@ fell back to Yahoo. `data/ihsg_fetcher.decode_bars` now accepts both shapes and
 still rejects malformed, partial or non-numeric arrays; regression tests cover the
 new markup for both readers.
 
-## Reliable 16:15 WIB trigger
+## Reliable 16:45 WIB trigger
 `web/api/cron-screening.js` is a Vercel Cron endpoint that dispatches the screening
-workflow at 09:20 UTC (16:20 WIB) via workflow_dispatch. It only triggers; the
+workflow at 09:45 UTC (16:45 WIB) and again at 10:50 UTC (17:50 WIB), Monday to
+Friday, via workflow_dispatch. The second slot is a safety net because Vercel
+Hobby cron guarantees a daily run but not minute precision. It only triggers; the
 workflow keeps its own idempotent freshness gate, so an extra dispatch is a cheap
 skip, never a rewrite. It needs `CRON_SECRET` and a fine-grained `GH_DISPATCH_TOKEN`
 in Vercel env; without them it answers 503 and does nothing. GitHub-side recovery,
