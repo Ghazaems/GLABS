@@ -25,9 +25,9 @@ class GlobalIndexTests(unittest.TestCase):
     def test_partial_failure_preserves_original_fetch_time(self):
         now=datetime(2026,10,14,22,tzinfo=timezone.utc)
         rows=[{"date":"2026-10-13","close":100},{"date":"2026-10-14","close":102}]
-        def good(symbol): return rows,now.timestamp()
+        def good(symbol, tz): return rows,now.timestamp()
         old=build_feed(good,now=now)
-        def partial(symbol):
+        def partial(symbol, tz):
             if symbol=="^GSPC": raise OSError("provider")
             return rows,now.timestamp()
         result=build_feed(partial,old,now=datetime(2026,10,15,2,tzinfo=timezone.utc))
@@ -37,7 +37,7 @@ class GlobalIndexTests(unittest.TestCase):
         self.assertEqual(cached["fetched_at"],old["indices"][0]["fetched_at"])
         self.assertEqual(len(result["indices"]),8)
     def test_total_failure_does_not_publish(self):
-        def fail(symbol): raise OSError("provider")
+        def fail(symbol, tz): raise OSError("provider")
         with self.assertRaises(ValueError): build_feed(fail,now=self.now)
     def test_yahoo_placeholder_prices_are_not_filled(self):
         rows=self.rows+[{"date":"2026-10-16","close":float("nan")},{"date":"2026-10-17","close":0}]
@@ -50,6 +50,15 @@ class GlobalIndexTests(unittest.TestCase):
         self.assertEqual(repaired[-1]["close"],101.5)
         self.assertEqual(repaired[0]["close"],100.0)
 
+    def test_missing_daily_date_is_appended_from_intraday(self):
+        from datetime import date
+        rows=[{"date":"2026-10-22","close":100.0},{"date":"2026-10-23","close":101.0}]
+        hourly=[{"date":"2026-10-26","close":102.5},{"date":"2026-10-27","close":103.0}]
+        repaired=repair_missing_closes(rows,lambda: hourly,date(2026,10,27))
+        self.assertEqual([row["date"] for row in repaired],
+                         ["2026-10-22","2026-10-23","2026-10-26"])
+        self.assertEqual(repaired[-1]["close"],102.5)
+
     def test_missing_daily_close_without_intraday_is_dropped(self):
         rows=[{"date":"2026-10-23","close":100.0},{"date":"2026-10-26","close":None}]
         self.assertEqual(usable_history(repair_missing_closes(rows,lambda: [])),
@@ -60,7 +69,7 @@ class GlobalIndexTests(unittest.TestCase):
     def test_feed_never_regresses_a_published_session(self):
         now=datetime(2026,10,27,1,tzinfo=timezone.utc)
         rows=[{"date":"2026-10-22","close":100},{"date":"2026-10-23","close":101}]
-        def stale(symbol): return rows,None
+        def stale(symbol, tz): return rows,None
         old=build_feed(stale,now=now)
         newer=dict(old["indices"][3],date="2026-10-26",previous_date="2026-10-23",previous_close=101,
                    close=105,change=4,change_pct=4/101*100)
