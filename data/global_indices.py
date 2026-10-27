@@ -22,6 +22,32 @@ def usable_history(rows):
             and not isinstance(row["close"], bool) and math.isfinite(row["close"])
             and row["close"] > 0]
 
+def repair_missing_closes(rows, intraday_fetcher=None):
+    """Fill a null daily close from the provider's own intraday bars.
+
+    Yahoo sometimes returns the completed session as a daily row with a null
+    close (seen 2026-10-26 for Asia/Europe). The same session is still present
+    in the hourly series, so reuse that last print instead of dropping the day.
+    No value is synthesised: if the provider has no intraday bar, the row stays
+    null and usable_history drops it.
+    """
+    if not any(row.get("close") is None for row in rows):
+        return rows
+    if intraday_fetcher is None:
+        return rows
+    try:
+        intraday = intraday_fetcher()
+    except Exception:
+        return rows
+    closes = {}
+    for row in intraday:
+        close = row.get("close")
+        if isinstance(close, (int, float)) and not isinstance(close, bool) and math.isfinite(close) and close > 0:
+            closes[row["date"]] = float(close)
+    return [dict(row, close=closes[row["date"]])
+            if row.get("close") is None and row["date"] in closes else row
+            for row in rows]
+
 def completed_snapshot(rows, now, exchange_timezone, regular_end=None):
     local_today = now.astimezone(ZoneInfo(exchange_timezone)).date()
     valid = {}
@@ -58,6 +84,21 @@ def build_feed(fetcher, previous=None, now=None):
         try:
             rows, regular_end = fetcher(symbol)
             latest = completed_snapshot(rows, now, tz, regular_end)
+            cached = old.get(symbol, {})
+            if cached.get("date"):
+                try:
+                    previous_latest = completed_snapshot(
+                        [{"date": cached["previous_date"], "close": cached["previous_close"]},
+                         {"date": cached["date"], "close": cached["close"]}],
+                        now, tz, now.timestamp())
+                except (ValueError, TypeError, KeyError):
+                    previous_latest = None
+                if previous_latest and previous_latest["date"] > latest["date"]:
+                    # Never publish an older session than the last validated one
+                    # when a provider drops a completed bar after the fact.
+                    output.append({**base, **previous_latest, "status": "cached",
+                                   "fetched_at": cached.get("fetched_at")})
+                    continue
             output.append({**base, **latest, "status": "ok", "fetched_at": now.isoformat()})
             fresh += 1
         except Exception as error:
@@ -82,8 +123,15 @@ def run():
         frame = ticker.history(period="1mo", interval="1d", auto_adjust=False, actions=False, timeout=15)
         if frame.empty:
             raise ValueError("Empty history")
-        rows = [{"date": index.strftime("%Y-%m-%d"), "close": float(row["Close"])}
+        rows = [{"date": index.strftime("%Y-%m-%d"),
+                 "close": float(row["Close"]) if row["Close"] == row["Close"] else None}
                 for index, row in frame.iterrows()]
+        def intraday():
+            hourly = ticker.history(period="5d", interval="60m", auto_adjust=False, actions=False, timeout=15)
+            return [{"date": index.strftime("%Y-%m-%d"),
+                     "close": float(row["Close"]) if row["Close"] == row["Close"] else None}
+                    for index, row in hourly.iterrows()]
+        rows = repair_missing_closes(rows, intraday)
         rows = usable_history(rows)
         metadata = ticker.history_metadata or {}
         regular = metadata.get("currentTradingPeriod", {}).get("regular", {})

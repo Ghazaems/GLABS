@@ -1,6 +1,6 @@
 import unittest
 from datetime import datetime, timezone
-from data.global_indices import completed_snapshot, build_feed, INDICES, usable_history
+from data.global_indices import completed_snapshot, build_feed, INDICES, usable_history, repair_missing_closes
 
 class GlobalIndexTests(unittest.TestCase):
     def setUp(self):
@@ -42,6 +42,35 @@ class GlobalIndexTests(unittest.TestCase):
     def test_yahoo_placeholder_prices_are_not_filled(self):
         rows=self.rows+[{"date":"2026-10-16","close":float("nan")},{"date":"2026-10-17","close":0}]
         self.assertEqual(usable_history(rows),self.rows)
+
+    def test_missing_daily_close_is_repaired_from_intraday(self):
+        rows=[{"date":"2026-10-23","close":100.0},{"date":"2026-10-26","close":None}]
+        hourly=[{"date":"2026-10-26","close":90.0},{"date":"2026-10-26","close":101.5}]
+        repaired=repair_missing_closes(rows,lambda: hourly)
+        self.assertEqual(repaired[-1]["close"],101.5)
+        self.assertEqual(repaired[0]["close"],100.0)
+
+    def test_missing_daily_close_without_intraday_is_dropped(self):
+        rows=[{"date":"2026-10-23","close":100.0},{"date":"2026-10-26","close":None}]
+        self.assertEqual(usable_history(repair_missing_closes(rows,lambda: [])),
+                         [{"date":"2026-10-23","close":100.0}])
+        def boom(): raise OSError("provider")
+        self.assertEqual(len(usable_history(repair_missing_closes(rows,boom))),1)
+
+    def test_feed_never_regresses_a_published_session(self):
+        now=datetime(2026,10,27,1,tzinfo=timezone.utc)
+        rows=[{"date":"2026-10-22","close":100},{"date":"2026-10-23","close":101}]
+        def stale(symbol): return rows,None
+        old=build_feed(stale,now=now)
+        newer=dict(old["indices"][3],date="2026-10-26",previous_date="2026-10-23",previous_close=101,
+                   close=105,change=4,change_pct=4/101*100)
+        old["indices"][3]=newer
+        result=build_feed(stale,old,now=datetime(2026,10,27,4,tzinfo=timezone.utc))
+        kept=result["indices"][3]
+        self.assertEqual(kept["date"],"2026-10-26")
+        self.assertEqual(kept["close"],105)
+        self.assertEqual(kept["status"],"cached")
+        self.assertEqual(kept["fetched_at"],newer["fetched_at"])
 
     def test_exact_catalog(self):
         self.assertEqual(len(INDICES),8)
