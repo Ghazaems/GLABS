@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-30T17:46:09.901693+00:00",
+  "generated_at": "2026-11-02T21:34:32.685956+00:00",
   "period": "3y",
   "execution": "next_session_open",
   "price_adjustment": "auto_adjust_true",
@@ -15,95 +15,95 @@
     "round_trip_slippage_pct": 0.2,
     "total_friction_pct": 0.7
   },
-  "total_sampel": 86640,
+  "total_sampel": 86306,
   "ticker_count": 896,
-  "extreme_gross_return_count": 4995,
+  "extreme_gross_return_count": 4974,
   "by_signal": {
     "5": [
       {
         "signal": "beli",
-        "jumlah_sampel": 7824,
-        "rata_rata_return_pct": 0.129,
-        "median_return_pct": -0.7,
-        "persen_untung": 40.59,
-        "return_terburuk": -52.849,
-        "return_terbaik": 165.736
+        "jumlah_sampel": 7924,
+        "rata_rata_return_pct": 0.133,
+        "median_return_pct": -1.029,
+        "persen_untung": 40.46,
+        "return_terburuk": -53.949,
+        "return_terbaik": 166.157
       },
       {
         "signal": "jual",
-        "jumlah_sampel": 8907,
-        "rata_rata_return_pct": -0.25,
+        "jumlah_sampel": 8879,
+        "rata_rata_return_pct": -0.149,
         "median_return_pct": -0.7,
-        "persen_untung": 39.7,
-        "return_terburuk": -55.731,
-        "return_terbaik": 149.3
+        "persen_untung": 40.77,
+        "return_terburuk": -43.913,
+        "return_terbaik": 138.283
       },
       {
         "signal": "pantau",
-        "jumlah_sampel": 69909,
-        "rata_rata_return_pct": 0.004,
+        "jumlah_sampel": 69503,
+        "rata_rata_return_pct": 0.01,
         "median_return_pct": -0.7,
-        "persen_untung": 38.5,
-        "return_terburuk": -89.513,
-        "return_terbaik": 259.3
+        "persen_untung": 38.34,
+        "return_terburuk": -89.744,
+        "return_terbaik": 231.8
       }
     ],
     "20": [
       {
         "signal": "beli",
-        "jumlah_sampel": 7824,
-        "rata_rata_return_pct": 4.188,
-        "median_return_pct": -1.128,
-        "persen_untung": 45.05,
-        "return_terburuk": -79.681,
-        "return_terbaik": 1589.611
+        "jumlah_sampel": 7924,
+        "rata_rata_return_pct": 3.846,
+        "median_return_pct": -1.108,
+        "persen_untung": 45.12,
+        "return_terburuk": -78.76,
+        "return_terbaik": 1323.596
       },
       {
         "signal": "jual",
-        "jumlah_sampel": 8907,
-        "rata_rata_return_pct": 2.482,
+        "jumlah_sampel": 8879,
+        "rata_rata_return_pct": 2.352,
         "median_return_pct": -0.7,
-        "persen_untung": 45.94,
-        "return_terburuk": -81.607,
-        "return_terbaik": 877.176
+        "persen_untung": 46.65,
+        "return_terburuk": -85.098,
+        "return_terbaik": 510.411
       },
       {
         "signal": "pantau",
-        "jumlah_sampel": 69909,
-        "rata_rata_return_pct": 3.364,
+        "jumlah_sampel": 69503,
+        "rata_rata_return_pct": 3.459,
         "median_return_pct": -0.7,
-        "persen_untung": 43.77,
-        "return_terburuk": -92.95,
-        "return_terbaik": 1222.309
+        "persen_untung": 43.96,
+        "return_terburuk": -89.523,
+        "return_terbaik": 1119.179
       }
     ],
     "60": [
       {
         "signal": "beli",
-        "jumlah_sampel": 7824,
-        "rata_rata_return_pct": 12.196,
-        "median_return_pct": -1.511,
-        "persen_untung": 46.45,
-        "return_terburuk": -96.726,
-        "return_terbaik": 2880.521
+        "jumlah_sampel": 7924,
+        "rata_rata_return_pct": 12.059,
+        "median_return_pct": -1.655,
+        "persen_untung": 46.3,
+        "return_terburuk": -92.149,
+        "return_terbaik": 3081.118
       },
       {
         "signal": "jual",
-        "jumlah_sampel": 8907,
-        "rata_rata_return_pct": 10.512,
-        "median_return_pct": -1.414,
-        "persen_untung": 46.5,
-        "return_terburuk": -97.514,
-        "return_terbaik": 4238.944
+        "jumlah_sampel": 8879,
+        "rata_rata_return_pct": 11.0,
+        "median_return_pct": -1.394,
+        "persen_untung": 46.89,
+        "return_terburuk": -97.772,
+        "return_terbaik": 4644.836
       },
       {
         "signal": "pantau",
-        "jumlah_sampel": 69909,
-        "rata_rata_return_pct": 14.592,
+        "jumlah_sampel": 69503,
+        "rata_rata_return_pct": 14.489,
         "median_return_pct": -0.7,
-        "persen_untung": 48.31,
-        "return_terburuk": -97.63,
-        "return_terbaik": 7767.721
+        "persen_untung": 48.29,
+        "return_terburuk": -97.495,
+        "return_terbaik": 6258.274
       }
     ]
   },
@@ -111,169 +111,169 @@
     "5": [
       {
         "vwap_signal": "AVOID",
-        "jumlah_sampel": 24808,
-        "rata_rata_return_pct": -0.358,
+        "jumlah_sampel": 24731,
+        "rata_rata_return_pct": -0.296,
         "median_return_pct": -0.7,
-        "persen_untung": 38.7,
-        "return_terburuk": -57.257,
-        "return_terbaik": 175.676
+        "persen_untung": 38.96,
+        "return_terburuk": -55.1,
+        "return_terbaik": 231.8
       },
       {
         "vwap_signal": "BUY",
-        "jumlah_sampel": 1330,
-        "rata_rata_return_pct": 0.12,
-        "median_return_pct": -1.686,
-        "persen_untung": 36.32,
-        "return_terburuk": -43.878,
-        "return_terbaik": 147.457
+        "jumlah_sampel": 1391,
+        "rata_rata_return_pct": -0.065,
+        "median_return_pct": -2.033,
+        "persen_untung": 35.23,
+        "return_terburuk": -45.088,
+        "return_terbaik": 125.771
       },
       {
         "vwap_signal": "EXIT",
-        "jumlah_sampel": 23847,
-        "rata_rata_return_pct": -0.234,
+        "jumlah_sampel": 23702,
+        "rata_rata_return_pct": -0.188,
         "median_return_pct": -0.7,
-        "persen_untung": 38.86,
-        "return_terburuk": -60.44,
-        "return_terbaik": 177.078
+        "persen_untung": 38.98,
+        "return_terburuk": -60.116,
+        "return_terbaik": 168.93
       },
       {
         "vwap_signal": "HOLD",
-        "jumlah_sampel": 10571,
-        "rata_rata_return_pct": 1.369,
+        "jumlah_sampel": 10460,
+        "rata_rata_return_pct": 1.291,
         "median_return_pct": -0.7,
-        "persen_untung": 42.38,
-        "return_terburuk": -89.513,
-        "return_terbaik": 199.733
+        "persen_untung": 41.97,
+        "return_terburuk": -89.744,
+        "return_terbaik": 166.157
       },
       {
         "vwap_signal": "REDUCE",
-        "jumlah_sampel": 15805,
-        "rata_rata_return_pct": -0.14,
+        "jumlah_sampel": 15809,
+        "rata_rata_return_pct": -0.069,
         "median_return_pct": -0.7,
-        "persen_untung": 37.02,
+        "persen_untung": 37.18,
         "return_terburuk": -55.107,
-        "return_terbaik": 259.3
+        "return_terbaik": 227.658
       },
       {
         "vwap_signal": "WAIT",
-        "jumlah_sampel": 10279,
-        "rata_rata_return_pct": 0.108,
+        "jumlah_sampel": 10213,
+        "rata_rata_return_pct": -0.009,
         "median_return_pct": -0.7,
-        "persen_untung": 38.39,
-        "return_terburuk": -45.968,
-        "return_terbaik": 222.588
+        "persen_untung": 37.62,
+        "return_terburuk": -53.949,
+        "return_terbaik": 147.7
       }
     ],
     "20": [
       {
         "vwap_signal": "AVOID",
-        "jumlah_sampel": 24808,
-        "rata_rata_return_pct": 1.718,
+        "jumlah_sampel": 24731,
+        "rata_rata_return_pct": 1.79,
         "median_return_pct": -0.7,
-        "persen_untung": 43.84,
-        "return_terburuk": -88.2,
-        "return_terbaik": 710.574
+        "persen_untung": 44.07,
+        "return_terburuk": -86.414,
+        "return_terbaik": 781.375
       },
       {
         "vwap_signal": "BUY",
-        "jumlah_sampel": 1330,
-        "rata_rata_return_pct": 8.146,
-        "median_return_pct": -1.391,
-        "persen_untung": 44.66,
-        "return_terburuk": -70.13,
-        "return_terbaik": 817.21
+        "jumlah_sampel": 1391,
+        "rata_rata_return_pct": 5.935,
+        "median_return_pct": -1.976,
+        "persen_untung": 41.91,
+        "return_terburuk": -79.271,
+        "return_terbaik": 960.169
       },
       {
         "vwap_signal": "EXIT",
-        "jumlah_sampel": 23847,
-        "rata_rata_return_pct": 2.57,
+        "jumlah_sampel": 23702,
+        "rata_rata_return_pct": 2.579,
         "median_return_pct": -0.7,
-        "persen_untung": 43.25,
+        "persen_untung": 43.85,
         "return_terburuk": -85.172,
-        "return_terbaik": 1073.365
+        "return_terbaik": 792.504
       },
       {
         "vwap_signal": "HOLD",
-        "jumlah_sampel": 10571,
-        "rata_rata_return_pct": 8.091,
+        "jumlah_sampel": 10460,
+        "rata_rata_return_pct": 8.439,
         "median_return_pct": -0.7,
-        "persen_untung": 47.21,
-        "return_terburuk": -92.95,
-        "return_terbaik": 1589.611
+        "persen_untung": 46.91,
+        "return_terburuk": -89.523,
+        "return_terbaik": 1323.596
       },
       {
         "vwap_signal": "REDUCE",
-        "jumlah_sampel": 15805,
-        "rata_rata_return_pct": 3.171,
+        "jumlah_sampel": 15809,
+        "rata_rata_return_pct": 3.244,
         "median_return_pct": -0.7,
-        "persen_untung": 43.23,
+        "persen_untung": 43.41,
         "return_terburuk": -82.895,
-        "return_terbaik": 718.672
+        "return_terbaik": 1047.448
       },
       {
         "vwap_signal": "WAIT",
-        "jumlah_sampel": 10279,
-        "rata_rata_return_pct": 3.859,
+        "jumlah_sampel": 10213,
+        "rata_rata_return_pct": 3.781,
         "median_return_pct": -0.7,
-        "persen_untung": 44.86,
-        "return_terburuk": -74.665,
-        "return_terbaik": 1222.309
+        "persen_untung": 45.3,
+        "return_terburuk": -78.786,
+        "return_terbaik": 530.069
       }
     ],
     "60": [
       {
         "vwap_signal": "AVOID",
-        "jumlah_sampel": 24808,
-        "rata_rata_return_pct": 11.544,
+        "jumlah_sampel": 24731,
+        "rata_rata_return_pct": 12.282,
         "median_return_pct": -0.7,
-        "persen_untung": 48.81,
-        "return_terburuk": -92.336,
-        "return_terbaik": 3703.038
+        "persen_untung": 49.02,
+        "return_terburuk": -92.885,
+        "return_terbaik": 4644.836
       },
       {
         "vwap_signal": "BUY",
-        "jumlah_sampel": 1330,
-        "rata_rata_return_pct": 22.561,
-        "median_return_pct": -0.7,
-        "persen_untung": 48.95,
-        "return_terburuk": -97.63,
-        "return_terbaik": 5264.685
+        "jumlah_sampel": 1391,
+        "rata_rata_return_pct": 17.117,
+        "median_return_pct": -1.184,
+        "persen_untung": 47.02,
+        "return_terburuk": -89.087,
+        "return_terbaik": 2499.3
       },
       {
         "vwap_signal": "EXIT",
-        "jumlah_sampel": 23847,
-        "rata_rata_return_pct": 14.066,
-        "median_return_pct": -0.991,
-        "persen_untung": 46.11,
-        "return_terburuk": -97.514,
-        "return_terbaik": 7767.721
+        "jumlah_sampel": 23702,
+        "rata_rata_return_pct": 12.999,
+        "median_return_pct": -1.183,
+        "persen_untung": 46.05,
+        "return_terburuk": -97.772,
+        "return_terbaik": 6109.826
       },
       {
         "vwap_signal": "HOLD",
-        "jumlah_sampel": 10571,
-        "rata_rata_return_pct": 20.139,
-        "median_return_pct": -0.074,
-        "persen_untung": 49.83,
-        "return_terburuk": -96.726,
-        "return_terbaik": 4484.666
+        "jumlah_sampel": 10460,
+        "rata_rata_return_pct": 20.242,
+        "median_return_pct": -0.273,
+        "persen_untung": 49.44,
+        "return_terburuk": -95.657,
+        "return_terbaik": 5116.691
       },
       {
         "vwap_signal": "REDUCE",
-        "jumlah_sampel": 15805,
-        "rata_rata_return_pct": 14.658,
+        "jumlah_sampel": 15809,
+        "rata_rata_return_pct": 14.318,
         "median_return_pct": -0.7,
-        "persen_untung": 47.98,
-        "return_terburuk": -94.568,
-        "return_terbaik": 5118.812
+        "persen_untung": 48.27,
+        "return_terburuk": -97.495,
+        "return_terbaik": 6258.274
       },
       {
         "vwap_signal": "WAIT",
-        "jumlah_sampel": 10279,
-        "rata_rata_return_pct": 10.97,
+        "jumlah_sampel": 10213,
+        "rata_rata_return_pct": 12.387,
         "median_return_pct": -0.7,
-        "persen_untung": 48.08,
-        "return_terburuk": -91.982,
-        "return_terbaik": 2178.061
+        "persen_untung": 48.0,
+        "return_terburuk": -92.149,
+        "return_terbaik": 2975.387
       }
     ]
   },
@@ -281,115 +281,115 @@
     "5": [
       {
         "kelompok_skor": "(-30.0, 0.0]",
-        "jumlah_sampel": 26596,
-        "rata_rata_return_pct": -0.111,
+        "jumlah_sampel": 26276,
+        "rata_rata_return_pct": -0.109,
         "median_return_pct": -0.7,
-        "persen_untung": 38.4,
-        "return_terburuk": -89.513,
-        "return_terbaik": 259.3
+        "persen_untung": 37.73,
+        "return_terburuk": -89.744,
+        "return_terbaik": 227.658
       },
       {
         "kelompok_skor": "(-65.001, -30.0]",
-        "jumlah_sampel": 25534,
-        "rata_rata_return_pct": -0.049,
+        "jumlah_sampel": 25593,
+        "rata_rata_return_pct": 0.003,
         "median_return_pct": -0.7,
-        "persen_untung": 40.15,
-        "return_terburuk": -59.9,
-        "return_terbaik": 175.676
+        "persen_untung": 40.68,
+        "return_terburuk": -55.572,
+        "return_terbaik": 231.8
       },
       {
         "kelompok_skor": "(0.0, 30.0]",
-        "jumlah_sampel": 25161,
-        "rata_rata_return_pct": 0.126,
+        "jumlah_sampel": 24985,
+        "rata_rata_return_pct": 0.116,
         "median_return_pct": -0.7,
-        "persen_untung": 37.76,
-        "return_terburuk": -60.44,
-        "return_terbaik": 199.733
+        "persen_untung": 37.75,
+        "return_terburuk": -55.107,
+        "return_terbaik": 162.643
       },
       {
         "kelompok_skor": "(30.0, 70.0]",
-        "jumlah_sampel": 9349,
-        "rata_rata_return_pct": 0.013,
+        "jumlah_sampel": 9452,
+        "rata_rata_return_pct": 0.036,
         "median_return_pct": -0.7,
-        "persen_untung": 39.17,
-        "return_terburuk": -52.849,
-        "return_terbaik": 165.736
+        "persen_untung": 39.33,
+        "return_terburuk": -53.949,
+        "return_terbaik": 166.157
       }
     ],
     "20": [
       {
         "kelompok_skor": "(-30.0, 0.0]",
-        "jumlah_sampel": 26596,
-        "rata_rata_return_pct": 2.623,
+        "jumlah_sampel": 26276,
+        "rata_rata_return_pct": 2.726,
         "median_return_pct": -0.7,
-        "persen_untung": 42.96,
-        "return_terburuk": -92.95,
-        "return_terbaik": 1222.309
+        "persen_untung": 43.04,
+        "return_terburuk": -89.523,
+        "return_terbaik": 932.01
       },
       {
         "kelompok_skor": "(-65.001, -30.0]",
-        "jumlah_sampel": 25534,
-        "rata_rata_return_pct": 3.165,
+        "jumlah_sampel": 25593,
+        "rata_rata_return_pct": 3.218,
         "median_return_pct": -0.7,
-        "persen_untung": 46.01,
-        "return_terburuk": -88.2,
-        "return_terbaik": 877.176
+        "persen_untung": 46.75,
+        "return_terburuk": -86.414,
+        "return_terbaik": 1047.448
       },
       {
         "kelompok_skor": "(0.0, 30.0]",
-        "jumlah_sampel": 25161,
-        "rata_rata_return_pct": 4.201,
+        "jumlah_sampel": 24985,
+        "rata_rata_return_pct": 4.239,
         "median_return_pct": -0.7,
-        "persen_untung": 43.29,
-        "return_terburuk": -84.922,
-        "return_terbaik": 950.87
+        "persen_untung": 43.17,
+        "return_terburuk": -83.629,
+        "return_terbaik": 1119.179
       },
       {
         "kelompok_skor": "(30.0, 70.0]",
-        "jumlah_sampel": 9349,
-        "rata_rata_return_pct": 3.614,
-        "median_return_pct": -0.97,
-        "persen_untung": 44.41,
-        "return_terburuk": -79.681,
-        "return_terbaik": 1589.611
+        "jumlah_sampel": 9452,
+        "rata_rata_return_pct": 3.377,
+        "median_return_pct": -0.715,
+        "persen_untung": 44.53,
+        "return_terburuk": -78.76,
+        "return_terbaik": 1323.596
       }
     ],
     "60": [
       {
         "kelompok_skor": "(-30.0, 0.0]",
-        "jumlah_sampel": 26596,
-        "rata_rata_return_pct": 13.407,
+        "jumlah_sampel": 26276,
+        "rata_rata_return_pct": 12.641,
         "median_return_pct": -0.7,
-        "persen_untung": 47.58,
-        "return_terburuk": -94.568,
-        "return_terbaik": 7767.721
+        "persen_untung": 47.64,
+        "return_terburuk": -96.002,
+        "return_terbaik": 6109.826
       },
       {
         "kelompok_skor": "(-65.001, -30.0]",
-        "jumlah_sampel": 25534,
-        "rata_rata_return_pct": 15.205,
-        "median_return_pct": -0.285,
-        "persen_untung": 49.5,
-        "return_terburuk": -97.514,
-        "return_terbaik": 4843.744
+        "jumlah_sampel": 25593,
+        "rata_rata_return_pct": 15.352,
+        "median_return_pct": -0.108,
+        "persen_untung": 49.78,
+        "return_terburuk": -97.772,
+        "return_terbaik": 4644.836
       },
       {
         "kelompok_skor": "(0.0, 30.0]",
-        "jumlah_sampel": 25161,
-        "rata_rata_return_pct": 14.365,
+        "jumlah_sampel": 24985,
+        "rata_rata_return_pct": 14.786,
         "median_return_pct": -0.7,
-        "persen_untung": 47.24,
-        "return_terburuk": -97.63,
-        "return_terbaik": 5264.685
+        "persen_untung": 46.99,
+        "return_terburuk": -97.495,
+        "return_terbaik": 6258.274
       },
       {
         "kelompok_skor": "(30.0, 70.0]",
-        "jumlah_sampel": 9349,
-        "rata_rata_return_pct": 11.004,
-        "median_return_pct": -1.017,
-        "persen_untung": 46.72,
-        "return_terburuk": -96.726,
-        "return_terbaik": 2880.521
+        "jumlah_sampel": 9452,
+        "rata_rata_return_pct": 11.189,
+        "median_return_pct": -1.294,
+        "persen_untung": 46.5,
+        "return_terburuk": -92.149,
+        "return_terbaik": 3081.118
       }
     ]
   },
