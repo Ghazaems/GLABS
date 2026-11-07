@@ -33,7 +33,7 @@ GitHub repo -> tab **Actions** -> pilih "Daily Stock Screening" -> **Run workflo
 ### Opsi B — Vercel/Netlify (kalau nanti mau custom domain/lebih cepat)
 1. Import repo di vercel.com atau netlify.com
 2. Root directory: `web`
-3. Build command: `node build-data.cjs` (diatur oleh `web/vercel.json`; menghasilkan ringkasan ringan dan histori lazy-load)
+3. Build command: `node build-data.cjs` (diatur oleh `web/vercel.json`; hanya aset runtime ditulis ke `dist/` untuk menghemat Deployment Storage)
 4. Deploy otomatis tiap kali ada push baru ke `main`
 
 ## Catatan penting

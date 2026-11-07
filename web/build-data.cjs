@@ -69,5 +69,39 @@ function build(web = __dirname, io = {}) {
   console.log('UI data build:', JSON.stringify(result));
   return result;
 }
-module.exports = { build, compact };
-if (require.main === module) build();
+// Files that never need to be served as static assets. Build-only inputs are
+// compacted/split into dashboard_overview.json + ui-data/, which the browser
+// fetches instead. api/, middleware.js and vercel.json are Vercel server-side
+// entries and must stay at the project root, not in the static output.
+const SKIP_FILES = new Set([
+  'build-data.cjs', 'vercel.json', 'middleware.js',
+  'dashboard_data.json', 'dashboard_overview.json',
+  'ic_data.json', 'wyckoff_ic_data.json', 'radar_snapshot.json',
+]);
+const SKIP_DIRS = new Set(['api', 'ui-data', 'dist', 'node_modules', '.git']);
+function deploy(web = __dirname, out = path.join(web, 'dist')) {
+  fs.rmSync(out, { recursive: true, force: true });
+  fs.mkdirSync(out, { recursive: true });
+  for (const entry of fs.readdirSync(web, { withFileTypes: true })) {
+    if (entry.isFile() && !SKIP_FILES.has(entry.name))
+      fs.copyFileSync(path.join(web, entry.name), path.join(out, entry.name));
+    else if (entry.isDirectory() && !SKIP_DIRS.has(entry.name))
+      fs.cpSync(path.join(web, entry.name), path.join(out, entry.name), { recursive: true });
+  }
+  const result = build(web, { write: (relative, data) => {
+    const output = path.join(out, relative);
+    fs.mkdirSync(path.dirname(output), { recursive: true });
+    fs.writeFileSync(output, encode(data));
+  }});
+  const bytes = fs.readdirSync(out)
+    .reduce((sum, name) => sum + size(path.join(out, name)), 0);
+  console.log('Deployment output:', JSON.stringify({ dir: path.relative(web, out) || '.', bytes }));
+  return result;
+}
+function size(target) {
+  const stat = fs.statSync(target);
+  if (!stat.isDirectory()) return stat.size;
+  return fs.readdirSync(target).reduce((sum, name) => sum + size(path.join(target, name)), 0);
+}
+module.exports = { build, deploy, compact };
+if (require.main === module) deploy();

@@ -1,8 +1,8 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs'), path = require('node:path'), os = require('node:os');
-const {build} = require('../web/build-data.cjs');
+const {build, deploy} = require('../web/build-data.cjs');
 const webConfig = JSON.parse(fs.readFileSync(path.join(__dirname,'../web/vercel.json'),'utf8'));
-assert.equal(webConfig.outputDirectory,'.','Vercel project root is web, not public');
+assert.equal(webConfig.outputDirectory,'dist','build output is published from dist, not the whole web/ source tree');
 assert.equal(webConfig.buildCommand,'node build-data.cjs');
 assert.equal(webConfig.functions['api/chat.js'].maxDuration,60);
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'glabs-build-test-'));
@@ -33,4 +33,9 @@ assert.deepEqual(read(assets.rotation).modes.weekly.stocks[0].packed_history,[['
 assert.equal(fs.readFileSync(path.join(root,'dashboard_data.json'),'utf8'),before);
 build(root);
 assert.deepEqual(read('dashboard_overview.json').ui_assets,assets,'content addressed assets deterministic');
-console.log('Web build preserves exact universe, full histories, signals and real dates; compact overview deterministic.');
+const dist = path.join(root,'dist');
+deploy(root, dist);
+assert.ok(fs.existsSync(path.join(dist,'dashboard_overview.json')),'overview published to dist');
+assert.ok(!fs.existsSync(path.join(dist,'dashboard_data.json')),'build-only dashboard feed is not published');
+assert.ok(fs.readFileSync(path.join(root,'dashboard_data.json'),'utf8'),'source feed untouched by deploy');
+console.log('Web build preserves exact universe, full histories, signals and real dates; compact overview deterministic; dist excludes build-only feeds.');
